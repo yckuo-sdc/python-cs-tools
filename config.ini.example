@@ -2,6 +2,9 @@
 host = 
 apikey = 
 
+[shodan]
+apikey =
+
 [http]
 host = test.com
 port = 80
