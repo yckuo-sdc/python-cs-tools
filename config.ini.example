@@ -1,6 +1,6 @@
 [virustotal]
-host = https://www.virustotal.com/api/v3
-apikey = 7982dc8bb58b38fb061824c2ef3492db87592f8dab7203061dd64e8721507a2f
+host = 
+apikey = 
 
 [http]
 host = test.com

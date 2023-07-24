@@ -1,0 +1,17 @@
+# ignore directory
+config/
+upload/
+vendor/
+
+# ignore all sub files
+*.csv
+*.xls
+*.log
+
+# igonre log file
+*log*
+
+# igonre ini file
+*.ini
+
+
