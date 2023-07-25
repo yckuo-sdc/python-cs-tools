@@ -1,0 +1,24 @@
+from dotenv import load_dotenv
+import shodan
+import os
+import sys
+import json
+
+load_dotenv()
+apikey = os.environ["shodan_nics_apikey"]
+
+try:
+    # Setup the api
+    api = shodan.Shodan(apikey)
+    info = api.info()
+    print(info)
+
+    print('Listening for certs...')
+    for banner in api.stream.ports([443, 8443]):
+        if 'ssl' in banner:
+            # Print out all the SSL information that Shodan has collected
+            print(banner['ssl'])
+
+except Exception as e:
+    print('Error: %s' % e)
+    sys.exit(1)

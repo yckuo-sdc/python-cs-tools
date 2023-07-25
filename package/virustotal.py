@@ -1,18 +1,26 @@
+from dotenv import load_dotenv
 import requests
-import configparser
 import csv
 import os
 
 class VirusTotal:   
    def __init__(self,host="",apikey=""):
        if host == "" or apikey == "":
-         config = configparser.ConfigParser()
-         config.read('config.ini', encoding='utf-8')
-         self.host = config['virustotal']['host']
-         self.apikey = config['virustotal']['apikey']
+         load_dotenv()
+         self.host = os.environ["vt_host"]
+         self.apikey = os.environ["vt_apikey"]
        else:
          self.host=host
          self.apikey=apikey
+
+   def get_ip_report(self, ip): 
+     url = self.host + "/ip_addresses/" + ip
+     headers = {
+         "accept": "application/json",
+         "x-apikey": self.apikey,
+     }
+     j = requests.get(url, headers=headers).json()
+     return j
 
    def scan_url(self, target_url):
      url = self.host + "/urls"
@@ -50,16 +58,18 @@ class VirusTotal:
 
 if __name__  == '__main__':
   vt = VirusTotal()
-
-  with open(os.path.dirname(__file__) + '/../data/malicious.csv', newline='') as csvfile:
-  
-    rows = csv.reader(csvfile)
-    next(rows, None)  # skip the headers
-  
-    for index, row in enumerate(rows):
-      for url in row:
-        print(str(index+1) + ': ' + url)
-        vid = vt.scan_url(url)
-        if vid:
-          stats = vt.get_scan_report(vid)
-          print(stats)
+  ip = '211.73.81.111'
+  response = vt.get_ip_report(ip)
+  print(response)
+  #with open(os.path.dirname(__file__) + '/../data/malicious.csv', newline='') as csvfile:
+  #
+  #  rows = csv.reader(csvfile)
+  #  next(rows, None)  # skip the headers
+  #
+  #  for index, row in enumerate(rows):
+  #    for url in row:
+  #      print(str(index+1) + ': ' + url)
+  #      vid = vt.scan_url(url)
+  #      if vid:
+  #        stats = vt.get_scan_report(vid)
+  #        print(stats)

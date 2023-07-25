@@ -14,4 +14,7 @@ vendor/
 # igonre ini file
 *.ini
 
+# igonre .env
+.env
+
 
