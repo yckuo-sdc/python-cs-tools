@@ -6,3 +6,9 @@ A collection of open-source tools for cyber security.
 - Shodan API
 - WebCrawler Package(Beautiful Soup, Selenium)
 - YARA Rules
+
+# Installation
+---
+The requirements.txt file should list all Python libraries that your notebooks depend on, and they will be installed using:
+```pip3 install -r requirements.txt```
+
