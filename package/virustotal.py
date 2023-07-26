@@ -7,8 +7,8 @@ class VirusTotal:
    def __init__(self,host="",apikey=""):
        if host == "" or apikey == "":
          load_dotenv()
-         self.host = os.environ["vt_host"]
-         self.apikey = os.environ["vt_apikey"]
+         self.host = os.getenv("VT_HOST")
+         self.apikey = os.getenv("VT_APIKEY")
        else:
          self.host=host
          self.apikey=apikey

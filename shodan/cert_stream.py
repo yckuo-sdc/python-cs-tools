@@ -5,7 +5,7 @@ import sys
 import json
 
 load_dotenv()
-apikey = os.environ["shodan_nics_apikey"]
+apikey = os.getenv("SHODAN_NICS_APIKEY")
 
 try:
     # Setup the api

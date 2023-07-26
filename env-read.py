@@ -2,4 +2,6 @@ from dotenv import load_dotenv
 import os
 
 load_dotenv()
-print(os.environ["vt_host"])
+print(os.getenv("VT_HOST"))
+print(os.getenv("UNKOWN_VAR"))
+

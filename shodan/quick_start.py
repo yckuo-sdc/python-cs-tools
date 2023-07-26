@@ -5,7 +5,7 @@ import os
 import json
 
 load_dotenv()
-api = Shodan(os.environ["shodan_nics_apikey"])
+api = Shodan(os.getenv("SHODAN_NICS_APIKEY"))
 
 ### Lookup an IP
 #ipinfo = api.host('8.8.8.8')
