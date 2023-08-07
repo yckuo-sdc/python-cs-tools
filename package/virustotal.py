@@ -54,13 +54,38 @@ class VirusTotal:
       
      return j['data']['attributes']['stats']
 
+   def is_malicious(self, target_url):
+    vid = self.scan_url(target_url)
+    response = False
 
+    if not vid:
+        return False
+
+    stats = self.get_scan_report(vid)
+    malicious_number = stats['malicious'] + stats['suspicious']  
+    if malicious_number:
+        return True
+
+    return False
+
+      
 
 if __name__  == '__main__':
+
   vt = VirusTotal()
-  ip = '211.73.81.111'
-  response = vt.get_ip_report(ip)
-  print(response)
+
+  url_list = [
+    'http://43.128.109.77/main_worker.sh',
+    'http://oa.wutai.gov.tw/rpc2.php',
+  ]
+
+  for url in url_list:
+    print('url: {}, malicious: {}'.format(url, vt.is_malicious(url)))
+
+  # ip = '211.73.81.111'
+  # response = vt.get_ip_report(ip)
+  # print(response)
+
   #with open(os.path.dirname(__file__) + '/../data/malicious.csv', newline='') as csvfile:
   #
   #  rows = csv.reader(csvfile)

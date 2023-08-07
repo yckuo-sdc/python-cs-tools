@@ -22,9 +22,7 @@ defer==1.0.6
 distro==1.7.0
 distro-info===1.1build1
 duplicity==0.8.21
-elastic-transport==8.4.0
-elasticsearch==8.8.2
-elasticsearch-async==6.2.0
+elasticsearch==7.9.1
 exceptiongroup==1.1.2
 fasteners==0.14.1
 feedparser==6.0.10
