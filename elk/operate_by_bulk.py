@@ -5,8 +5,7 @@ from elasticsearch.helpers import bulk
 def connect_elasticsearch():
     _es = None
     _es = Elasticsearch(
-        [{'host': 'localhost', 'port': 9200}], 
-        http_auth=('elastic', 'Kill0978021370!')
+        [{'host': 'localhost', 'port': 9200}] 
         )
     if _es.ping():
         print('Yay Connected')
