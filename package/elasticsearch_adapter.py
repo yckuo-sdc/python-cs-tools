@@ -8,8 +8,8 @@ class ElasticsearchAdapter:
     def __init__(self,  host="", port=""): 
         if host == "" or port == "":
             load_dotenv()
-            self.host = os.getenv("ES_HOST")
-            self.port = os.getenv("ES_PORT")
+            self.host = os.getenv("DDI_ES_HOST")
+            self.port = os.getenv("DDI_ES_PORT")
         else:
             self.host = host 
             self.port = port
