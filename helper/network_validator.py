@@ -36,6 +36,7 @@ def is_reachable(url):
             port = 443
     return is_opened(hostname, port)  
 
+<<<<<<< HEAD
 def get_ip_by_url(url):
     obj = urlparse(url)
     scheme = obj.scheme
@@ -60,3 +61,11 @@ if __name__ == '__main__':
 
      print(get_ip_by_url(hostname))
      
+=======
+if __name__ == '__main__':  
+     portList = [80, 443]  
+     hostname = 'web.yckuo.nics'
+
+     for port in portList:  
+     	print(is_opened(hostname, port)) 
+>>>>>>> d685d30d0b8feceef2997fa8f89bdaa4bcc24c4c

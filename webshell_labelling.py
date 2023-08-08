@@ -1,6 +1,9 @@
 #!/usr/bin/python3 
 from package.elasticsearch_adapter import ElasticsearchAdapter 
+<<<<<<< HEAD
 from package.ip2org_adapter import Ip2orgAdapter 
+=======
+>>>>>>> d685d30d0b8feceef2997fa8f89bdaa4bcc24c4c
 from package.virustotal import VirusTotal
 from datetime import datetime
 import helper.network_validator as network
@@ -10,11 +13,15 @@ import json
 
 es = ElasticsearchAdapter()
 vt = VirusTotal()
+<<<<<<< HEAD
 ip2org = Ip2orgAdapter()
+=======
+>>>>>>> d685d30d0b8feceef2997fa8f89bdaa4bcc24c4c
 
 indices = 'new_ddi_2023.*'
 
 # define the query
+<<<<<<< HEAD
 #query = {    
 #    'from': 0,
 #    'size': 1,
@@ -104,11 +111,43 @@ query = {
 }
 
 
+=======
+query = {    
+    'from': 0,
+    'size': 1,
+    'query': {
+        'bool': { 
+            'must': [ 
+                { "match": { "ruleName": "Response" }},
+			    { "exists": { "field": "request" }}
+             ],
+             "must_not": [
+                { "match": { "ruleName": "Email" }},
+                { "match": { "ruleName": "DNS" }}
+             ],
+             'filter': [ 
+                { 'range': { '@timestamp': { 'gte': 'now-7d/d', 'lte': 'now/d' }}}
+             ]
+        }
+    },
+    "aggs" : { 
+    	"requests" : { 
+    	  	"terms" : { 
+    			"field": "request.keyword"
+    	 	}
+      	}
+    }
+}
+
+>>>>>>> d685d30d0b8feceef2997fa8f89bdaa4bcc24c4c
 data = es.aggregate_documents(indices, query)
 print('Total buckets: {}'.format(data['total']))
 
 url_list = list()
+<<<<<<< HEAD
 is_org_list = list()
+=======
+>>>>>>> d685d30d0b8feceef2997fa8f89bdaa4bcc24c4c
 reachable_list = list()
 success_list = list()
 malicious_list = list()
@@ -116,12 +155,17 @@ malicious_list = list()
 for index, bucket in enumerate(data['buckets']):
 
     url = bucket['key']
+<<<<<<< HEAD
     
     is_org = False
+=======
+
+>>>>>>> d685d30d0b8feceef2997fa8f89bdaa4bcc24c4c
     reachable = False
     success = False
     malicious = False
 
+<<<<<<< HEAD
     ip = network.get_ip_by_url(url)
     is_org = ip2org.is_org(ip)
 
@@ -137,6 +181,17 @@ for index, bucket in enumerate(data['buckets']):
 
     url_list.append(url)
     is_org_list.append(int(is_org))
+=======
+    reachable = network.is_reachable(url)
+    if reachable:
+        success = http.is_successful(url)
+        if success:
+            malicious = vt.is_malicious(url)
+
+    print('{}. url: {}, reachable: {}, success: {}, malicious: {}'.format(index+1, url, reachable, success, malicious))
+
+    url_list.append(url)
+>>>>>>> d685d30d0b8feceef2997fa8f89bdaa4bcc24c4c
     reachable_list.append(int(reachable))
     success_list.append(int(success))
     malicious_list.append(int(malicious))
