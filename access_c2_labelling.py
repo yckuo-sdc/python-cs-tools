@@ -15,15 +15,9 @@ vt = VirusTotal()
 path = 'data/soar_2023_08_04_05_15_44.csv'
 
 df = pd.read_csv(path)
-<<<<<<< HEAD
-url_list = df['url'].values.tolist)
-
-
-=======
 url_list = df['url'].values.tolist()
 
 print(url_list)
->>>>>>> d685d30d0b8feceef2997fa8f89bdaa4bcc24c4c
 
 
 

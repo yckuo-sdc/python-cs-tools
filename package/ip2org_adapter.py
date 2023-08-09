@@ -35,6 +35,9 @@ class Ip2orgAdapter:
       return org_data
 
     def is_org(self, host):
+      if not host:
+        return False
+
       org_data = self.get_org_data(host)
       if org_data['Country Code'] != 'TW':
         return False

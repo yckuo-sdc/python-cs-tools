@@ -75,8 +75,7 @@ if __name__  == '__main__':
   vt = VirusTotal()
 
   url_list = [
-    'http://43.128.109.77/main_worker.sh',
-    'http://oa.wutai.gov.tw/rpc2.php',
+    'http://220.130.190.61'
   ]
 
   for url in url_list:

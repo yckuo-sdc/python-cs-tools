@@ -16,7 +16,7 @@ def is_successful(url):
     if not code:
         return False
    
-    print(code)
+    #print(code)
     if code not in SUCCESS_CODES: 
         return False
 

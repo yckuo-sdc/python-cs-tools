@@ -8,13 +8,8 @@ class ElasticsearchAdapter:
     def __init__(self,  host="", port=""): 
         if host == "" or port == "":
             load_dotenv()
-<<<<<<< HEAD
-            self.host = os.getenv("ES_HOST")
-            self.port = os.getenv("ES_PORT")
-=======
             self.host = os.getenv("DDI_ES_HOST")
             self.port = os.getenv("DDI_ES_PORT")
->>>>>>> d685d30d0b8feceef2997fa8f89bdaa4bcc24c4c
         else:
             self.host = host 
             self.port = port
@@ -41,7 +36,7 @@ class ElasticsearchAdapter:
             data['documents'] = result['hits']['hits']
             return data
 
-    def aggregate_documents(self, index, query):
+    def aggregate_documents(self, index, query, agg_name):
         data = {}
         try:
             result= self.es.search(index=index, body=query)
@@ -50,7 +45,7 @@ class ElasticsearchAdapter:
             print(str(e))
         finally:
             #print(result)
-            buckets = result['aggregations']['requests']['buckets']
+            buckets = result['aggregations'][agg_name]['buckets']
             data['total'] = len(buckets)
             data['buckets'] = buckets
             return data 

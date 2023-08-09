@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-import json
-from elasticsearch import Elasticsearch
-
-
-def connect_elasticsearch():
-    _es = None
-    _es = Elasticsearch(
-        [{'host': 'localhost', 'port': 9200}] 
-=======
 import os
 import json
 from elasticsearch import Elasticsearch
