@@ -34,13 +34,7 @@ query = {
       "must": [
         { "exists": { "field": "request" }},
         { "match": { "app": "HTTP" }},
-        { "bool": {
-          "should": [
-            { "match": { "ruleName": "Response" }},
-            { "match": { "ruleName": "RESPONSE" }},
-            { "match": { "ruleName": "response" }}
-          ]
-        }},
+        { "match": { "ruleName": "Response" }},
         { "bool": {
             "should": [
                 { "bool": {
@@ -69,10 +63,11 @@ query = {
                 }}
             ]
          }}
-      ],
-      "filter": [
-        { "range": { "@timestamp": { "gte": "now-7d/d", "lte": "now/d" }}}
       ]
+      #],
+      #"filter": [
+      #  { "range": { "@timestamp": { "gte": "now-7d/d", "lte": "now/d" }}}
+      #]
     }
   },
   "aggs": {
@@ -102,8 +97,9 @@ data = es.aggregate_documents(indices, query, 'requests')
 request_buckets = data['buckets']
 print('Total buckets: {}'.format(data['total']))
 
-url_list = list()
-rulename_list = list()
+request_list = list()
+rulename_response_list = list()
+rulename_request_list = list()
 service_ip_list = list()
 is_org_list = list()
 reachable_list = list()
@@ -124,10 +120,10 @@ for index, request_bucket in enumerate(request_buckets):
     rulename = ' '.join(str(value['key']) for rulename_id, value in enumerate(rulename_buckets))
     service_ip = ' '.join(service_ips_in_request) 
 
-    url = request_bucket['key']
+    request = request_bucket['key']
     is_org, reachable, success, malicious = False, False, False, False
 
-    net_utl = NetworkUtility(url)
+    net_utl = NetworkUtility(request)
 
     #if net_utl.get_ip(): 
     #   ip = net_utl.get_ip()
@@ -140,14 +136,14 @@ for index, request_bucket in enumerate(request_buckets):
     if is_org:
         reachable = net_utl.is_reachable()
         if reachable:
-            success = http.is_successful(url)
+            success = http.is_successful(request)
             if success:
                 malicious = vt.is_malicious(netloc)
 
-    print('{}. url: {}, is_org: {},  reachable: {}, success: {}, malicious: {}'.format(index+1, url, int(is_org), int(reachable), int(success), int(malicious)))
+    print('{}. request: {}, is_org: {},  reachable: {}, success: {}, malicious: {}'.format(index+1, request, int(is_org), int(reachable), int(success), int(malicious)))
 
-    url_list.append(url)
-    rulename_list.append(rulename)
+    request_list.append(request)
+    rulename_response_list.append(rulename)
     service_ip_list.append(service_ip)
     is_org_list.append(int(is_org))
     reachable_list.append(int(reachable))
@@ -156,7 +152,7 @@ for index, request_bucket in enumerate(request_buckets):
 
 
 # request validation
-for url in url_list:
+for request in request_list:
     manipulated = False
     query = {    
       "from": 0,
@@ -164,15 +160,22 @@ for url in url_list:
       "query": {
         "bool": {
           "must": [
-            {"match": {"ruleName": "REQUEST"}},
-            {"match": {"request": url}}
+            {"match": {"ruleName": "REQUEST" }},
+            {"match": {"request": request }}
           ]
         }
       },
       "aggs": {
         "useragents": {
           "terms": {
-            "field": "requestClientApplication.keyword"
+            "field": "requestclientapplication.keyword"
+          },
+          "aggs": {
+            "rulenames": {
+                "terms": {
+                    "field": "ruleName.keyword"
+                }
+            }
           }
         }
       }
@@ -180,21 +183,30 @@ for url in url_list:
 
     data = es.aggregate_documents(indices, query, 'useragents')
     useragent_buckets = data['buckets']
-    #print('Total buckets: {}'.format(data['total']))
-    for index, useragent_bucket in enumerate(useragent_buckets):
+    rulenames_in_request = list()
+
+    for useragent_index, useragent_bucket in enumerate(useragent_buckets):
+        rulename_buckets = useragent_bucket['rulenames']['buckets']
+        rulenames_in_useragent = ' '.join(str(value['key']) for rulename_index, value in enumerate(rulename_buckets))
+        rulenames_in_request.append(rulenames_in_useragent)
+
         useragent = useragent_bucket['key']
         if is_manipulated(useragent):
             manipulated = True
-            break
+
+
     manipulated_list.append(int(manipulated))
+    rulename = ' '.join(rulenames_in_request) 
+    rulename_request_list.append(rulename)
 
 # Export to csv
 current_datetime = datetime.now().strftime("%Y_%m_%d_%I_%M_%S")
 path = 'data/soar_' + current_datetime + '.csv'
 
 csv_dict = {
-    'url': url_list,
-    'rulename': rulename_list,
+    'request': request_list,
+    'rulename_response': rulename_response_list,
+    'rulename_request': rulename_request_list,
     'service_ip': service_ip_list,
     'is_org': is_org_list,
     'reachable': reachable_list,

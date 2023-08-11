@@ -1,9 +1,10 @@
-from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
+from elasticsearch_dsl import Search
+from dotenv import load_dotenv
 import json
 import os
 
-class ElasticsearchAdapter:   
+class ElasticsearchDslAdapter:   
 
     def __init__(self,  host="", port=""): 
         if host == "" or port == "":
@@ -14,19 +15,43 @@ class ElasticsearchAdapter:
             self.host = host 
             self.port = port
             
-        self.es = None
-        self.es = Elasticsearch([{ 'host': self.host, 'port': self.port }])
+        self.__es = None
+        self.__es = Elasticsearch([{ 'host': self.host, 'port': self.port }])
 
-        if self.es.ping():
+
+        if self.__es.ping():
             print('Yay Connected')
         else:
             print('Awww it could not connect!')
             os._exit(0) 
 
+    def get_es_node(self):
+        return self.__es
+
+    def search_sample(self):
+        s = Search(using=self.__es, index='new_ddi_2023.*') \
+            .query("match", ruleName="Response") \
+            .sort({"@timestamp": {"order": "desc"}})    
+
+        s.aggs.bucket('useragents', 'terms', field='requestClientApplication.keyword') \
+
+        s = s[0:30]
+
+        response = s.execute()
+
+        print(s.to_dict())
+        print(response["hits"]["total"])  
+
+        for id_hit, hit in enumerate(response['hits']['hits']):
+            print((id_hit+1), hit['_source']['ruleName'])
+        
+        for tag in response['aggregations']['useragents']['buckets']:
+            print(tag['key'], tag['doc_count'])
+
     def search_documents(self, index, query):
         data = {}
         try:
-            result= self.es.search(index=index, body=query)
+            result= self.__es.search(index=index, body=query)
             #print(result)
         except Exception as e:
             print('Error in indexing data')
@@ -39,7 +64,7 @@ class ElasticsearchAdapter:
     def aggregate_documents(self, index, query, tag_name):
         data = {}
         try:
-            result= self.es.search(index=index, body=query)
+            result= self.__es.search(index=index, body=query)
         except Exception as e:
             print('Error in indexing data')
             print(str(e))
@@ -51,30 +76,5 @@ class ElasticsearchAdapter:
             return data 
 
 if __name__ == '__main__':
-    es = ElasticsearchAdapter()
-
-    indices = 'new_ddi_2023.*'
-
-    # define the search query
-    query = {    
-        'from': 0,
-        'size': 10,
-		'query': {
-			'bool': { 
-		    	'must': [ 
-                    { "match": { "ruleName": "Response" }}
-				 ],
-				 "must_not": [
-				 	{ "match": { "ruleName": "Email" }},
-					{ "match": { "ruleName": "DNS" }}
-				 ],
-				 'filter': [ 
-				 	{ 'range': { '@timestamp': { 'gte': 'now-7d/d', 'lte': 'now/d' }}}
-				 ]
-			}
-		}
-    }
-
-    data = es.search_documents(indices, query)
-    #print(data)
-    print(json.dumps(data, indent=1))
+    es = ElasticsearchDslAdapter()
+    es.search_sample()
