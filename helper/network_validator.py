@@ -36,6 +36,16 @@ def is_reachable(url):
             port = 443
     return is_opened(hostname, port)  
 
+def get_service_info(data):
+    service = {}
+    if int(data['spt']) < int(data['dpt']):
+        service['ip'] = data['src']
+        service['port'] = data['spt']
+    else:
+        service['ip'] = data['dst']
+        service['port'] = data['dpt']
+    return service 
+
 def get_ip_by_url(url):
     obj = urlparse(url)
     scheme = obj.scheme

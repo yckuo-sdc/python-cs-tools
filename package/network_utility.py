@@ -6,13 +6,28 @@ import os
 
 class NetworkUtility: 
 
-    def __init__(self,  url=""): 
-        obj = urlparse(url)
-        #print(obj)
-        self.scheme = obj.scheme
-        self.hostname = obj.hostname
-        self.port = obj.port
-        self.netloc = obj.netloc
+    def __init__(self, url="", hostname="", port=""): 
+        if not url:
+            self.scheme = None 
+            self.hostname = hostname
+            self.port =  port
+            self.netloc = None
+        else:
+            obj = urlparse(url)
+            self.scheme = obj.scheme
+            self.hostname = obj.hostname
+            self.port = obj.port
+            self.netloc = obj.netloc
+
+    def get_service_info(self, data):
+        service = {}
+        if int(data['spt']) < int(data['dpt']):
+            service['ip'] = data['src']
+            service['port'] = data['spt']
+        else:
+            service['ip'] = data['dst']
+            service['port'] = data['dpt']
+        return service 
 
     def is_opened(self):  
          try: 

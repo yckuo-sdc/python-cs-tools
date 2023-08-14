@@ -4,16 +4,16 @@ import requests
 import json
 import os
 
-class Ip2orgAdapter:   
+class Ip2govAdapter:   
 
     def __init__(self,  host=""): 
         if host == "":
             load_dotenv()
-            self.host = os.getenv("IP2ORG_HOST")
+            self.host = os.getenv("IP2GOV_HOST")
         else:
             self.host = host 
             
-    def get_org_data(self, host):
+    def get_gov_data(self, host):
       url = self.host + "/result"
       payload = { "IP": host, "OID": ""}
       headers = {
@@ -26,31 +26,31 @@ class Ip2orgAdapter:
       ths = soup.find_all('th')
       tds = soup.find_all('td')
         
-      org_data = dict()
+      gov_data = dict()
       for index, value in enumerate(tds):
         key = ths[index].text
         value = value.text
-        org_data[key] = value
+        gov_data[key] = value
 
-      return org_data
+      return gov_data
 
-    def is_org(self, host):
+    def is_gov(self, host):
       if not host:
         return False
 
-      org_data = self.get_org_data(host)
-      if org_data['Country Code'] != 'TW':
+      gov_data = self.get_gov_data(host)
+      if gov_data['Country Code'] != 'TW':
         return False
 
-      if org_data['ASN'] != '4782':
+      if gov_data['ASN'] != '4782':
         return False
         
       return True
 
 if __name__ == '__main__':
-    ip2org = Ip2orgAdapter()
+    ip2gov = Ip2govAdapter()
 
     #host = '8.8.8.8'
     host = '61.57.37.60'
 
-    print(ip2org.is_org(host))
+    print(ip2gov.is_gov(host))
