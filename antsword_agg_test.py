@@ -53,7 +53,7 @@ for service in scannable_services:
     print('total hits: {}'.format(response.hits.total)) 
     print('total process hits: {}'.format(len(response.hits.hits))) 
 
-    selected_keys = ['@timestamp', 'ruleName', 'request', 'cs8', 'fileHash', 'cs4', 'requestClientApplication', 'src', 'dst', 'spt', 'dpt'] 
+    selected_keys = ['@timestamp', 'ruleName', 'reason', 'request', 'cs8', 'fileHash', 'cs4', 'requestClientApplication', 'src', 'dst', 'spt', 'dpt'] 
 
     filtered_source_data = func.filter_hits_by_keys(response.hits.hits, selected_keys)
 
