@@ -7,40 +7,35 @@ import helper.network_validator as network
 import helper.function as func
 import numpy as np
 
-def get_webshell_labels(docs, flag=1):
+def get_webshell_labels(docs, early_stopping=True):
     vt = VirusTotal()
     ip2gov = Ip2govAdapter()
 
-    label_keys = ['is_gov', 'reachable', 'success', 'manipulated', 'malicious'] 
+    label_keys = ['is_gov', 'network_reachable', 'http_success', 'filehash_malicious', 'boturl_malicious'] 
     labels = []
     for doc in docs:
         default_value = False
         label = dict.fromkeys(label_keys, default_value)
 
-        if flag == 1:    
-            net_utl = NetworkUtility(doc['request'])
-            service = net_utl.get_service_info(doc)
+        service = network.get_service_info(doc)
+
+        if early_stopping:
             label['is_gov'] = ip2gov.is_gov(service['ip'])
             if label['is_gov']:
-                label['reachable'] = net_utl.is_reachable()
-                if label['reachable']:
-                    label['success'] = http.is_successful(doc['request'])
-                    if label['success']:
-                        label['manipulated'] = http.is_manipulated(doc['requestClientApplication'])
-                        label['malicious'] = False 
-        elif flag == 2:
-            service = network.get_service_info(doc)
+                label['network_reachable'] = network.is_opened(doc['dst'], int(doc['dpt']))
+                label['http_success'] = http.is_successful(doc['request'])
+                if label['http_success']:
+                    label['filehash_malicious'] = vt.is_malicious_by_filehash(filehash)
+                    label['boturl_malicious'] = False 
+        else: 
             label['is_gov'] = ip2gov.is_gov(service['ip'])
-            label['reachable'] = True
-            if label['is_gov']:
-                label['success'] = http.is_successful(doc['request'])
-                if label['success']:
-                    label['manipulated'] = http.is_manipulated(doc['requestClientApplication'])
-                    label['malicious'] = False 
+            label['network_reachable'] = network.is_opened(doc['dst'], int(doc['dpt']))
+            label['http_success'] = http.is_successful(doc['request'])
+            label['filehash_malicious'] = vt.is_malicious_by_filehash(doc['fileHash'])
+            label['boturl_malicious'] = False 
 
         labels.append(label)
 
     labels = func.arr_dict_to_flat_dict(labels)
 
     return labels
-

@@ -10,8 +10,15 @@ import re
 
 es = ElasticsearchDslAdapter()
 
-shell_categories = ['chopper', 'antword', 'behinder', 'godzilla']
-target_shell = shell_categories[0]
+shell_categories = [
+    'chopper', # 0 
+    'antsword', # 1
+    'behinder', # 2
+    'godzilla', # 3
+]
+
+target_shell_index = 0
+target_shell = shell_categories[target_shell_index]
 
 q = Q("match", ruleName=target_shell) & Q("match", app='HTTP')
 
@@ -33,7 +40,6 @@ filtered_source_data = func.filter_hits_by_keys(response.hits.hits, selected_key
  
 keywords = []
 for doc in filtered_source_data:
-    print(doc)
     keyword = None
     if doc['cs8']:
         pattern = '^\w*?(?=%3D)'
