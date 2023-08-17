@@ -15,12 +15,16 @@ class Ip2govAdapter:
             
     def get_gov_data(self, host):
       url = self.host + "/result"
-      payload = { "IP": host, "OID": ""}
-      headers = {
-          "content-type": "application/x-www-form-urlencoded",
-      }
+      try:
+          payload = { "IP": host, "OID": ""}
+          headers = {
+              "content-type": "application/x-www-form-urlencoded",
+          }
+          response = requests.post(url, data=payload, headers=headers, timeout=10)
+      except Exception as e:
+        print(e)
+        return False
 
-      response = requests.post(url, data=payload, headers=headers)
       html_doc = response.text
       soup = BeautifulSoup(html_doc, 'html.parser')
       ths = soup.find_all('th')

@@ -9,6 +9,7 @@ import helper.function as func
 import webshell_detection_model as wdm 
 import pandas as pd
 import numpy as np
+import os
 
 es = ElasticsearchDslAdapter()
 
@@ -19,7 +20,7 @@ shell_categories = [
     'godzilla', # 3
 ]
 
-target_shell_index = 1
+target_shell_index = 3
 target_shell = shell_categories[target_shell_index]
 
 q = Q("match", ruleName=target_shell) & Q("match", app='HTTP')
@@ -53,7 +54,7 @@ for service in scannable_services:
 
     s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
         .query(q_per_service) \
-        .filter("range", **{'@timestamp':{"gte": "now-14d/d","lt": "now/d"}}) \
+        .filter("range", **{'@timestamp':{"gte": "now-21d/d","lt": "now/d"}}) \
         .sort({"@timestamp": {"order": "desc"}})    
 
     s = s[0:5]
@@ -73,8 +74,12 @@ for service in scannable_services:
     df = pd.DataFrame(results)
     frames.append(df)
 
-total_df = pd.concat(frames)
-print(total_df)
+try:
+    total_df = pd.concat(frames)
+    print(total_df)
+except Exception as e:
+    print(e)
+    os._exit(0)
 
 # Export to csv
 current_datetime = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")

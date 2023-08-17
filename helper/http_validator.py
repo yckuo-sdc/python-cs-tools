@@ -1,5 +1,6 @@
 #!/usr/bin/python3 
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
 import requests
 import hashlib
 import re
@@ -15,29 +16,44 @@ def is_bot_useragent(useragent):
       return True
     return False
 
+def find_text_on_tags(html_doc, text): 
+    soup = BeautifulSoup(html_doc, 'html.parser')
+    matched_tags = soup.find_all(lambda tag: len(tag.find_all()) == 0 and text in tag.text)
+
+    for matched_tag in matched_tags:
+        print("Matched: {}".format(matched_tag))
+
+    if len(matched_tags) > 0:
+        return True
+
+    return False
+
 def is_custom_error_page(url):
     try:
         error_msgs = ['404', 'not found', 'invalid', '失效', '無效', '不存在']
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'}
         r = requests.get(url, headers=headers, allow_redirects=False, timeout=10)
         for error_msg in error_msgs:
-            if re.search(error_msg, r.text, re.IGNORECASE):
+            if find_text_on_tags(r.text, error_msg):
+            #if re.search(error_msg, r.text, re.IGNORECASE):
                 print('It is custom error page')
                 return True
-
         return False 
     except Exception as e:
         print(e)
         return False
     
 def is_same_footprint_with_homepage(url):
-    s = hashlib.sha1()
     obj = urlparse(url)
+    if obj.path == "" and obj.params == "" and obj.query == "" and obj.fragment == "":
+        return False
+
     homepage = obj.scheme + '://' + obj.netloc
+    print(homepage, url)
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'}
-        homepage_footprint = hashlib.sha256(requests.get(homepage, headers=headers, allow_redirects=True, timeout=10).text.encode('utf-8')).hexdigest() 
-        url_footprint = hashlib.sha256(requests.get(url, headers=headers, allow_redirects=False, timeout=10).text.encode('utf-8')).hexdigest() 
+        homepage_footprint = hashlib.sha1(requests.get(homepage, headers=headers, allow_redirects=True, timeout=10).text.encode('utf-8')).hexdigest() 
+        url_footprint = hashlib.sha1(requests.get(url, headers=headers, allow_redirects=False, timeout=10).text.encode('utf-8')).hexdigest() 
 
         print(homepage_footprint, url_footprint)
 
@@ -85,6 +101,7 @@ if __name__ == '__main__':
         'https://www.programiz.com/python-programming/methods/string/random_path',
         'https://www.tainan.gov.tw/random_path.aspx',
         'https://www.nics.nat.gov.tw/random_path.test',
+        'https://web.ksu.edu.tw/error/404.aspx',
     ]
 
     for url in url_list:
