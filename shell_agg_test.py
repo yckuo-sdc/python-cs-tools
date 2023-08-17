@@ -20,7 +20,7 @@ shell_categories = [
     'godzilla', # 3
 ]
 
-target_shell_index = 0
+target_shell_index = 2
 target_shell = shell_categories[target_shell_index]
 
 q = Q("match", ruleName=target_shell) & Q("match", app='HTTP')

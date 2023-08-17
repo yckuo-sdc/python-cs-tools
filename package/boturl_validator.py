@@ -18,14 +18,17 @@ class BoturlValidator:
        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'}
 
        for test_cmd in test_commands.values():
-           payload = {shell_pwd: test_cmd}
-           r = requests.post(url, data=payload, headers=headers, allow_redirects=False, timeout=10)
-           print(r.request.headers)
-           print(r.request.body)
+           try:
+               payload = {shell_pwd: test_cmd}
+               r = requests.post(url, data=payload, headers=headers, allow_redirects=False, timeout=10)
+               #print(r.request.headers)
+               #print(r.request.body)
 
-           if len(r.content) > 0:
-                print(r.text)
-                return True
+               if len(r.content) > 0:
+                    #print(r.text)
+                    return True
+           except Exception as e:
+               print(e)
 
        return False
 

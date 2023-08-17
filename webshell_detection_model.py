@@ -18,24 +18,37 @@ def get_webshell_labels(docs, early_stopping=True):
     for doc in docs:
         default_value = False
         label = dict.fromkeys(label_keys, default_value)
-
         service = network.get_service_info(doc)
-
-        if early_stopping:
-            label['is_gov'] = ip2gov.is_gov(service['ip'])
-            if label['is_gov']:
-                label['network_reachable'] = network.is_opened(doc['dst'], int(doc['dpt']))
-                label['http_success'] = http.is_successful(doc['request'])
-                if label['http_success']:
-                    label['filehash_malicious'] = vt.is_malicious_by_filehash(filehash)
-                    label['boturl_malicious'] = bt.is_malicious_by_boturl(doc['request'], doc['cs8'])
-        else: 
+        
+        # Disable Early Stopping
+        if not early_stopping:
             label['is_gov'] = ip2gov.is_gov(service['ip'])
             label['network_reachable'] = network.is_opened(doc['dst'], int(doc['dpt']))
             label['http_success'] = http.is_successful(doc['request'])
             label['filehash_malicious'] = vt.is_malicious_by_filehash(doc['fileHash'])
             label['boturl_malicious'] = bt.is_malicious_by_boturl(doc['request'], doc['cs8'])
+            labels.append(label)
+            continue
 
+
+        # Enable Early Stopping
+        if not ip2gov.is_gov(service['ip']):
+            labels.append(label)
+            continue
+
+        label['is_gov'] = True
+        if not network.is_opened(doc['dst'], int(doc['dpt'])):
+            labels.append(label)
+            continue
+
+        label['network_reachable'] = True 
+        if not http.is_successful(doc['request']):
+            labels.append(label)
+            continue
+
+        label['http_success'] = True
+        label['filehash_malicious'] = vt.is_malicious_by_filehash(filehash)
+        label['boturl_malicious'] = bt.is_malicious_by_boturl(doc['request'], doc['cs8'])
         labels.append(label)
 
     labels = func.arr_dict_to_flat_dict(labels)
