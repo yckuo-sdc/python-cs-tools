@@ -1,10 +1,4 @@
 from bs4 import BeautifulSoup
-import re
-
-# The function name here is irrelevant
-def foo(tag):
-    result = len(tag.find_all()) == 0 and "elsie" in tag.text
-    return result
 
 html_doc = """
 <html><head><title>The Dormouse's story</title></head>
@@ -23,8 +17,8 @@ and they lived at the bottom of a well.</p>
 soup = BeautifulSoup(html_doc, 'html.parser')
 print(soup.body)
 
-#matched_tags = soup.find_all(lambda tag: len(tag.find_all()) == 0 and "elsie" in tag.text)
-matched_tags = soup.find_all(foo)
+target_text = "elsie"
+matched_tags = soup.find_all(lambda tag: len(tag.find_all()) == 0 and target_text in tag.get_text().lower())
 
 for matched_tag in matched_tags:
     print("Matched: {}".format(matched_tag))

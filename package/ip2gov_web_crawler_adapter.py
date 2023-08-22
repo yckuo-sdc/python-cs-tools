@@ -14,19 +14,27 @@ class Ip2govAdapter:
             self.host = host 
             
     def get_gov_data(self, host):
-      url = self.host + "/json"
-
+      url = self.host + "/result"
       try:
-          payload = {"ip": host}
+          payload = { "IP": host, "OID": ""}
           headers = {
               "content-type": "application/x-www-form-urlencoded",
           }
-          response = requests.post(url, data=payload, headers=headers, timeout=10).json()
+          response = requests.post(url, data=payload, headers=headers, timeout=10)
       except Exception as e:
         print(e)
         return False
 
-      gov_data = next(iter(response), None)
+      html_doc = response.text
+      soup = BeautifulSoup(html_doc, 'html.parser')
+      ths = soup.find_all('th')
+      tds = soup.find_all('td')
+        
+      gov_data = dict()
+      for index, value in enumerate(tds):
+        key = ths[index].text
+        value = value.text
+        gov_data[key] = value
 
       return gov_data
 
@@ -35,11 +43,7 @@ class Ip2govAdapter:
         return False
 
       gov_data = self.get_gov_data(host)
-
-      if not gov_data:
-        return False
-
-      if gov_data['CC'] != 'TW':
+      if gov_data['Country Code'] != 'TW':
         return False
 
       if gov_data['ASN'] != '4782':
@@ -52,4 +56,5 @@ if __name__ == '__main__':
 
     #host = '8.8.8.8'
     host = '61.57.37.60'
+
     print(ip2gov.is_gov(host))

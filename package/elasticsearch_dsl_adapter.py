@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import json
 import os
 
-class ElasticsearchDslAdapter:   
+class ElasticsearchDslAdapter():   
 
     def __init__(self,  host="", port=""): 
         if host == "" or port == "":
@@ -17,7 +17,6 @@ class ElasticsearchDslAdapter:
             
         self.__es = None
         self.__es = Elasticsearch([{ 'host': self.host, 'port': self.port }])
-
 
         if self.__es.ping():
             print('Yay Connected')
@@ -77,4 +76,4 @@ class ElasticsearchDslAdapter:
 
 if __name__ == '__main__':
     es = ElasticsearchDslAdapter()
-    es.search_sample()
+

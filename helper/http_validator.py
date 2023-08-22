@@ -18,7 +18,7 @@ def is_bot_useragent(useragent):
 
 def find_text_on_tags(html_doc, text): 
     soup = BeautifulSoup(html_doc, 'html.parser')
-    matched_tags = soup.find_all(lambda tag: len(tag.find_all()) == 0 and text in tag.text)
+    matched_tags = soup.find_all(lambda tag: len(tag.find_all()) == 0 and text.lower() in tag.get_text().lower())
 
     for matched_tag in matched_tags:
         print("Matched: {}".format(matched_tag))
@@ -94,6 +94,17 @@ def is_successful(url):
 
 
 if __name__ == '__main__':  
+
+    html_doc = """
+    <div>
+        <p>This is some text.</p>
+        <p>Another paragraph With Target Text.</p>
+    </div>
+    """
+    text = "with"
+    find_text_on_tags(html_doc, text)
+
+
     url_list = [
         'https://stackoverflow.com',
         'http://web.yckuo.nics/phpmyadmin-nics',

@@ -1,0 +1,1 @@
+[{"port": "8080", "proxy": "103.22.238.173:8080", "dont_retry": true, "download_timeout": 3, "_proxy_scheme": "https", "_proxy_ip": "103.22.238.173"}, {"port": "8080", "proxy": "147.124.215.199:8080", "dont_retry": true, "download_timeout": 3, "_proxy_scheme": "https", "_proxy_ip": "147.124.215.199"}]
