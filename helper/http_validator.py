@@ -28,22 +28,21 @@ def find_text_on_tags(html_doc, text):
 
     return False
 
-def is_custom_error_page(url):
+def is_routing_to_error_page(url):
     try:
         error_msgs = ['404', 'not found', 'invalid', '失效', '無效', '不存在']
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'}
         r = requests.get(url, headers=headers, allow_redirects=False, timeout=10)
         for error_msg in error_msgs:
             if find_text_on_tags(r.text, error_msg):
-            #if re.search(error_msg, r.text, re.IGNORECASE):
-                print('It is custom error page')
+                print('It is routing to error page')
                 return True
         return False 
     except Exception as e:
         print(e)
         return False
     
-def is_same_footprint_with_homepage(url):
+def is_routing_to_homepage(url):
     obj = urlparse(url)
     if obj.path == "" and obj.params == "" and obj.query == "" and obj.fragment == "":
         return False
@@ -55,16 +54,24 @@ def is_same_footprint_with_homepage(url):
         homepage_footprint = hashlib.sha1(requests.get(homepage, headers=headers, allow_redirects=True, timeout=10).text.encode('utf-8')).hexdigest() 
         url_footprint = hashlib.sha1(requests.get(url, headers=headers, allow_redirects=False, timeout=10).text.encode('utf-8')).hexdigest() 
 
-        print(homepage_footprint, url_footprint)
+        #print(homepage_footprint, url_footprint)
 
         if homepage_footprint == url_footprint:
-            print('It is same footprint with homepage')
+            print('It is routing to homepage')
             return True
 
         return False 
     except Exception as e:
         print(e)
         return False
+
+def is_custom_error_handling(url):
+    if is_routing_to_homepage(url):
+        return True
+    if is_routing_to_error_page(url):
+        return True
+    
+    return False
 
 def get_response_code(url):  
     try:
@@ -74,6 +81,7 @@ def get_response_code(url):
     except Exception as e:
         print(e)
         return False
+
 
 def is_successful(url):
     code = get_response_code(url)
@@ -85,9 +93,7 @@ def is_successful(url):
         return False
 
     if code == 200:
-        if is_same_footprint_with_homepage(url):
-            return False
-        if is_custom_error_page(url):
+        if is_custom_error_handling(url):
             return False
 
     return True
@@ -97,24 +103,24 @@ if __name__ == '__main__':
 
     html_doc = """
     <div>
-        <p>This is some text.</p>
+        <p>This is 404 some text.</p>
         <p>Another paragraph With Target Text.</p>
     </div>
     """
-    text = "with"
+    text = "404"
     find_text_on_tags(html_doc, text)
-
 
     url_list = [
         'https://stackoverflow.com',
         'http://web.yckuo.nics/phpmyadmin-nics',
-        'http://web.yckuo.nics',
+        #'http://web.yckuo.nics',
         'https://www.programiz.com/python-programming/methods/string/random_path',
-        'https://www.tainan.gov.tw/random_path.aspx',
+        #'https://www.tainan.gov.tw/random_path.aspx',
         'https://www.nics.nat.gov.tw/random_path.test',
-        'https://web.ksu.edu.tw/error/404.aspx',
+        #'https://web.ksu.edu.tw/error/404.aspx',
     ]
 
     for url in url_list:
         print(url)
         print(is_successful(url))
+        #print(is_routing_to_error_page(url))

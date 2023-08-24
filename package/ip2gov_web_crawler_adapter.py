@@ -43,6 +43,7 @@ class Ip2govAdapter:
         return False
 
       gov_data = self.get_gov_data(host)
+      print(gov_data)
       if gov_data['Country Code'] != 'TW':
         return False
 
@@ -56,5 +57,6 @@ if __name__ == '__main__':
 
     #host = '8.8.8.8'
     host = '61.57.37.60'
+    print(host)
 
     print(ip2gov.is_gov(host))

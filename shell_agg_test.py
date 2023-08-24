@@ -20,10 +20,12 @@ shell_categories = [
     'godzilla', # 3
 ]
 
-target_shell_index = 2
+target_shell_index = 0
 target_shell = shell_categories[target_shell_index]
 
-q = Q("match", ruleName=target_shell) & Q("match", app='HTTP')
+early_stopping = False
+
+q = Q("match", ruleName=target_shell) & Q("match", ruleName='request') & Q("match", app='HTTP')  
 
 s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
     .query(q) \
@@ -39,7 +41,7 @@ response = s.execute()
 print(s.to_dict())
 print('Total Hits: {}'.format(response.hits.total)) 
 
-print('Discovery Scannable Services')
+print('Discovery Scannable Services...')
 scannable_services = []
 for dst in response.aggregations.per_dsts.buckets:
     for dpt in dst.dpts_per_dst.buckets:
@@ -47,7 +49,7 @@ for dst in response.aggregations.per_dsts.buckets:
             service = {'ip': dst.key, 'port': dpt.key} 
             scannable_services.append(service)
 
-print('Detect Webshells per Service')
+print('Detect Webshells per Service...')
 frames = [] 
 for service in scannable_services:  
     q_per_service = q & Q("match", dst=service['ip']) & Q("match", dpt=service['port'])
@@ -69,7 +71,7 @@ for service in scannable_services:
     filtered_source_data = func.filter_hits_by_keys(response.hits.hits, selected_keys)
 
     inputs = func.arr_dict_to_flat_dict(filtered_source_data)
-    labels = wdm.get_webshell_labels(filtered_source_data, early_stopping=False)
+    labels = wdm.get_webshell_labels(filtered_source_data, early_stopping=early_stopping)
     results = inputs | labels 
     df = pd.DataFrame(results)
     frames.append(df)
@@ -83,6 +85,11 @@ except Exception as e:
 
 # Export to csv
 current_datetime = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-path = 'data/' + target_shell + '_' + current_datetime + '.csv'
+
+if early_stopping:
+    path = 'data/' + target_shell + '_' + current_datetime + '.csv'
+else:
+    path = 'data/' + target_shell + '_' + current_datetime + '_no_early_stop.csv'
+    
 total_df.to_csv(path, index=False)
 
