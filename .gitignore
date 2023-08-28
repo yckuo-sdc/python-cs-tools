@@ -2,6 +2,7 @@
 config/
 upload/
 vendor/
+data/
 
 # ignore all sub files
 *.csv

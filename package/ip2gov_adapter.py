@@ -52,7 +52,6 @@ class Ip2govAdapter:
         return False
 
       gov_data = self.get_gov_data_by_ip(ip)
-      print(gov_data)
 
       if not gov_data:
         return False

@@ -14,9 +14,6 @@ import os
 es = ElasticsearchDslAdapter()
 
 shell_categories = [
-    'chopper', # 0 
-    'antsword', # 1
-    'behinder', # 2
     'godzilla', # 3
 ]
 
@@ -26,11 +23,11 @@ shell_categories = [
 early_stopping = False
 
 for target_shell in shell_categories:
-    q = Q("match", ruleName=target_shell) & Q("match", ruleName='request') & Q("match", app='HTTP')  
+    q = Q("match", ruleName=target_shell) & Q("match", ruleName='response') & Q("match", app='HTTP')  
 
     s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
         .query(q) \
-        .filter("range", **{'@timestamp':{"gte": "now-14d/d","lt": "now/d"}}) \
+        .filter("range", **{'@timestamp':{"gte": "now-21d/d","lt": "now/d"}}) \
         .sort({"@timestamp": {"order": "desc"}})    
 
     s.aggs.bucket('per_dsts', 'terms', field='dst.keyword') \
@@ -46,7 +43,7 @@ for target_shell in shell_categories:
     scannable_services = []
     for dst in response.aggregations.per_dsts.buckets:
         for dpt in dst.dpts_per_dst.buckets:
-            if network.is_opened(dst.key, int(dpt.key)):
+            #if network.is_opened(dst.key, int(dpt.key)):
                 service = {'ip': dst.key, 'port': dpt.key} 
                 scannable_services.append(service)
 
@@ -88,9 +85,9 @@ for target_shell in shell_categories:
     current_datetime = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
 
     if early_stopping:
-        path_to_csv = os.path.dirname(__file__) + "/data/shell_trials/" + target_shell + '_' + current_datetime + '.csv'
+        path_to_csv = os.path.dirname(__file__) + "/data/shell_trials/" + target_shell + '_response_' + current_datetime + '.csv'
     else:
-        path_to_csv = os.path.dirname(__file__) + "/data/shell_trials/" + target_shell + '_' + current_datetime + '_no_early_stop.csv' 
+        path_to_csv = os.path.dirname(__file__) + "/data/shell_trials/" + target_shell + '_response_' + current_datetime + '_no_early_stop.csv' 
         
     if total_df.empty:
         print('DataFrame is empty!')

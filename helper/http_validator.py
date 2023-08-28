@@ -48,13 +48,10 @@ def is_routing_to_homepage(url):
         return False
 
     homepage = obj.scheme + '://' + obj.netloc
-    print(homepage, url)
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'}
         homepage_footprint = hashlib.sha1(requests.get(homepage, headers=headers, allow_redirects=True, timeout=10).text.encode('utf-8')).hexdigest() 
         url_footprint = hashlib.sha1(requests.get(url, headers=headers, allow_redirects=False, timeout=10).text.encode('utf-8')).hexdigest() 
-
-        #print(homepage_footprint, url_footprint)
 
         if homepage_footprint == url_footprint:
             print('It is routing to homepage')
@@ -76,7 +73,7 @@ def is_custom_error_handling(url):
 def get_response_code(url):  
     try:
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'}
-        r = requests.head(url, headers=headers, allow_redirects=False, timeout=10)
+        r = requests.get(url, headers=headers, allow_redirects=False, timeout=10)
         return r.status_code
     except Exception as e:
         print(e)
@@ -84,8 +81,9 @@ def get_response_code(url):
 
 
 def is_successful(url):
+    print("request: {}".format(url))
     code = get_response_code(url)
-    print(code)
+    print("code: {}".format(code))
     if not code:
         return False
    
