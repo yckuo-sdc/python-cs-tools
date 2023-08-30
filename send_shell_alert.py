@@ -14,7 +14,7 @@ def find_files_with_name(directory, target_name):
         if file.find(target_name) > 0:
             print(os.path.join(directory, file))
             words = file.split('_')  # Split using comma as the delimiter
-            matches.append({'path_to_file': os.path.join(directory, file), 'shell_name': words[0]})
+            matches.append({'path_to_file': os.path.join(directory, file), 'shell_name': words[0], 'net_direction': words[1]})
 
     return matches
 
@@ -27,7 +27,7 @@ mail = SendMail()
 mail.set_recipient("t910729@gmail.com")
 
 for fmatch in matches:
-    df = pd.read_csv(fmatch['path_to_file'],  usecols=['@timestamp', 'ruleName', 'reason', 'request', 'src', 'dst', 'spt', 'dpt', 'is_gov', 'network_reachable', 'http_success', 'filehash_malicious', 'boturl_malicious'])
+    df = pd.read_csv(fmatch['path_to_file'],  usecols=['@timestamp', 'ruleName', 'reason', 'request', 'src', 'dst', 'spt', 'dpt', 'http_success', 'filehash_malicious', 'boturl_malicious'])
 
     interested_id = []
     for index, row in df.iterrows():
@@ -44,6 +44,6 @@ for fmatch in matches:
     template = Template(Path(os.path.dirname(__file__) + "/mail/template/ddi.html").read_text())
     body = transform(template.substitute({ "table": table }))
 
-    mail.set_subject("{} alert on {}".format(fmatch['shell_name'], target_datetime.replace("_", "-")))
+    mail.set_subject("{} ({}) alert on {}".format(fmatch['shell_name'], fmatch['net_direction'], target_datetime.replace("_", "-")))
     mail.set_body(body)
     mail.send()

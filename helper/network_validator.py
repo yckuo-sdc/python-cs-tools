@@ -6,7 +6,7 @@ import os
 
 def is_opened(hostname, port):  
      try: 
-        print('ip: {}, port: {}'.format(hostname, port))
+        #print('ip: {}, port: {}'.format(hostname, port))
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(10)  # 2 seconds
         sock.connect((hostname,port))  
