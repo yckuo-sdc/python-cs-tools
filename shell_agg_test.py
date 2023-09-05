@@ -20,7 +20,7 @@ network_directions = [
 ]
 
 shell_categories = [
-    'chopper', 'antsword','behinder', 'godzilla',
+    'webshell', 'possible_smchopperphpa', 'chopper', 'antsword','behinder', 'godzilla',
 ]
 
 early_stopping = False

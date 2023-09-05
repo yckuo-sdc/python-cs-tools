@@ -12,8 +12,10 @@ def is_anonymous_binding(host, port):
             return False
             #print('error in bind', c.result)
     except Exception as e:
-        print('error', e)
+        if 'connection' in str(e).lower():
+            print('A connection error occurred')
         return False
+
     #print(s.info)
     return True
     
@@ -34,4 +36,3 @@ if __name__  == '__main__':
     for host in hosts:
         r = is_anonymous_binding(host, port)
         print(host, r)
-       

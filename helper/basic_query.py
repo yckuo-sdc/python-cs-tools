@@ -30,6 +30,7 @@ def basic_query(search_filters):
         #if not total:
         #    raise Exception("No result")
 
+        #print(result['matches'])
         services = []
         ## Loop through the matches and print each IP
         for result in result['matches']:

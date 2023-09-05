@@ -44,8 +44,9 @@ def basic_query(search_filters):
 if __name__ == '__main__':  
     search_filters = {
         'country': 'tw', 
-        'org': "Government Service Network (GSN)",
+        '-org': "Government Service Network (GSN)",
         'all': 'ldap',
+        'port': '389,636',
     };
     r = basic_query(search_filters)
     print(r)

@@ -27,6 +27,7 @@ class SendMail:
         self.recipient = ""
         self.subject = ""
         self.body = ""
+        self.attachments = []
 
     def set_recipient(self, recipient):
         self.recipient = recipient
@@ -36,6 +37,9 @@ class SendMail:
 
     def set_body(self, body):
         self.body = body
+
+    def add_attachment(self, attachments):
+        self.attachments = attachments
 
     def send(self):
         with smtplib.SMTP(host=self.host, port="587") as smtp: 
@@ -51,8 +55,14 @@ class SendMail:
                 #path_to_image = os.path.dirname(__file__) + "/../data/images/koala.jpg"
                 #content.attach(MIMEImage(Path(path_to_image).read_bytes(), Name="koala.jpg"))  # 郵件圖片內容
                 #path_to_csv_file = os.path.dirname(__file__) + "/../data/shell_trials/chopper_2023_08_22_17_13_58_no_early_stop.csv" 
-                #with open(path_to_csv_file,'rb') as file:
-                #    content.attach(MIMEApplication(file.read(), Name="shell.csv"))
+                if self.attachments:
+                    print(self.attachments)
+                    for attachment in self.attachments:
+                        if attachment['type'] == 'buffer':
+                            content.attach(MIMEApplication(attachment['value'].getvalue(), Name=attachment['name']))
+                        elif attachment['type'] == 'path':
+                            with open(attachment['value'], 'rb') as file:
+                                content.attach(MIMEApplication(file.read(), Name=attachment['name']))
     
                 smtp.send_message(content)  # 寄送郵件
                 print("Complete!")
