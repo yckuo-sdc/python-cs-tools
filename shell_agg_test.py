@@ -101,13 +101,14 @@ for network_direction in network_directions:
         # Export to csv
         current_datetime = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
 
-        path_to_csv = os.path.dirname(__file__) + "/data/shell_trials/" + target_shell + '_' + network_direction['rulename'] + '_' + current_datetime 
+        path_to_csv = target_shell + '_' + network_direction['rulename'] + '_' + current_datetime 
 
         if not early_stopping:
             path_to_csv = path_to_csv + '_no_early_stop' 
-
         path_to_csv = path_to_csv + '.csv'
-            
+
+        path_to_csv = os.path.join(os.path.dirname(__file__), 'data/shell_trials', path_to_csv)       
+
         if total_df.empty:
             print('DataFrame is empty!')
             continue
