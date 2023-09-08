@@ -1,5 +1,5 @@
-from helper.check_port_status import check_port_status 
-from helper.http_validator import * 
+from helper.check_port_status import check_port_status
+from helper.http_validator import *
 
 # s1. check port stauts
 # ip_list = [

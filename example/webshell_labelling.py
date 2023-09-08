@@ -1,13 +1,16 @@
 #!/usr/bin/python3 
-from package.elasticsearch_adapter import ElasticsearchAdapter 
-from package.ip2org_adapter import Ip2orgAdapter 
-from package.virustotal import VirusTotal
-from package.network_utility import NetworkUtility
-from datetime import datetime
-import helper.http_validator as http
-import pandas as pd
 import json
 import re
+from datetime import datetime
+
+import pandas as pd
+
+import helper.http_validator as http
+from package.elasticsearch_adapter import ElasticsearchAdapter
+from package.ip2org_adapter import Ip2orgAdapter
+from package.network_utility import NetworkUtility
+from package.virustotal import VirusTotal
+
 
 def is_manipulated(useragent):
   pattern = '\([^)]+\)|\S+\/'

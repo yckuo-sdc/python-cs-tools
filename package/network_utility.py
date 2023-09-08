@@ -1,8 +1,9 @@
 #!/usr/bin/python3 
+import os
+import socket
+import sys
 from urllib.parse import urlparse
-import socket  
-import sys  
-import os  
+
 
 class NetworkUtility: 
 

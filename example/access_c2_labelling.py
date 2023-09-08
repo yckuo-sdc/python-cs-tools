@@ -1,13 +1,15 @@
 #!/usr/bin/python3 
-from package.elasticsearch_adapter import ElasticsearchAdapter 
-from package.virustotal import VirusTotal
-from datetime import datetime
-import helper.network_validator as network
-import helper.http_validator as http
-import pandas as pd
-import json
 import csv
+import json
 import os
+from datetime import datetime
+
+import pandas as pd
+
+import helper.http_validator as http
+import helper.network_validator as network
+from package.elasticsearch_adapter import ElasticsearchAdapter
+from package.virustotal import VirusTotal
 
 es = ElasticsearchAdapter()
 vt = VirusTotal()

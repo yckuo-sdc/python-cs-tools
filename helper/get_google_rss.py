@@ -1,5 +1,7 @@
-import feedparser
 import json
+
+import feedparser
+
 
 def parseRSS( rss_url ):
     return feedparser.parse( rss_url )

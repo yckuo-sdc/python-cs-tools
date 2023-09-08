@@ -1,8 +1,10 @@
-from elasticsearch import Elasticsearch
-from elasticsearch_dsl import Search
-from dotenv import load_dotenv
 import json
 import os
+
+from dotenv import load_dotenv
+from elasticsearch import Elasticsearch
+from elasticsearch_dsl import Search
+
 
 class ElasticsearchDslAdapter():   
 

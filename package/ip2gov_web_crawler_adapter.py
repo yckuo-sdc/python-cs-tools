@@ -1,8 +1,11 @@
-from dotenv import load_dotenv
-from bs4 import BeautifulSoup
-import requests
 import json
 import os
+
+import requests
+from dotenv import load_dotenv
+
+from bs4 import BeautifulSoup
+
 
 class Ip2govAdapter:   
 

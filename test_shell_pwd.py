@@ -1,12 +1,15 @@
 #!/usr/bin/python3 
-from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter 
-from elasticsearch_dsl import Search
-from elasticsearch_dsl import Q
-import helper.function as func
-from datetime import datetime
-import pandas as pd
-import numpy as np
+import json
 import re
+from datetime import datetime
+from urllib.parse import unquote
+
+import numpy as np
+import pandas as pd
+from elasticsearch_dsl import Q, Search
+
+import helper.function as func
+from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 
 es = ElasticsearchDslAdapter()
 
@@ -17,7 +20,7 @@ shell_categories = [
     'godzilla', # 3
 ]
 
-target_shell_index = 0
+target_shell_index = 3
 target_shell = shell_categories[target_shell_index]
 
 q = Q("match", ruleName=target_shell) & Q("match", app='HTTP')
@@ -42,10 +45,11 @@ keywords = []
 for doc in filtered_source_data:
     keyword = None
     if doc['cs8']:
-        pattern = '^\w*?(?=%3D)'
-        result = re.search(pattern, doc['cs8'])
-        if result:
-            keyword = result.group() 
+        keyword = unquote(doc['cs8'])
+    #    pattern = '^\w*?(?=%3D)'
+    #    result = re.search(pattern, doc['cs8'])
+    #    if result:
+    #        keyword = result.group() 
 
     keywords.append(keyword)
     
@@ -53,4 +57,4 @@ for doc in filtered_source_data:
 # Get unique values from a list
 keywords = list(set(keywords))
     
-print(keywords)
+print(json.dumps(keywords, indent=2))

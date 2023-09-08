@@ -1,9 +1,10 @@
-from dotenv import load_dotenv
-import shodan
+import json
 import os
 import sys
-import json
 
+from dotenv import load_dotenv
+
+import shodan
 
 load_dotenv()
 apikey = os.getenv("SHODAN_NICS_APIKEY")

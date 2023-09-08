@@ -1,9 +1,11 @@
 #!/usr/bin/python3 
-from urllib.parse import urlparse
-from bs4 import BeautifulSoup
-import requests
 import hashlib
 import re
+from urllib.parse import urlparse
+
+import requests
+
+from bs4 import BeautifulSoup
 
 SUCCESS_CODES = range(200, 300)  # 200-299
 
@@ -30,7 +32,7 @@ def find_text_on_tags(html_doc, text):
 
 def is_routing_to_error_page(url):
     try:
-        error_msgs = ['404', 'not found', 'invalid', '失效', '無效', '不存在']
+        error_msgs = ['404', 'not found', 'invalid', 'error', '失效', '無效', '不存在']
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36'}
         r = requests.get(url, headers=headers, allow_redirects=False, timeout=10)
         for error_msg in error_msgs:

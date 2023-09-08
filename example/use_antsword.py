@@ -1,12 +1,13 @@
 #!/usr/bin/python3 
-from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter 
-from elasticsearch_dsl import Search
-from elasticsearch_dsl import Q
-import webshell_detection_model as wdm 
-import helper.function as func
 from datetime import datetime
-import pandas as pd
+
 import numpy as np
+import pandas as pd
+from elasticsearch_dsl import Q, Search
+
+import helper.function as func
+import webshell_detection_model as wdm
+from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 
 es = ElasticsearchDslAdapter()
 

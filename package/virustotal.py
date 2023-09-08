@@ -1,7 +1,9 @@
-from dotenv import load_dotenv
-import requests
 import csv
 import os
+
+import requests
+from dotenv import load_dotenv
+
 
 class VirusTotal:   
    def __init__(self,host="",apikey=""):

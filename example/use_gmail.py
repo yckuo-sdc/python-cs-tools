@@ -1,15 +1,16 @@
 #!/usr/bin/python3 
-from email.mime.multipart import MIMEMultipart
+import os
+import smtplib
 from email.mime.application import MIMEApplication
 from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from io import StringIO
 from pathlib import Path
 from string import Template
-from dotenv import load_dotenv
-import smtplib
-import os
+
 import pandas as pd
-from io import StringIO
+from dotenv import load_dotenv
 
 grades = {
     "name": ["Mike", "Sherry", "Cindy", "John"],

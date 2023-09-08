@@ -1,12 +1,14 @@
 #!/usr/bin/python3 
-from package.ip2gov_adapter import Ip2govAdapter 
-from package.virustotal import VirusTotal
-from package.boturl_validator import BoturlValidator
-from package.network_utility import NetworkUtility
+import numpy as np
+
+import helper.function as func
 import helper.http_validator as http
 import helper.network_validator as network
-import helper.function as func
-import numpy as np
+from package.boturl_validator import BoturlValidator
+from package.ip2gov_adapter import Ip2govAdapter
+from package.network_utility import NetworkUtility
+from package.virustotal import VirusTotal
+
 
 def get_webshell_labels(docs, early_stopping=True):
     vt = VirusTotal()

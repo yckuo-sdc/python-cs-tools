@@ -1,7 +1,9 @@
-import os
 import json
-from elasticsearch import Elasticsearch
+import os
+
 from dotenv import load_dotenv
+from elasticsearch import Elasticsearch
+
 
 def connect_elasticsearch():
     host = os.getenv("DOCKER_ES_HOST")

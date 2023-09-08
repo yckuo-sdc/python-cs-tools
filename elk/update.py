@@ -1,7 +1,9 @@
-from dotenv import load_dotenv
-from elasticsearch import Elasticsearch
 import json
 import os
+
+from dotenv import load_dotenv
+from elasticsearch import Elasticsearch
+
 
 def connect_elasticsearch():
     load_dotenv()

@@ -1,6 +1,7 @@
 #!/usr/bin/python3 
 import numpy as np
 
+
 def filter_hits_by_keys(hits, selected_keys):
     filtered_source_data = []
     for hit in hits:

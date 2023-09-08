@@ -1,8 +1,10 @@
-from dotenv import load_dotenv
-import requests
 import csv
 import os
 import re
+
+import requests
+from dotenv import load_dotenv
+
 
 class BoturlValidator:   
    def __init__(self):

@@ -1,7 +1,12 @@
 #!/usr/bin/python3 
-from package.request_adapter import RequestAdapter
-from proxy.ssl_proxy_crawler import SslProxyCrawler
 import os
+import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'package'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'proxy'))
+
+from request_adapter import RequestAdapter
+from ssl_proxy_crawler import SslProxyCrawler
 
 proxy = SslProxyCrawler()
 valid_proxy_list = proxy.get_valid_proxy_list()

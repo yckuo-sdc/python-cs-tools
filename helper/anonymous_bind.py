@@ -1,5 +1,6 @@
 # import class and constants
-from ldap3 import Server, Connection, ALL
+from ldap3 import ALL, Connection, Server
+
 
 def is_anonymous_binding(host, port):
     try:

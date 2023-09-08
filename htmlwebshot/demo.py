@@ -1,5 +1,6 @@
-from htmlwebshot import WebShot
 import csv
+
+from htmlwebshot import WebShot
 
 shot = WebShot()
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python3 
-from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter 
-from elasticsearch_dsl import Search
-from elasticsearch_dsl import Q
+from elasticsearch_dsl import Q, Search
+
+from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 
 es = ElasticsearchDslAdapter()
 wildcard = '*80'
@@ -13,5 +13,3 @@ s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
 #response = s.execute()
 
 print(s.to_dict())
-
-

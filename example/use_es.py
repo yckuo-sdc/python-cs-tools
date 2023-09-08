@@ -1,5 +1,6 @@
-from package.elasticsearch_adapter import ElasticsearchAdapter 
 import json
+
+from package.elasticsearch_adapter import ElasticsearchAdapter
 
 es = ElasticsearchAdapter()
 

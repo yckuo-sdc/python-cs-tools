@@ -1,10 +1,11 @@
-from package.elasticsearch_adapter import ElasticsearchAdapter 
-from package.virustotal import VirusTotal
+import json
+from urllib.parse import urlparse
+
 #from helper.http_validator import * 
 import helper.http_validator as http
 import helper.network_validator as network
-from urllib.parse import urlparse
-import json
+from package.elasticsearch_adapter import ElasticsearchAdapter
+from package.virustotal import VirusTotal
 
 es = ElasticsearchAdapter()
 vt = VirusTotal()

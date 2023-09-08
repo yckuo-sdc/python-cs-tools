@@ -1,10 +1,13 @@
-from dotenv import load_dotenv
-from bs4 import BeautifulSoup
-import requests
 import datetime
-import re
 import json
 import os
+import re
+
+import requests
+from dotenv import load_dotenv
+
+from bs4 import BeautifulSoup
+
 
 class SslProxyCrawler:   
    def __init__(self):

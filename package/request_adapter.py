@@ -1,5 +1,6 @@
 import requests
 
+
 class RequestAdapter:
     def __init__(self, **kwargs):
         self.session = requests.Session()
