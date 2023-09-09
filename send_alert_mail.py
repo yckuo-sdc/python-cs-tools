@@ -30,30 +30,31 @@ mail = SendMail()
 mail.set_recipient("t910729@gmail.com")
 
 for fmatch in matches:
-    #df = pd.read_csv(fmatch['path_to_file'],  usecols=['@timestamp', 'ruleName', 'reason', 'request', 'src', 'dst', 'spt', 'dpt', 'http_success', 'filehash_malicious', 'boturl_malicious'])
     df = pd.read_csv(fmatch['path_to_file'])
 
     interested_id = []
     for index, row in df.iterrows():
         column_http_success = row['http_success']
 
-        if column_http_success: 
+        if column_http_success:
             interested_id.append(index)
 
     if not interested_id:
         print("No Interested Events")
         continue
 
-    subject = "{} ({}) alert on {}".format(fmatch['shell_name'], fmatch['net_direction'], target_datetime.replace("_", "-"))
+    subject = f"{fmatch['shell_name']} ({fmatch['net_direction']}) alert on \
+                {target_datetime.replace('_', '-')}"
     textStream = StringIO()
     df.loc[interested_id].to_csv(textStream,index=False)
     attachments = [
         {'type': 'buffer', 'value': textStream, 'name': fmatch['shell_name'] + '.csv' },
         #{'type': 'path', 'value': fmatch['path_to_file'], 'name': fmatch['shell_name'] + '.csv' },
-    ] 
+    ]
 
     table = df.loc[interested_id].to_html(justify='left', index=False)
-    template = Template(Path(os.path.join(os.path.dirname(__file__), 'mail/template', 'rwd_ddi.html')).read_text())
+    template = Template(Path(os.path.join( \
+            os.path.dirname(__file__), 'mail/template', 'rwd_ddi.html')).read_text())
     body = transform(template.substitute({ "table": table }))
 
     mail.set_subject(subject)
