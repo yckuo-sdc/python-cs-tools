@@ -54,7 +54,8 @@ for fmatch in matches:
 
     table = df.loc[interested_id].to_html(justify='left', index=False)
     template = Template(Path(os.path.join( \
-            os.path.dirname(__file__), 'mail/template', 'rwd_ddi.html')).read_text())
+            os.path.dirname(__file__), 'mail/template', 'rwd_ddi.html')) \
+            .read_text('utf-8'))
     body = transform(template.substitute({ "table": table }))
 
     mail.set_subject(subject)
