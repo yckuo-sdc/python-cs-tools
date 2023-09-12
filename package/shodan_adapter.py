@@ -39,7 +39,7 @@ class ShodanAdapter:
             for result in result['matches']:
                 match = {}
                 for match_field in match_fields:
-                    match[match_field['label']] = result[match_field['field']]
+                    match[match_field['label']] = result.get(match_field['field'])
 
                 matches.append(match)
 

@@ -45,20 +45,9 @@ for fmatch in matches:
 
     subject = f"{fmatch['shell_name']} ({fmatch['net_direction']}) alert on \
                 {target_datetime.replace('_', '-')}"
-    textStream = StringIO()
-    df.loc[interested_id].to_csv(textStream,index=False)
-    attachments = [
-        {'type': 'buffer', 'value': textStream, 'name': fmatch['shell_name'] + '.csv' },
-        #{'type': 'path', 'value': fmatch['path_to_file'], 'name': fmatch['shell_name'] + '.csv' },
-    ]
 
     table = df.loc[interested_id].to_html(justify='left', index=False)
-    template = Template(Path(os.path.join( \
-            os.path.dirname(__file__), 'mail/template', 'rwd_ddi.html')) \
-            .read_text('utf-8'))
-    body = transform(template.substitute({ "table": table }))
 
     mail.set_subject(subject)
-    mail.set_body(body)
-    #mail.add_attachment(attachments)
+    mail.set_template_body(mapping=table)
     mail.send()

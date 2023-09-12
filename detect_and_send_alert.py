@@ -1,15 +1,9 @@
+"""Module detect webshell and send alert mail."""
 #!/usr/bin/python3
-import glob
-import os
 from datetime import datetime
-from io import StringIO
-from pathlib import Path
-from string import Template
 
-import numpy as np
 import pandas as pd
 from elasticsearch_dsl import Q, Search
-from premailer import transform
 
 import helper.function as func
 import helper.network_validator as network
@@ -45,9 +39,9 @@ shell_categories = [
     'godzilla',
 ]
 
-early_stopping = False
-gte = "now-30m"
-lt = "now"
+EARLY_STOPPING = False
+GTE = "now-1h"
+LT = "now"
 
 for network_direction in network_directions:
     for target_shell in shell_categories:
@@ -57,17 +51,19 @@ for network_direction in network_directions:
 
         s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
             .query(q) \
-            .filter("range", **{'@timestamp':{"gte": gte,"lt": lt}}) \
+            .filter("range", **{'@timestamp':{"gte": GTE,"lt": LT}}) \
             .sort({"@timestamp": {"order": "desc"}})
 
-        s.aggs.bucket('per_service_ips', 'terms', field=network_direction['service_ip'] + '.keyword') \
-            .bucket('service_ports_per_service_ip', 'terms', field=network_direction['service_port'] + '.keyword')
+        ip_field_name = f"{network_direction['service_ip']}.keyword"
+        port_field_name = f"{network_direction['service_port']}.keyword"
+        s.aggs.bucket('per_service_ips', 'terms', field=ip_field_name) \
+            .bucket('service_ports_per_service_ip', 'terms', field=port_field_name)
         s = s[0:10]
 
         response = s.execute()
 
         print(s.to_dict())
-        print('Total Hits: {}'.format(response.hits.total))
+        print(f"Total Hits: {response.hits.total}")
 
         print('Discovery Scannable Government Services...')
         scannable_services = []
@@ -82,8 +78,7 @@ for network_direction in network_directions:
 
                 service = {'ip': service_ip.key, 'port': service_port.key}
                 scannable_services.append(service)
-                print('service({}:{}) is found'.format(service['ip'],
-                                                       service['port']))
+                print(f"service({service['ip']}:{service['port']}) is found")
 
         print('Detect Webshells per Service...')
         frames = []
@@ -98,15 +93,15 @@ for network_direction in network_directions:
 
             s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
                 .query(q_per_service) \
-                .filter("range", **{'@timestamp':{"gte": gte, "lt": lt}}) \
+                .filter("range", **{'@timestamp':{"gte": GTE, "lt": LT}}) \
                 .sort({"@timestamp": {"order": "desc"}})
 
             s = s[0:10]
             response = s.execute()
 
             print(s.to_dict())
-            print('Total Hits: {}'.format(response.hits.total))
-            print('Total Process Hits: {}'.format(len(response.hits.hits)))
+            print(f"Total Hits: {response.hits.total}")
+            print(f"Total Process Hits: {len(response.hits.hits)}")
 
             selected_keys = [
                 '@timestamp', 'ruleName', 'reason', 'request', 'cs8',
@@ -119,7 +114,7 @@ for network_direction in network_directions:
 
             inputs = func.arr_dict_to_flat_dict(filtered_source_data)
             labels = wdm.get_webshell_labels(filtered_source_data,
-                                             early_stopping=early_stopping)
+                                             early_stopping=EARLY_STOPPING)
             results = inputs | labels
             df = pd.DataFrame(results)
             frames.append(df)
@@ -131,17 +126,15 @@ for network_direction in network_directions:
             print(e)
             continue
 
-
         if total_df.empty:
             print('DataFrame is empty!')
             continue
-
 
         interested_id = []
         for index, row in total_df.iterrows():
             column_http_success = row['http_success']
 
-            if column_http_success:
+            if not column_http_success:
                 interested_id.append(index)
 
         if not interested_id:
@@ -149,15 +142,10 @@ for network_direction in network_directions:
             continue
 
         dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        subject = f"{target_shell} ({network_direction}) alert on {dt}"
-        textStream = StringIO()
-
-        table = total_df.loc[interested_id].to_html(justify='left', index=False)
-        template = Template(Path(os.path.join( \
-                os.path.dirname(__file__), 'mail/template', 'rwd_ddi.html')) \
-                .read_text('utf-8'))
-        body = transform(template.substitute({ "table": table }))
+        subject = f"{target_shell} ({network_direction['rulename']}) alert on {dt}"
+        table = total_df.loc[interested_id].to_html(justify='left',
+                                                    index=False)
 
         mail.set_subject(subject)
-        mail.set_body(body)
+        mail.set_template_body(mapping=table)
         mail.send()

@@ -82,7 +82,7 @@ def get_response_code(url):
         return False
 
 
-def is_successful(url):
+def is_accessable(url):
     print("request: {}".format(url))
     code = get_response_code(url)
     print("code: {}".format(code))

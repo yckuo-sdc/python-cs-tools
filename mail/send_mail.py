@@ -1,4 +1,4 @@
-#!/usr/bin/python3 
+#!/usr/bin/python3
 import os
 import smtplib
 from email.mime.application import MIMEApplication
@@ -9,11 +9,12 @@ from pathlib import Path
 from string import Template
 
 from dotenv import load_dotenv
+from premailer import transform
 
 
-class SendMail: 
+class SendMail:
 
-    def __init__(self,  host="", username="", password="", sender=""): 
+    def __init__(self, host="", username="", password="", sender=""):
         if host == "":
             load_dotenv()
             self.host = os.getenv("MAIL_HOST")
@@ -22,10 +23,10 @@ class SendMail:
             self.sender = os.getenv("MAIL_SENDER")
         else:
             self.host = host
-            self.username = username 
+            self.username = username
             self.password = password
-            self.sender = sender 
-            
+            self.sender = sender
+
         self.recipient = ""
         self.subject = ""
         self.body = ""
@@ -40,32 +41,43 @@ class SendMail:
     def set_body(self, body):
         self.body = body
 
+    def set_template_body(self, mapping):
+        template_path = Path(os.path.join(os.path.dirname(__file__), 'template', 'rwd_ddi.html'))
+        template_body = Template(template_path.read_text('utf-8'))
+        template_body = template_body.substitute({"table": mapping})
+        # Turns CSS blocks into style attributes with 'premailer'
+        self.body = transform(template_body)
+
     def add_attachment(self, attachments):
         self.attachments = attachments
 
     def send(self):
-        with smtplib.SMTP(host=self.host, port="587") as smtp: 
+        with smtplib.SMTP(host=self.host, port="587") as smtp:
             try:
                 smtp.ehlo()
-                smtp.starttls() 
-                smtp.login(self.username, self.password) 
-                content = MIMEMultipart()  
-                content["subject"] = self.subject 
+                smtp.starttls()
+                smtp.login(self.username, self.password)
+                content = MIMEMultipart()
+                content["subject"] = self.subject
                 content["from"] = self.sender
                 content["to"] = self.recipient
-                content.attach(MIMEText(self.body, "html", "utf-8")) 
+                content.attach(MIMEText(self.body, "html", "utf-8"))
                 #path_to_image = os.path.dirname(__file__) + "/../data/images/koala.jpg"
                 #content.attach(MIMEImage(Path(path_to_image).read_bytes(), Name="koala.jpg"))  # 郵件圖片內容
-                #path_to_csv_file = os.path.dirname(__file__) + "/../data/shell_trials/chopper_2023_08_22_17_13_58_no_early_stop.csv" 
+                #path_to_csv_file = os.path.dirname(__file__) + "/../data/shell_trials/chopper_2023_08_22_17_13_58_no_early_stop.csv"
                 if self.attachments:
                     print(self.attachments)
                     for attachment in self.attachments:
                         if attachment['type'] == 'buffer':
-                            content.attach(MIMEApplication(attachment['value'].getvalue(), Name=attachment['name']))
+                            content.attach(
+                                MIMEApplication(attachment['value'].getvalue(),
+                                                Name=attachment['name']))
                         elif attachment['type'] == 'path':
                             with open(attachment['value'], 'rb') as file:
-                                content.attach(MIMEApplication(file.read(), Name=attachment['name']))
-    
+                                content.attach(
+                                    MIMEApplication(file.read(),
+                                                    Name=attachment['name']))
+
                 smtp.send_message(content)  # 寄送郵件
                 print("Complete!")
             except Exception as e:
@@ -74,11 +86,20 @@ class SendMail:
 
 if __name__ == '__main__':
 
-    template = Template(Path(os.path.dirname(__file__) + "/template/welcome.html").read_text())
-    body = template.substitute({ "user": "Mike" })
+    template = Template(
+        Path(os.path.dirname(__file__) + "/template/welcome.html").read_text())
+    body = template.substitute({"user": "Mike"})
+
+    #textStream = StringIO()
+    #df.loc[interested_id].to_csv(textStream,index=False)
+    #attachments = [
+    #    {'type': 'buffer', 'value': textStream, 'name': 'attch1.csv' },
+    #    {'type': 'path', 'value': 'path_to_file', 'name': 'attch2.csv' },
+    #]
 
     mail = SendMail()
     mail.set_recipient("t910729@gmail.com")
     mail.set_subject("DDI Alert")
     mail.set_body(body)
+    #mail.add_attachment(attachments)
     mail.send()
