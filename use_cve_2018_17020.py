@@ -39,35 +39,50 @@ if __name__ == '__main__':
     search_filters = {
         'country': 'tw',
         'org': "Government Service Network (GSN)",
-        'product': 'ASUSTeK',
+        'os': 'ASUSWRT',
     }
 
-    match_fields = [{'label': 'ip', 'field': 'ip_str'}]
+    match_fields = [
+        {'label': 'ip', 'field': 'ip_str'},
+        {'label': 'port', 'field': 'port'},
+    ]
 
     services = sa.basic_query(search_filters, match_fields)
+    print(services)
 
     output = []
     for service in services:
         EXPLOITABLE = False
         host = service['ip']
-        PORT = 80
-        print(host, PORT)
-        url = f"http://{host}"
+        port = service['port']
+        print(host, port)
+
+        if port == 80:
+            url = f"http://{host}"
+        else: 
+            url = f"http://{host}:{port}"
+
+        gov_data = ip2gov.get_gov_data_by_ip(service['ip'])
+        if gov_data:
+            dep = gov_data.get('DEP')
+        else:
+            dep = None
 
         FIRST_VISIT = is_accessible(url)
         print(f"first_visit: {FIRST_VISIT}")
 
         if not FIRST_VISIT:
             print("exit")
-            output.append({'host': host, 'exploitable': EXPLOITABLE})
-            sys.exit()
+            output.append(service | {'department': dep} | {'exploitable': EXPLOITABLE})
+            #output.append(service | {'exploitable': EXPLOITABLE})
+            continue
 
         print('start socket')
         # Create a socket object
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # Connect to the server
-        client_socket.connect((host, PORT))
+        client_socket.connect((host, port))
 
         # Prepare the raw HTTP request
         HTTP_REQUEST = 'GET / HTTP/1.1\r\n'
@@ -89,8 +104,8 @@ if __name__ == '__main__':
         client_socket.close()
         print('close socket')
 
-        gov_data = ip2gov.get_gov_data_by_ip(service['ip'])
-        output.append(service | {'department': gov_data['DEP']} | {'exploitable': EXPLOITABLE})
+        #output.append(service | {'exploitable': EXPLOITABLE})
+        output.append(service | {'department': dep} | {'exploitable': EXPLOITABLE})
 
     output_dict = func.arr_dict_to_flat_dict(output)
     df = pd.DataFrame(output_dict)
