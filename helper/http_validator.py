@@ -133,7 +133,7 @@ def get_response_code(url):
         # ignore verifying the SSL certificate
         response = requests.get(url,
                                 headers=headers,
-                                allow_redirects=True,
+                                allow_redirects=False,
                                 verify=False,
                                 timeout=5)
         return response.status_code
