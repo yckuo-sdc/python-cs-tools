@@ -134,7 +134,7 @@ for network_direction in network_directions:
         for index, row in total_df.iterrows():
             column_http_success = row['http_success']
 
-            if not column_http_success:
+            if column_http_success:
                 interested_id.append(index)
 
         if not interested_id:
