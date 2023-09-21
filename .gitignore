@@ -8,6 +8,7 @@ data/
 # ignore all sub files
 *.csv
 *.xls
+*.xlsx
 *.log
 *.json
 
