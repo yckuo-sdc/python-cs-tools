@@ -1,5 +1,6 @@
 """ Selenium Project """
 import os
+import sys
 from datetime import datetime
 from string import Template
 
@@ -53,6 +54,14 @@ form_inputs = next(iter(form_inputs), None)
 deparments = df2.to_dict('records')
 print(deparments)
 
+attach_directory = os.path.join(os.path.dirname(__file__), 'attachments', 'asusrt')
+for deparment in deparments:
+    file_name = f"{deparment['name']}.csv"
+    file_path = find_files_with_name(attach_directory, file_name)
+    if not file_path:
+        sys.exit(f"Exit: Can't find attachment: {file_name}")
+    deparment['file_path'] = file_path
+
 ### Run Browser in background
 options = webdriver.ChromeOptions()
 #options.add_argument('--headless')
@@ -89,13 +98,6 @@ execution_results = []
 for deparment in deparments:
     ### Part 2. Classification ###
     print(deparment['name'])
-
-    attach_directory = os.path.join(os.path.dirname(__file__), 'attachments', 'asusrt')
-    file_name = f"{deparment['name']}.csv"
-    file_path = find_files_with_name(attach_directory, file_name)
-    if not file_path:
-        print(f"Can't find attachment: {file_name}")
-        continue
 
     # Directing the driver to the defined url
     driver.get(f"{HOST}/notice/Notice.do?method:publishNoticeStep1")
@@ -155,7 +157,7 @@ for deparment in deparments:
     driver.find_element(By.NAME, "notice.reference").send_keys(reference)
 
     # Specify the path to the file you want to upload
-    driver.find_element(By.NAME, "myFile").send_keys(file_path)
+    driver.find_element(By.NAME, "myFile").send_keys(deparment['file_path'])
     driver.find_element(By.XPATH, "//input[@type='submit']").click()
 
     input("Press Enter to continue...")
