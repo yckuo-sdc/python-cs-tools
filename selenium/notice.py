@@ -30,9 +30,17 @@ HOST = os.getenv('NOTICE_HOST')
 USERNAME = os.getenv('NOTICE_USERNAME')
 PASSWORD = os.getenv('NOTICE_PASSWORD')
 
+# 1
+#IMPORT_FILE_NAME = 'asusrt_cve_2018_17020.xlsx'
+#IMPORT_DIR_NAME = 'asusrt_cve_2018_17020'
+
+# 2
+IMPORT_FILE_NAME = 'asusrt_cve_2023_39238.xlsx'
+IMPORT_DIR_NAME = 'asusrt_cve_2023_39238'
+
 # Specify the sheet name or index
-PATH_TO_EXCEL = os.path.join(os.path.dirname(__file__), 'notice_excels',
-                             'asusrt.xlsx')
+PATH_TO_EXCEL = os.path.join(os.path.dirname(__file__), 'notice_excels', IMPORT_FILE_NAME)
+
 SHEET1_NAME = '警訊內容'
 SHEET2_NAME = '機關資訊'
 SHEET3_NAME = '執行結果'
@@ -52,15 +60,19 @@ df2 = grouped_data.agg({
 form_inputs = df1.to_dict('records')
 form_inputs = next(iter(form_inputs), None)
 deparments = df2.to_dict('records')
+print(form_inputs)
 print(deparments)
 
-attach_directory = os.path.join(os.path.dirname(__file__), 'attachments', 'asusrt')
+attach_directory = os.path.join(os.path.dirname(__file__), 'attachments', IMPORT_DIR_NAME)
 for deparment in deparments:
     file_name = f"{deparment['name']}.csv"
     file_path = find_files_with_name(attach_directory, file_name)
+    print(file_path)
     if not file_path:
         sys.exit(f"Exit: Can't find attachment: {file_name}")
     deparment['file_path'] = file_path
+
+sys.exit(0)
 
 ### Run Browser in background
 options = webdriver.ChromeOptions()
