@@ -6,40 +6,49 @@ from string import Template
 
 import pandas as pd
 from dotenv import load_dotenv
-from openpyxl import load_workbook
 
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 
 
 def find_files_with_name(directory, target_name):
+    """Function confirm that file is existed."""
     for file in os.listdir(directory):
         if file.find(target_name) == 0:
             return os.path.join(directory, file)
-
     return False
 
 
 def concatenate_values(series):
+    """Function concatenate the list."""
     return ', '.join(series)
+
 
 load_dotenv()
 HOST = os.getenv('NOTICE_HOST')
 USERNAME = os.getenv('NOTICE_USERNAME')
 PASSWORD = os.getenv('NOTICE_PASSWORD')
 
-# 1
-#IMPORT_FILE_NAME = 'asusrt_cve_2018_17020.xlsx'
-#IMPORT_DIR_NAME = 'asusrt_cve_2018_17020'
+profiles = [
+    { # 0
+        'import_file_name': 'asusrt_cve_2018_17020.xlsx',
+        'import_dir_name': 'asusrt_cve_2018_17020'
+    },
+    { # 1
+        'import_file_name': 'asusrt_cve_2018_17020.xlsx',
+        'import_dir_name': 'asusrt_cve_2018_17020'
+    }
+]
 
-# 2
-IMPORT_FILE_NAME = 'asusrt_cve_2023_39238.xlsx'
-IMPORT_DIR_NAME = 'asusrt_cve_2023_39238'
+USE_PROFILE_INDEX = 0
+profile = profiles[USE_PROFILE_INDEX]
 
 # Specify the sheet name or index
-PATH_TO_EXCEL = os.path.join(os.path.dirname(__file__), 'notice_excels', IMPORT_FILE_NAME)
+PATH_TO_EXCEL = os.path.join(os.path.dirname(__file__), 'notices', 'excels',
+                             profile['import_file_name'])
 
 SHEET1_NAME = '警訊內容'
 SHEET2_NAME = '機關資訊'
@@ -63,7 +72,8 @@ deparments = df2.to_dict('records')
 print(form_inputs)
 print(deparments)
 
-attach_directory = os.path.join(os.path.dirname(__file__), 'attachments', IMPORT_DIR_NAME)
+attach_directory = os.path.join(os.path.dirname(__file__), 'notices',
+                                'attachments', profile['import_dir_name'])
 for deparment in deparments:
     file_name = f"{deparment['name']}.csv"
     file_path = find_files_with_name(attach_directory, file_name)
@@ -88,7 +98,6 @@ driver = webdriver.Chrome(options=options, service=service)
 
 # Setting an implicit wait of 2 seconds
 driver.implicitly_wait(2)
-
 
 ### Part 1. Login ###
 # Directing the driver to the defined url
@@ -179,7 +188,8 @@ for deparment in deparments:
 
     #### Part 5. Search Address ###
     driver.execute_script("goToSelectToPage()")
-    driver.find_element(By.ID, "NoticePrePublish_search").send_keys(deparment['name'])
+    driver.find_element(By.ID,
+                        "NoticePrePublish_search").send_keys(deparment['name'])
     driver.find_element(By.ID, "NoticePrePublish_normal_query").click()
 
     #### Part 6. Add Address ###
@@ -189,7 +199,12 @@ for deparment in deparments:
     for checkbox in checkboxes:
         checkbox.click()
 
-    driver.find_element(By.ID, "NoticePrePublish_normal_ok").click()
+    try:
+        driver.find_element(By.ID, "NoticePrePublish_normal_ok").click()
+    except NoSuchElementException:
+        input(
+            "The element: 'NoticePrePublish_normal_ok' was not found on the web page, Press Enter to continue..."
+        )
 
     td = driver.find_element(By.XPATH, "//table/tbody/tr[1]/td[1]")
     notice_id = td.text
@@ -202,5 +217,8 @@ for deparment in deparments:
 
 # Write the modified DataFrame back to the worksheet
 execution_results_df = pd.DataFrame(execution_results)
-with pd.ExcelWriter(PATH_TO_EXCEL, engine='openpyxl', mode='a', if_sheet_exists='replace') as writer:
+with pd.ExcelWriter(PATH_TO_EXCEL,
+                    engine='openpyxl',
+                    mode='a',
+                    if_sheet_exists='replace') as writer:
     execution_results_df.to_excel(writer, sheet_name=SHEET3_NAME, index=False)
