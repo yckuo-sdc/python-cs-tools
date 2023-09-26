@@ -19,7 +19,14 @@ ip2gov = Ip2govAdapter()
 GTE = "now-1h"
 LT = "now"
 
-q = Q("match", requestClientApplication="curl")
+q = Q('bool',
+      must=[Q('exists', field='fileHash')],
+      should=[
+          Q("match", requestClientApplication="curl"),
+          Q("match", requestClientApplication="certutil")
+      ],
+      minimum_should_match=1)
+
 s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
     .query(q) \
     .filter("range", **{'@timestamp':{"gte": GTE,"lt": LT}}) \
@@ -49,7 +56,7 @@ if total_df.empty:
     sys.exit(0)
 
 dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-subject = f"curl alert on {dt}"
+subject = f"hack tool alert on {dt}"
 table = total_df.to_html(justify='left', index=False)
 
 mail.set_subject(subject)

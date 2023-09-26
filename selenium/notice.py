@@ -32,23 +32,19 @@ HOST = os.getenv('NOTICE_HOST')
 USERNAME = os.getenv('NOTICE_USERNAME')
 PASSWORD = os.getenv('NOTICE_PASSWORD')
 
-profiles = [
-    { # 0
-        'import_file_name': 'asusrt_cve_2018_17020.xlsx',
-        'import_dir_name': 'asusrt_cve_2018_17020'
-    },
-    { # 1
-        'import_file_name': 'asusrt_cve_2018_17020.xlsx',
-        'import_dir_name': 'asusrt_cve_2018_17020'
-    }
-]
+profile = {
+    # cve_2018_17020
+    'import_file_name': 'asusrt_cve_2018_17020.xlsx',
+    'import_dir_name': 'asusrt_cve_2018_17020',
 
-USE_PROFILE_INDEX = 0
-profile = profiles[USE_PROFILE_INDEX]
+    ##  cve_2023_39238
+    #'import_file_name': 'asusrt_cve_2023_39238.xlsx',
+    #'import_dir_name': 'asusrt_cve_2023_39238',
+}
 
 # Specify the sheet name or index
 PATH_TO_EXCEL = os.path.join(os.path.dirname(__file__), 'notices', 'excels',
-                             profile['import_file_name'])
+                             profile.get('import_file_name'))
 
 SHEET1_NAME = '警訊內容'
 SHEET2_NAME = '機關資訊'
@@ -73,7 +69,7 @@ print(form_inputs)
 print(deparments)
 
 attach_directory = os.path.join(os.path.dirname(__file__), 'notices',
-                                'attachments', profile['import_dir_name'])
+                                'attachments', profile.get('import_dir_name'))
 for deparment in deparments:
     file_name = f"{deparment['name']}.csv"
     file_path = find_files_with_name(attach_directory, file_name)
