@@ -7,14 +7,14 @@ import requests
 from bs4 import BeautifulSoup
 
 SUCCESS_CODES = range(200, 300)  # 200-299
-
+USERAGENT_COUNT_THRESHOLD = 5
 
 def is_bot_useragent(useragent):
     pattern = r"\([^)]+\)|\S+\/"
     result = re.findall(pattern, useragent)
     useragent_count = len(result)
     print(f"{useragent}: {useragent_count}")
-    if useragent_count <= 5:
+    if useragent_count <= USERAGENT_COUNT_THRESHOLD:
         return True
     return False
 

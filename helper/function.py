@@ -2,6 +2,20 @@
 import numpy as np
 
 
+def filter_scan_hits_by_keys(hits, selected_keys):
+    filtered_source_data = []
+    for hit in hits:
+        source_data = hit
+        doc = {}
+        for key in selected_keys:
+            if key in source_data:
+                doc[key] = source_data[key]
+            else:
+                doc[key] = None
+        filtered_source_data.append(doc)
+
+    return filtered_source_data
+
 def filter_hits_by_keys(hits, selected_keys):
     filtered_source_data = []
     for hit in hits:

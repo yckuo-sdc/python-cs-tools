@@ -49,6 +49,36 @@ class ShodanAdapter:
             print(f"Error: {e}")
             return False
 
+    def basic_query_by_string(self, query, match_fields):
+        """Method printing python version."""
+        try:
+            #info = self.__api.info()
+
+            # Perform the search
+            print(f'Query: {query}')
+
+            result = self.__api.search(query)
+            total = result['total']
+            print(f"Results found: {total}")
+
+            #if not total:
+            #    raise Exception("No result")
+
+            #print(result['matches'])
+            matches = []
+            ## Loop through the matches and print each IP
+            for result in result['matches']:
+                match = {}
+                for match_field in match_fields:
+                    match[match_field['label']] = result.get(match_field['field'])
+
+                matches.append(match)
+
+            return matches
+
+        except Exception as e:
+            print(f"Error: {e}")
+            return False
 
 if __name__ == '__main__':
     sa = ShodanAdapter()
