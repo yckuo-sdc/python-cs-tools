@@ -1,13 +1,12 @@
 """Module detect webshell and send alert mail."""
 #!/usr/bin/python3
+import sys
 from datetime import datetime
 
 import pandas as pd
 from elasticsearch_dsl import Q, Search
 
 import helper.function as func
-import helper.network_validator as network
-import webshell_detection_model as wdm
 from mail.send_mail import SendMail
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 from package.ip2gov_adapter import Ip2govAdapter
@@ -40,9 +39,10 @@ shell_categories = [
 ]
 
 EARLY_STOPPING = False
-GTE = "now-3h"
+GTE = "now-1h"
 LT = "now"
 
+frames = []
 for network_direction in network_directions:
     for target_shell in shell_categories:
         q = Q("match", ruleName=target_shell) & Q(
@@ -62,26 +62,33 @@ for network_direction in network_directions:
         print(f"Total Hits: {response.hits.total}")
 
         selected_keys = [
-            '@timestamp', 'ruleName', 'reason', 'Serverity', 'request', 'cs8', 'fileHash', 'cs4',
-            'requestClientApplication', 'src', 'dst', 'spt', 'dpt'
+            '@timestamp', 'ruleName', 'reason', 'Serverity', 'request', 'cs8',
+            'fileHash', 'cs4', 'requestClientApplication', 'src', 'dst', 'spt',
+            'dpt'
         ]
 
-        filtered_source_data = func.filter_scan_hits_by_keys(s.scan(),
-                                                        selected_keys)
+        filtered_source_data = func.filter_scan_hits_by_keys(
+            s.scan(), selected_keys)
 
         inputs = func.arr_dict_to_flat_dict(filtered_source_data)
         df = pd.DataFrame(inputs)
 
         print(df)
+        frames.append(df)
 
-        if df.empty:
-            print('DataFrame is empty!')
-            continue
+try:
+    total_df = pd.concat(frames)
+    print(total_df)
+except Exception as e:
+    print(e)
 
-        dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        subject = f"{target_shell} ({network_direction['rulename']}) alert on {dt}"
-        table = df.to_html(justify='left', index=False)
+if total_df.empty:
+    sys.exit('DataFrame is empty!')
 
-        mail.set_subject(subject)
-        mail.set_template_body(mapping=table)
-        mail.send()
+dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+subject = f"webshell alert on {dt}"
+table = total_df.to_html(justify='left', index=False)
+
+mail.set_subject(subject)
+mail.set_template_body(mapping=table)
+mail.send()
