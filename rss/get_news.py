@@ -1,4 +1,5 @@
 """Module"""
+import hashlib
 import json
 import os
 import sys
@@ -11,7 +12,8 @@ from send_mail import SendMail
 
 def load_previous_state(filename):
     """Function"""
-    path_to_file = os.path.join(os.path.dirname(__file__), 'previous_state', filename)
+    path_to_file = os.path.join(os.path.dirname(__file__), 'previous_state',
+                                filename)
 
     previous_state = {}
     if os.path.exists(path_to_file):
@@ -29,7 +31,8 @@ def load_previous_state(filename):
 
 def save_previous_state(filename, data):
     """Function"""
-    path_to_file = os.path.join(os.path.dirname(__file__), 'previous_state', filename)
+    path_to_file = os.path.join(os.path.dirname(__file__), 'previous_state',
+                                filename)
     with open(path_to_file, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False)
 
@@ -49,7 +52,10 @@ feeds = [
 ]
 
 for feed in feeds:
-    previous_state = load_previous_state(feed['filename'])
+    feed_id = hashlib.sha1(feed['link'].encode()).hexdigest()
+    print(feed_id)
+
+    previous_state = load_previous_state(f"{feed_id}.json")
     d = feedparser.parse(feed['link'])
 
     for entry in d.entries:
