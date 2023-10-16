@@ -1,10 +1,12 @@
-"""Module detect webshell and send alert mail."""
+"""Module detect ddi events and send alert mail."""
 #!/usr/bin/python3
-from datetime import datetime
+import os
+import sys
 
 import pandas as pd
 from elasticsearch_dsl import Q, Search
 
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import helper.function as func
 import helper.network_validator as network
 import webshell_detection_model as wdm
@@ -16,6 +18,10 @@ mail = SendMail()
 mail.set_recipient("t910729@gmail.com")
 es = ElasticsearchDslAdapter()
 ip2gov = Ip2govAdapter()
+
+EARLY_STOPPING = False
+GTE = "now-10d"
+LT = "now"
 
 network_directions = [
     {
@@ -39,10 +45,7 @@ shell_categories = [
     'godzilla',
 ]
 
-EARLY_STOPPING = False
-GTE = "now-1h"
-LT = "now"
-
+frames = []
 for network_direction in network_directions:
     for target_shell in shell_categories:
         q = Q("match", ruleName=target_shell) & Q(
@@ -81,7 +84,7 @@ for network_direction in network_directions:
                 print(f"service({service['ip']}:{service['port']}) is found")
 
         print('Detect Webshells per Service...')
-        frames = []
+
         for service in scannable_services:
 
             if network_direction['rulename'] == 'request':
@@ -119,33 +122,37 @@ for network_direction in network_directions:
             df = pd.DataFrame(results)
             frames.append(df)
 
-        try:
-            total_df = pd.concat(frames)
-            print(total_df)
-        except Exception as e:
-            print(e)
-            continue
+try:
+    total_df = pd.concat(frames)
+    print(total_df)
+except Exception as e:
+    print(e)
 
-        if total_df.empty:
-            print('DataFrame is empty!')
-            continue
+if total_df.empty:
+    sys.exit('DataFrame is empty!')
 
-        interested_id = []
-        for index, row in total_df.iterrows():
-            column_http_success = row['http_success']
+interested_id = []
+for index, row in total_df.iterrows():
+    column_http_success = row['http_success']
 
-            if column_http_success:
-                interested_id.append(index)
+    if column_http_success:
+        interested_id.append(index)
 
-        if not interested_id:
-            print("No Interested Events")
-            continue
+if not interested_id:
+    sys.exit('No Interested Events')
 
-        dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        subject = f"{target_shell} ({network_direction['rulename']}) alert on {dt}"
-        table = total_df.loc[interested_id].to_html(justify='left',
-                                                    index=False)
+total_df = total_df.loc[interested_id]
 
-        mail.set_subject(subject)
-        mail.set_template_body(mapping=table)
-        mail.send()
+# Enrich ip with organiztaion name
+total_df['src'] = total_df['src'].apply(
+    lambda x: f"{x} {ip2gov.get_gov_data_by_ip(x, 'ACC')}")
+total_df['dst'] = total_df['dst'].apply(
+    lambda x: f"{x} {ip2gov.get_gov_data_by_ip(x, 'ACC')}")
+
+
+SUBJECT = "DDI Alert: Oneword Trojan"
+table = total_df.to_html(justify='left', index=False)
+
+mail.set_subject(SUBJECT)
+mail.set_template_body(mapping=table)
+mail.send()

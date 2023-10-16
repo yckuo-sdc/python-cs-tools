@@ -1,11 +1,13 @@
-"""Module detect webshell and send alert mail."""
+"""Module detect ddi events and send alert mail."""
 #!/usr/bin/python3
+import os
 import sys
 from datetime import datetime
 
 import pandas as pd
 from elasticsearch_dsl import Q, Search
 
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import helper.function as func
 from mail.send_mail import SendMail
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
@@ -16,12 +18,10 @@ mail.set_recipient("t910729@gmail.com")
 es = ElasticsearchDslAdapter()
 ip2gov = Ip2govAdapter()
 
+GTE = "now-1h"
+LT = "now"
+
 network_directions = [
-    #{
-    #    'rulename': 'request',
-    #    'service_ip': 'dst',
-    #    'service_port': 'dpt'
-    #},
     {
         'rulename': 'response',
         'service_ip': 'src',
@@ -37,10 +37,6 @@ shell_categories = [
     'behinder',
     'godzilla',
 ]
-
-EARLY_STOPPING = False
-GTE = "now-1h"
-LT = "now"
 
 frames = []
 for network_direction in network_directions:
@@ -85,10 +81,15 @@ except Exception as e:
 if total_df.empty:
     sys.exit('DataFrame is empty!')
 
-dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-subject = f"webshell alert on {dt}"
-table = total_df.to_html(justify='left', index=False)
+# Enrich ip with organiztaion name
+total_df['src'] = total_df['src'].apply(
+    lambda x: f"{x} {ip2gov.get_gov_data_by_ip(x, 'ACC')}")
+total_df['dst'] = total_df['dst'].apply(
+    lambda x: f"{x} {ip2gov.get_gov_data_by_ip(x, 'ACC')}")
 
-mail.set_subject(subject)
-mail.set_template_body(mapping=table)
+SUBJECT = "DDI Alert: Webshell Response"
+TABLE = total_df.to_html(justify='left', index=False)
+
+mail.set_subject(SUBJECT)
+mail.set_template_body(mapping=TABLE)
 mail.send()

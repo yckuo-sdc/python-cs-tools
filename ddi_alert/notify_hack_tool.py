@@ -1,11 +1,12 @@
-"""Module detect webshell and send alert mail."""
+"""Module detect ddi events and send alert mail."""
 #!/usr/bin/python3
 import os
 import sys
-from datetime import datetime
 
 import pandas as pd
 from elasticsearch_dsl import Q, Search
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 import helper.function as func
 from mail.send_mail import SendMail
@@ -17,10 +18,6 @@ mail.set_recipient("t910729@gmail.com")
 es = ElasticsearchDslAdapter()
 ip2gov = Ip2govAdapter()
 
-path_to_csv = os.path.join(os.path.dirname(__file__), "data",
-                           "bot_useragents.csv")
-df = pd.read_csv(path_to_csv)
-
 GTE = "now-1h"
 LT = "now"
 
@@ -31,12 +28,12 @@ useragents = [
     "python",
 ]
 
-useragent_str = ' '.join(useragents)
+USERAGENT_STR = ' '.join(useragents)
 
 q = Q('bool',
       must=[Q('exists', field='fileHash')],
       should=[
-          Q("match", requestClientApplication=useragent_str),
+          Q("match", requestClientApplication=USERAGENT_STR),
       ],
       minimum_should_match=1)
 
@@ -52,26 +49,28 @@ print(s.to_dict())
 print(f"Total Hits: {response.hits.total}")
 
 selected_keys = [
-    '@timestamp', 'ruleName', 'reason', 'Serverity', 'request', 'cs8', 'fileHash', 'cs4',
-    'requestClientApplication', 'src', 'dst', 'spt', 'dpt'
+    '@timestamp', 'ruleName', 'reason', 'Serverity', 'request', 'cs8',
+    'fileHash', 'cs4', 'requestClientApplication', 'src', 'dst', 'spt', 'dpt'
 ]
 
-filtered_source_data = func.filter_scan_hits_by_keys(s.scan(),
-                                                selected_keys)
+filtered_data = func.filter_scan_hits_by_keys(s.scan(), selected_keys)
 
-inputs = func.arr_dict_to_flat_dict(filtered_source_data)
-results = inputs
-total_df = pd.DataFrame(results)
-print(total_df)
+df = pd.DataFrame(filtered_data)
+print(df)
 
-if total_df.empty:
+if df.empty:
     print('DataFrame is empty!')
     sys.exit(0)
 
-dt = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-subject = f"hack tool alert on {dt}"
-table = total_df.to_html(justify='left', index=False)
+# Enrich ip with organiztaion name
+df['src'] = df['src'].apply(
+    lambda x: f"{x} {ip2gov.get_gov_data_by_ip(x, 'ACC')}")
+df['dst'] = df['dst'].apply(
+    lambda x: f"{x} {ip2gov.get_gov_data_by_ip(x, 'ACC')}")
 
-mail.set_subject(subject)
-mail.set_template_body(mapping=table)
+SUBJECT = "DDI Alert: Hack Tool"
+TABLE = df.to_html(justify='left', index=False)
+
+mail.set_subject(SUBJECT)
+mail.set_template_body(mapping=TABLE)
 mail.send()
