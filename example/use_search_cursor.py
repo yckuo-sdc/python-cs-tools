@@ -6,6 +6,8 @@ import sys
 import pandas as pd
 import requests
 
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 import helper.function as func
 import helper.http_validator as http
 from package.ip2gov_adapter import Ip2govAdapter

@@ -18,7 +18,7 @@ mail.set_recipient("t910729@gmail.com")
 es = ElasticsearchDslAdapter()
 ip2gov = Ip2govAdapter()
 
-GTE = "now-1h"
+GTE = "now-1d"
 LT = "now"
 
 useragents = [
@@ -30,6 +30,12 @@ useragents = [
 
 USERAGENT_STR = ' '.join(useragents)
 
+selected_keys = [
+    '@timestamp', 'ruleName', 'reason', 'Serverity', 'request', 'cs8',
+    'fileHash', 'cs4', 'requestClientApplication', 'src', 'dst', 'spt', 'dpt'
+]
+
+print("Search useragents with filehash...")
 q = Q('bool',
       must=[Q('exists', field='fileHash')],
       should=[
@@ -48,14 +54,25 @@ response = s.execute()
 print(s.to_dict())
 print(f"Total Hits: {response.hits.total}")
 
-selected_keys = [
-    '@timestamp', 'ruleName', 'reason', 'Serverity', 'request', 'cs8',
-    'fileHash', 'cs4', 'requestClientApplication', 'src', 'dst', 'spt', 'dpt'
-]
+print("Search useragents without filehash...")
+useragents_with_filehash = func.filter_scan_hits_by_keys(s.scan(), selected_keys)
 
-filtered_data = func.filter_scan_hits_by_keys(s.scan(), selected_keys)
+q = Q("match", requestClientApplication='certutil')
 
-df = pd.DataFrame(filtered_data)
+s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
+    .query(q) \
+    .filter("range", **{'@timestamp':{"gte": GTE,"lt": LT}}) \
+    .sort({"@timestamp": {"order": "desc"}})
+
+s = s[0:10]
+response = s.execute()
+
+print(s.to_dict())
+print(f"Total Hits: {response.hits.total}")
+
+useragents_without_filehash = func.filter_scan_hits_by_keys(s.scan(), selected_keys)
+
+df = pd.concat([pd.DataFrame(useragents_with_filehash), pd.DataFrame(useragents_without_filehash)])
 print(df)
 
 if df.empty:
