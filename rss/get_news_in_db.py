@@ -64,11 +64,11 @@ def extract_tags(nlp, text):
     exclude_ent_labels = ['CARDINAL', 'ORDINAL', 'DATE', 'MONEY']
 
     # Extract tags (named entities)
-    #extracted_tags = [f"{e.text}({e.label_})" for e in doc.ents]
-    extracted_tags = [
-        f"{e.text}({e.label_})" for e in doc.ents
-        if e.label_ not in exclude_ent_labels
-    ]
+    extracted_tags = [f"{e.text}({e.label_})" for e in doc.ents]
+    #extracted_tags = [
+    #    f"{e.text}({e.label_})" for e in doc.ents
+    #    if e.label_ not in exclude_ent_labels
+    #]
     filtered_tags = post_filter_tags(extracted_tags)
 
     return filtered_tags
@@ -77,8 +77,8 @@ def extract_tags(nlp, text):
 if __name__ == '__main__':
 
     # Initialization
-    ENABLE_NOTIFICATION = False
-    EMPTY_TABLE_BEFORE_INSERTING = True
+    ENABLE_NOTIFICATION = True
+    EMPTY_TABLE_BEFORE_INSERTING = False
 
     load_dotenv()
 
@@ -160,7 +160,6 @@ if __name__ == '__main__':
                 item_data = (feed['id'], entry.id, entry.title, entry.link,
                              fitered_description, TAG_STR,
                              convert_string_to_timestamp(entry.published))
-                
 
                 print(item_data)
                 cursor.execute(INSERT_QUERY, item_data)
@@ -169,16 +168,16 @@ if __name__ == '__main__':
                     "Data inserted successfully into table using the prepared statement"
                 )
 
-                results.append({
-                    'rss_feed_id': feed['id'],
-                    'guid': entry.id,
-                    'title': entry.title,
-                    'link': entry.link,
-                    'description': fitered_description,
-                    'tag_from_desc': ' | '.join(tags_desc),
-                    'tag_from_title': ' | '.join(tags_title),
-                    'tag_from_title_desc': ' | '.join(tags_merge),
-                })
+                #results.append({
+                #    'rss_feed_id': feed['id'],
+                #    'guid': entry.id,
+                #    'title': entry.title,
+                #    'link': entry.link,
+                #    'description': fitered_description,
+                #    'tag_from_desc': ' | '.join(tags_desc),
+                #    'tag_from_title': ' | '.join(tags_title),
+                #    'tag_from_title_desc': ' | '.join(tags_merge),
+                #})
 
                 if ENABLE_NOTIFICATION:
                     # notify new itmes in channels
@@ -193,6 +192,6 @@ if __name__ == '__main__':
     cursor.close()
     connection.close()
 
-    df = pd.DataFrame(results)
-    path_to_csv = os.path.join(os.path.dirname(__file__), "use_spacy.csv")
-    df.to_csv(path_to_csv, index=False, encoding='utf-8-sig')
+    #df = pd.DataFrame(results)
+    #path_to_csv = os.path.join(os.path.dirname(__file__), "use_spacy.csv")
+    #df.to_csv(path_to_csv, index=False, encoding='utf-8-sig')

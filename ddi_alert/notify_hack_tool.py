@@ -18,7 +18,7 @@ mail.set_recipient("t910729@gmail.com")
 es = ElasticsearchDslAdapter()
 ip2gov = Ip2govAdapter()
 
-GTE = "now-1d"
+GTE = "now-1h"
 LT = "now"
 
 useragents = [
