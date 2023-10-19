@@ -2,13 +2,13 @@ import os
 
 import pandas as pd
 
-#IMPORT_FILE_NAME = 'asusrt_cve_2018_17020.xlsx'
-#EXPORT_DIR_NAME = 'asusrt_cve_2018_17020'
-IMPORT_FILE_NAME = 'asusrt_cve_2023_39238.xlsx'
-EXPORT_DIR_NAME = 'asusrt_cve_2023_39238'
+#IMPORT_FILE_NAME = 'cve_2023_39238_int.xlsx'
+#EXPORT_DIR_NAME = 'cve_2023_39238_int'
+IMPORT_FILE_NAME = 'cve_2023_39238_ewa.xlsx'
+EXPORT_DIR_NAME = 'cve_2023_39238_ewa'
 
 # Specify the sheet name or index
-PATH_TO_EXCEL = os.path.join(os.path.dirname(__file__), 'notice_excels',
+PATH_TO_EXCEL = os.path.join(os.path.dirname(__file__), 'notices', 'excels',
                              IMPORT_FILE_NAME)
 SHEET1_NAME = '警訊內容'
 SHEET2_NAME = '機關資訊'
@@ -25,7 +25,7 @@ group_names = grouped.groups.keys()
 
 # Print the group names
 group_names = list(group_names)
-directory = os.path.join(os.path.dirname(__file__), 'attachments', EXPORT_DIR_NAME)
+directory = os.path.join(os.path.dirname(__file__), 'notices', 'attachments', EXPORT_DIR_NAME)
 
 for group_name in group_names:
     print(group_name)

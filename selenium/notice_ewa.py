@@ -33,13 +33,9 @@ USERNAME = os.getenv('NOTICE_USERNAME')
 PASSWORD = os.getenv('NOTICE_PASSWORD')
 
 profile = {
-    # cve_2018_17020
-    'import_file_name': 'asusrt_cve_2018_17020.xlsx',
-    'import_dir_name': 'asusrt_cve_2018_17020',
-
-    ##  cve_2023_39238
-    #'import_file_name': 'asusrt_cve_2023_39238.xlsx',
-    #'import_dir_name': 'asusrt_cve_2023_39238',
+    # cve_2023_20198
+    'import_file_name': 'cve_2023_20198_ewa.xlsx',
+    'import_dir_name': 'cve_2023_20198_ewa',
 }
 
 # Specify the sheet name or index
@@ -78,7 +74,7 @@ for deparment in deparments:
         sys.exit(f"Exit: Can't find attachment: {file_name}")
     deparment['file_path'] = file_path
 
-sys.exit(0)
+#sys.exit(0)
 
 ### Run Browser in background
 options = webdriver.ChromeOptions()
@@ -157,7 +153,7 @@ for deparment in deparments:
     # notice.severity = ['高', '中', '低']
     select_element = driver.find_element(By.NAME, "notice.severity")
     select = Select(select_element)
-    select.select_by_value('低')
+    select.select_by_value('高')
 
     # notice.restriction = ['公開資訊', '群組資訊', '機密資訊']
     select_element = driver.find_element(By.NAME, "notice.restriction")
