@@ -1,4 +1,4 @@
-"""Module Proof of Concept for CVE-2018-17020."""
+"""Module Proof of Concept for CVE-2023-20198."""
 import os
 
 import datetime
@@ -69,6 +69,7 @@ def is_implanted(request_url):
                                  allow_redirects=False,
                                  verify=False,
                                  timeout=5)
+
         string = response.text.strip()
         if is_hexadecimal_string(string):
             return string
@@ -85,21 +86,16 @@ if __name__ == '__main__':
     ip2gov = Ip2govAdapter()
     sa = ShodanAdapter()
 
-    #print(is_implanted('https://163.29.251.185'))
-    #print(is_implanted('http://61.60.10.65'))
-    #print(is_implanted('https://210.241.73.127:443'))
-    #input('press')
+    search_filters = {
+        'asn': 'AS4782',
+        'all_no_quotes': 'server: openresty',
+    }
 
     #search_filters = {
     #    'asn': 'AS4782',
-    #    'all_no_quotes': 'server: openresty',
+    #    'http.html': 'webui',
+    #    'product': 'OpenResty,nginx',
     #}
-
-    search_filters = {
-        'asn': 'AS4782',
-        'http.html': 'webui',
-        'product': 'OpenResty,nginx',
-    }
 
     match_fields = [{
         'label': 'ip',

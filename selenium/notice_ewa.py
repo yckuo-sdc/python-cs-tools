@@ -35,7 +35,7 @@ PASSWORD = os.getenv('NOTICE_PASSWORD')
 profile = {
     # cve_2023_20198
     'import_file_name': 'cve_2023_20198_ewa.xlsx',
-    'import_dir_name': 'cve_2023_20198_ewa',
+    'import_attach_dir_name': 'cve_2023_20198_ewa',
 }
 
 # Specify the sheet name or index
@@ -65,7 +65,7 @@ print(form_inputs)
 print(deparments)
 
 attach_directory = os.path.join(os.path.dirname(__file__), 'notices',
-                                'attachments', profile.get('import_dir_name'))
+                                'attachments', profile.get('import_attach_dir_name'))
 for deparment in deparments:
     file_name = f"{deparment['name']}.csv"
     file_path = find_files_with_name(attach_directory, file_name)
@@ -125,7 +125,7 @@ for deparment in deparments:
     select = Select(select_element)
     select.select_by_value('1')
 
-    # eventId = {165: '其他'}
+    # eventId = {'150': '可疑程式', '158': '社交工程攻擊', '147': '系統弱點', '155': '跳板主機通知', '157': 'Bot', '151': '對外攻擊', '153': 'spam', '154': '請求協助處理', '148': '可疑連線', '149': '資訊洩漏', '152': '網頁攻擊事件', '165': '其他'
     select_element = driver.find_element(By.NAME, "eventId")
     select = Select(select_element)
     select.select_by_value('165')
