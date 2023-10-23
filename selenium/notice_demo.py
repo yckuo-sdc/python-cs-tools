@@ -34,21 +34,28 @@ if __name__ == '__main__':
     PASSWORD = os.getenv('NOTICE_PASSWORD')
 
     profile = {
-        'import_file_name': 'notice_example.xlsx',
-        'import_attach_dir_name': 'notice_example',
+        'path_to_excel':
+        os.path.join(os.path.dirname(__file__), 'notices', 'excels',
+                     'notice_example.xlsx'),
+        'path_to_attach_dir':
+        os.path.join(os.path.dirname(__file__), 'notices', 'attachments',
+                     'notice_example'),
     }
 
+    PATH_TO_EXCEL = profile.get('path_to_excel')
     # Specify the sheet name or index
-    PATH_TO_EXCEL = os.path.join(os.path.dirname(__file__), 'notices', 'excels',
-                                 profile.get('import_file_name'))
 
     SHEET1_NAME = '警訊內容'
     SHEET2_NAME = '機關資訊'
     SHEET3_NAME = '執行結果'
 
     # If using openpyxl for .xlsx files
-    df1 = pd.read_excel(PATH_TO_EXCEL, engine='openpyxl', sheet_name=SHEET1_NAME)
-    df2 = pd.read_excel(PATH_TO_EXCEL, engine='openpyxl', sheet_name=SHEET2_NAME)
+    df1 = pd.read_excel(PATH_TO_EXCEL,
+                        engine='openpyxl',
+                        sheet_name=SHEET1_NAME)
+    df2 = pd.read_excel(PATH_TO_EXCEL,
+                        engine='openpyxl',
+                        sheet_name=SHEET2_NAME)
 
     ## Grouping by multiple columns
     df2['port'] = df2['port'].astype(str)
@@ -66,8 +73,7 @@ if __name__ == '__main__':
 
     # Attachment validation
     if inputs['notice.attachment'] == '有':
-        attach_directory = os.path.join(os.path.dirname(__file__), 'notices',
-                                        'attachments', profile.get('import_attach_dir_name'))
+        attach_directory = profile.get('path_to_attach_dir')
         for deparment in deparments:
             file_name = f"{deparment['name']}.csv"
             file_path = find_files_with_name(attach_directory, file_name)
@@ -133,8 +139,8 @@ if __name__ == '__main__':
         driver.find_element(By.XPATH, "//input[@type='submit']").click()
 
         ### Part 3. Filling ###
-        subject = Template(
-            inputs['notice.subject']).substitute(department_name=deparment['name'])
+        subject = Template(inputs['notice.subject']).substitute(
+            department_name=deparment['name'])
         content = Template(
             inputs['notice.content']).substitute(department_ip=deparment['ip'])
         suggestion = inputs['notice.suggestion']
@@ -163,7 +169,8 @@ if __name__ == '__main__':
         driver.find_element(By.NAME, "notice.content").send_keys(content)
 
         if inputs['typeId'] == 'INT':
-            driver.find_element(By.NAME, "notice.approach").send_keys(inputs['approach'])
+            driver.find_element(By.NAME, "notice.approach").send_keys(
+                inputs['approach'])
 
         for ip in ips:
             driver.find_element(By.XPATH, "//input[@id='ip']").send_keys(ip)
@@ -174,7 +181,8 @@ if __name__ == '__main__':
 
         if inputs['notice.attachment'] == '有':
             # Specify the path to the file you want to upload
-            driver.find_element(By.NAME, "myFile").send_keys(deparment['file_path'])
+            driver.find_element(By.NAME,
+                                "myFile").send_keys(deparment['file_path'])
             driver.find_element(By.XPATH, "//input[@type='submit']").click()
 
         input("Press Enter to continue...")
@@ -188,12 +196,13 @@ if __name__ == '__main__':
         driver.get(f"{HOST}/notice/NoticePrePublish!deleteAllTo.do")
 
         driver.execute_script("goToSelectToPage()")
-        driver.find_element(By.ID,
-                            "NoticePrePublish_search").send_keys(deparment['name'])
+        driver.find_element(By.ID, "NoticePrePublish_search").send_keys(
+            deparment['name'])
         driver.find_element(By.ID, "NoticePrePublish_normal_query").click()
 
         #### Part 6. Add Address ###
-        checkboxes = driver.find_elements(By.XPATH, "//input[@name='selectGroup']")
+        checkboxes = driver.find_elements(By.XPATH,
+                                          "//input[@name='selectGroup']")
 
         # Iterate through the checkboxes and click each one
         for checkbox in checkboxes:
@@ -221,4 +230,6 @@ if __name__ == '__main__':
                         engine='openpyxl',
                         mode='a',
                         if_sheet_exists='replace') as writer:
-        execution_results_df.to_excel(writer, sheet_name=SHEET3_NAME, index=False)
+        execution_results_df.to_excel(writer,
+                                      sheet_name=SHEET3_NAME,
+                                      index=False)

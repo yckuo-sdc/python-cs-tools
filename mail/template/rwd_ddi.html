@@ -1,71 +1,46 @@
 <html>
     <head>    
         <style type="text/css">
-            * {
-              box-sizing: border-box;
-              font-family: Arial, Helvetica, sans-serif;
-            }
-
-            body {
-              font-family: Microsoft JhengHei;
-            }
-
-            .table__wrapper {
-              width: 100%;
-            }
-
-            .table__wrapper .dataframe {
-              width: 100%;
-              max-width: 100%;
-            }
-
-
-            h1 {
-              text-align: center;
-            }
-
-            .center {
-              margin: 0 auto;
-              width: 80%;
-            }
 
             .dataframe {
-              border: 1px solid #ccc;
-              border-collapse: collapse;
-            }
-
-            .dataframe thead {
-                  background-color: #e0e0e0;
-                  color: #000;
-            }
-
-            .dataframe tr {
-              border-bottom: 1px solid #ccc;
+                border-collapse: collapse;
+                margin: 25px 0;
+                font-size: 1.0em;
+                font-family: sans-serif;
+                min-width: 400px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
             }
 
             .dataframe thead tr {
-              border-bottom: 2px solid #ccc;
+                background-color: #009879;
+                color: #ffffff;
+                text-align: left;
             }
 
-            .dataframe td,
-            .dataframe th {
-              padding: .5em;
+            .dataframe th,
+            .dataframe td {
+                padding: 12px 15px;
+            }
+            .dataframe tbody tr {
+                border-bottom: 1px solid #dddddd;
             }
 
-            .dataframe th {
-              text-align: left;
+            .dataframe tbody tr:nth-child(even) {
+                background-color: #f3f3f3;
             }
 
-            .dataframe tbody tr:hover {
-              background: #d1d1d1;
+            .dataframe tbody tr:last-child {
+                border-bottom: 2px solid #009879;
             }
 
-            @media screen and (max-width:991px) {
+            @media screen and (min-width: 350px) and (max-width:991px) {
+
               .dataframe {
                 margin: 0 auto;
-                width: 100%;
+                max-width: 100%;
                 border-spacing: 0;
               }
+
               .dataframe thead {
                 position: absolute;
                 clip: rect(1px, 1px, 1px, 1px);
@@ -75,6 +50,7 @@
                 width: 1px;
                 overflow: hidden;
               }
+
               .dataframe tbody,
               .dataframe tr,
               .dataframe th,
@@ -84,6 +60,7 @@
                 text-align: left;
                 white-space: normal;
               }
+
               .dataframe tr td,a
               .dataframe tr th {
                 padding: 2em 1em;
@@ -93,40 +70,44 @@
                 vertical-align: top;
                 border: 1px solid #EDF0F1;
                 border-top: none;
-                width: 100%;
+                max-width: 100%;
                 white-space: normal;
               }
+
               .dataframe th[scope="row"] {
-                width: 100%;
+                max-width: 100%;
                 text-align: center;
                 display: block;
                 background-color: #B3BFC6;
                 margin: 0 auto;
                 padding: .5em 0;
               }
+
               .dataframe td[data-header]:before {
                 content: attr(data-header);
                 display: block;
                 float: left;
-                width: 50%;
+                max-width: 50%;
                 color: #000000;
                 font-weight: bold;
                 text-align: left;
               }
+
               .dataframe td[data-header] > * {
                 display: block;
-                width: 50%;
+                max-width: 50%;
                 float: right;
                 clear: right;
                 padding-left: 1em;
                 margin-top: 0;
               }
+
               .dataframe td[data-header]:after {
                 content: "";
                 position: absolute;
                 left: 0;
                 top: 0;
-                width: 50%;
+                max-width: 50%;
                 border-right: 1px solid #EDF0F1;
                 padding-bottom: 200%;
                 display: block;
@@ -135,7 +116,7 @@
 
             @media screen and (max-width: 600px) {
               .center {
-                width: 100%;
+                max-width: 100%;
               }
             }
         </style>

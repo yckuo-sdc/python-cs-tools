@@ -46,7 +46,7 @@ class SendMail:
         template_body = Template(template_path.read_text('utf-8'))
         template_body = template_body.substitute({"table": mapping})
         # Turns CSS blocks into style attributes with 'premailer'
-        self.body = transform(template_body)
+        self.body = transform(template_body, exclude_pseudoclasses=False)
 
     def add_attachment(self, attachments):
         self.attachments = attachments

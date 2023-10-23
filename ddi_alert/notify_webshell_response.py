@@ -59,8 +59,8 @@ for network_direction in network_directions:
 
         selected_keys = [
             '@timestamp', 'ruleName', 'reason', 'Serverity', 'request', 'cs8',
-            'fileHash', 'cs4', 'requestClientApplication', 'src', 'dst', 'spt',
-            'dpt'
+            'fname', 'fileHash', 'cs4', 'requestClientApplication', 'src',
+            'dst', 'spt', 'dpt'
         ]
 
         filtered_source_data = func.filter_scan_hits_by_keys(

@@ -19,8 +19,8 @@ mail.set_recipient("t910729@gmail.com")
 es = ElasticsearchDslAdapter()
 ip2gov = Ip2govAdapter()
 
-EARLY_STOPPING = False
-GTE = "now-10d"
+EARLY_STOPPING = True
+GTE = "now-1h"
 LT = "now"
 
 network_directions = [
@@ -107,7 +107,7 @@ for network_direction in network_directions:
             print(f"Total Process Hits: {len(response.hits.hits)}")
 
             selected_keys = [
-                '@timestamp', 'ruleName', 'reason', 'request', 'cs8',
+                '@timestamp', 'ruleName', 'reason', 'request', 'cs8', 'fname',
                 'fileHash', 'cs4', 'requestClientApplication', 'src', 'dst',
                 'spt', 'dpt'
             ]
@@ -148,7 +148,6 @@ total_df['src'] = total_df['src'].apply(
     lambda x: f"{x} {ip2gov.get_gov_data_by_ip(x, 'ACC')}")
 total_df['dst'] = total_df['dst'].apply(
     lambda x: f"{x} {ip2gov.get_gov_data_by_ip(x, 'ACC')}")
-
 
 SUBJECT = "DDI Alert: Oneword Trojan"
 table = total_df.to_html(justify='left', index=False)
