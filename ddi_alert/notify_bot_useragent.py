@@ -21,18 +21,27 @@ ip2gov = Ip2govAdapter()
 GTE = "now-1h"
 LT = "now"
 
-######## HKTL_PASS.COE, HKTL_PASSVIEW, HKTL_PDFRestrictionsRemover, HKTL_PRODKEY
-##E.G.## HKTL_FILEUP, HKTL_KEYGEN, HKTL_CCDOOR
-######## HKTL_PROXY, HKTL_RADMIN.component', HKTL_ETHERFLOOD
-HACK_TOOL_KEYWORD = "HKTL*"
+useragents = [
+    "curl",
+    "certutil",
+    "wget",
+    "python",
+]
+
+USERAGENT_STR = ' '.join(useragents)
 
 selected_keys = [
     '@timestamp', 'ruleName', 'reason', 'Serverity', 'request', 'cs8', 'fname',
     'fileHash', 'cs4', 'requestClientApplication', 'src', 'dst', 'spt', 'dpt'
 ]
 
-print("Search hack tool...")
-q = Q("wildcard", ruleName__keyword=HACK_TOOL_KEYWORD)
+print("Search useragents with filehash...")
+q = Q('bool',
+      must=[Q('exists', field='fileHash')],
+      should=[
+          Q("match", requestClientApplication=USERAGENT_STR),
+      ],
+      minimum_should_match=1)
 
 s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
     .query(q) \
@@ -45,9 +54,30 @@ response = s.execute()
 print(s.to_dict())
 print(f"Total Hits: {response.hits.total}")
 
-hack_tool_response = func.filter_scan_hits_by_keys(s.scan(), selected_keys)
+print("Search useragents without filehash...")
+useragents_with_filehash = func.filter_scan_hits_by_keys(
+    s.scan(), selected_keys)
 
-df = pd.DataFrame(hack_tool_response)
+q = Q("match", requestClientApplication='certutil')
+
+s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
+    .query(q) \
+    .filter("range", **{'@timestamp':{"gte": GTE,"lt": LT}}) \
+    .sort({"@timestamp": {"order": "desc"}})
+
+s = s[0:10]
+response = s.execute()
+
+print(s.to_dict())
+print(f"Total Hits: {response.hits.total}")
+
+useragents_without_filehash = func.filter_scan_hits_by_keys(
+    s.scan(), selected_keys)
+
+df = pd.concat([
+    pd.DataFrame(useragents_with_filehash),
+    pd.DataFrame(useragents_without_filehash)
+], ignore_index=True)
 print(df)
 
 if df.empty:
@@ -60,7 +90,7 @@ df['src'] = df['src'].apply(
 df['dst'] = df['dst'].apply(
     lambda x: f"{x} {ip2gov.get_gov_data_by_ip(x, 'ACC')}")
 
-SUBJECT = "DDI Alert: Hack Tool"
+SUBJECT = "DDI Alert: Bot Useragent"
 TABLE = df.to_html(justify='left', index=False)
 
 mail.set_subject(SUBJECT)

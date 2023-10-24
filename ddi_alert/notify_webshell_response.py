@@ -73,7 +73,7 @@ for network_direction in network_directions:
         frames.append(df)
 
 try:
-    total_df = pd.concat(frames)
+    total_df = pd.concat(frames, ignore_index=True)
     print(total_df)
 except Exception as e:
     print(e)
