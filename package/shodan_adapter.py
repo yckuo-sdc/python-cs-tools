@@ -15,7 +15,10 @@ class ShodanAdapter:
         else:
             self.__api = api
 
-    def basic_query(self, search_filters, match_fields, retrieve_all_pages=False):
+    def basic_query(self,
+                    search_filters,
+                    match_fields,
+                    retrieve_all_pages=False):
         """Method printing python version."""
         try:
             if isinstance(search_filters, dict):
@@ -86,8 +89,14 @@ class ShodanAdapter:
             for banner in banners:
                 match = {}
                 for match_field in match_fields:
-                    match[match_field['label']] = banner.get(
-                            match_field['field'])
+                    if isinstance(match_field['field'], dict):
+                        items = match_field['field'].items()
+                        item = next(iter(items), None)
+                        match[match_field['label']] = banner.get(
+                                item[0], {}).get(item[1])
+                    else:
+                        match[match_field['label']] = banner.get(
+                                match_field['field'])
 
                 matches.append(match)
 
@@ -97,6 +106,7 @@ class ShodanAdapter:
         except Exception as e:
             print(f"Error: {e}")
             return False
+
 
 if __name__ == '__main__':
     sa = ShodanAdapter()

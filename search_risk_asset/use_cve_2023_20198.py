@@ -1,18 +1,17 @@
 """Module Proof of Concept for CVE-2023-20198."""
-import os
-
 import datetime
+import os
+import sys
 
 import pandas as pd
 import requests
 
-from package.ip2gov_adapter import Ip2govAdapter
-from package.shodan_adapter import ShodanAdapter
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 ACCESSIBLE_CODES = [200]
 
-
 def get_response_code(url):
+    """Functions"""
     try:
         headers = {
             'user-agent':
@@ -27,11 +26,10 @@ def get_response_code(url):
         return response.status_code
     except Exception as e:
         print(e)
-        return False
-
+        return None
 
 def is_hexadecimal_string(input_string):
-    """Function confirm that web page is accessible."""
+    """Function"""
     # Check if the input string is not empty
     if len(input_string) == 0:
         return False
@@ -51,7 +49,7 @@ def is_accessible(request_url):
     return True
 
 
-def is_implanted(request_url):
+def get_implanted_pattern(request_url):
     """Function confirm that web page is implanted."""
 
     try:
@@ -74,92 +72,43 @@ def is_implanted(request_url):
         if is_hexadecimal_string(string):
             return string
 
-        return False
+        return None
         #return is_hexadecimal_string(string)
     except Exception as e:
         print(e)
-        return False
-
+        return None
 
 if __name__ == '__main__':
 
-    ip2gov = Ip2govAdapter()
-    sa = ShodanAdapter()
+    path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
+                               "use_shodan_and_ipdn.csv")
 
-    search_filters = {
-        'asn': 'AS4782',
-        'all_no_quotes': 'server: openresty',
-    }
+    fields = pd.read_csv(path_to_csv).to_dict(orient='records')
+    print(f"Records found: {len(fields)}")
 
-    #search_filters = {
-    #    'asn': 'AS4782',
-    #    'http.html': 'webui',
-    #    'product': 'OpenResty,nginx',
-    #}
-
-    match_fields = [{
-        'label': 'ip',
-        'field': 'ip_str'
-    }, {
-        'label': 'port',
-        'field': 'port'
-    }, {
-        'label': 'product',
-        'field': 'product'
-    }, {
-        'label': 'ssl',
-        'field': 'ssl'
-    }]
-
-    fields = sa.basic_query_cursor(search_filters, match_fields)
-    print(fields)
-
+    label_keys = ['access_code', 'hex_str', 'timestamp']
     output = []
     for field in fields:
-        EXPOSED = False
-        #IMPLANTED = False
-        HEX_STR = False
-        DEP = None
-        CLASS = None
-        ACC = None
+        DEFAULT_VALUE = None
+        label = dict.fromkeys(label_keys, DEFAULT_VALUE)
 
-        host = field['ip']
-        port = field['port']
+        SCHEMA = 'http'
+        if field['ssl'] is not None:
+            SCHEMA = 'https'
 
-        if field['ssl'] is None:
-            field['ssl'] = False
-            url = f"http://{host}:{port}"
-        else:
-            field['ssl'] = True
-            url = f"https://{host}:{port}"
+        field['url'] = f"{SCHEMA}://{field['service']}"
+        print(field['url'])
 
-        field['url'] = url
-        print(host, port, url)
+        label['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        label['access_code'] = get_response_code(field['url'])
+        if label['access_code'] not in ACCESSIBLE_CODES:
+            output.append(field | label)
+            continue
 
-        #gov_data = ip2gov.get_gov_data_by_ip(field['ip'])
-        #if gov_data:
-        #    DEP = gov_data.get('DEP')
-        #    CLASS = gov_data.get('Class')
-        #    ACC = gov_data.get('ACC')
-
-        EXPOSED = is_accessible(url)
-        #IMPLANTED = is_implanted(url)
-        HEX_STR = is_implanted(url)
-        current_time = datetime.datetime.now()
-        formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
-
-        output.append(
-                field | \
-                {'dep': DEP} | \
-                {'acc': ACC} | \
-                {'class': CLASS} | \
-                {'exposed': EXPOSED} | \
-                #{'implanted': IMPLANTED}
-                {'hex string': HEX_STR} |
-                {'timestamp': formatted_time}
-        )
+        label['hex_str'] = get_implanted_pattern(field['url'])
+        output.append(field | label)
 
     df = pd.DataFrame(output)
-    path_to_csv = os.path.join(os.path.dirname(__file__), "data",
+    path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
                                "use_cve_2023_20198.csv")
     df.to_csv(path_to_csv, index=False, encoding='utf-8-sig')

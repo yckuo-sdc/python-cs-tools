@@ -2,10 +2,8 @@ import os
 
 import pandas as pd
 
-#IMPORT_FILE_NAME = 'cve_2023_39238_int.xlsx'
-#EXPORT_DIR_NAME = 'cve_2023_39238_int'
-IMPORT_FILE_NAME = 'cve_2023_39238_ewa.xlsx'
-EXPORT_DIR_NAME = 'cve_2023_39238_ewa'
+IMPORT_FILE_NAME = 'citrix_cve_2023_4966.xlsx'
+EXPORT_DIR_NAME = 'citrix_cve_2023_4966'
 
 # Specify the sheet name or index
 PATH_TO_EXCEL = os.path.join(os.path.dirname(__file__), 'notices', 'excels',

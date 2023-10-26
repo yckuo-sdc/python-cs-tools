@@ -20,7 +20,7 @@ es = ElasticsearchDslAdapter()
 ip2gov = Ip2govAdapter()
 
 EARLY_STOPPING = True
-GTE = "now-1d"
+GTE = "now-1h"
 LT = "now"
 
 network_directions = [
