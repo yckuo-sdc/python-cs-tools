@@ -1,9 +1,6 @@
 # Notice
 ## Usage 
 `python3 notice_standalone.py [--excel EXCEL] [--attach-dir ATTACH_DIR]`
-:::info
-需指定 Excel, Attachments 路徑
-:::
 ```
 python3 notice_standalone.py -h
 usage: notice_standalone.py [-h] [--excel EXCEL] [--attach-dir ATTACH_DIR]
