@@ -54,9 +54,9 @@ if df.empty:
 
 # Enrich ip with organiztaion name
 df['src'] = df['src'].apply(
-    lambda x: f"{x} {ip2gov.get_gov_data_by_ip(x, 'ACC')}")
+    lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
 df['dst'] = df['dst'].apply(
-    lambda x: f"{x} {ip2gov.get_gov_data_by_ip(x, 'ACC')}")
+    lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
 
 SUBJECT = "DDI Alert: High Risk Http Response"
 TABLE = df.to_html(justify='left', index=False)

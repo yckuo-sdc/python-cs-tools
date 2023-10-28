@@ -112,7 +112,7 @@ if __name__ == '__main__':
         field['url'] = url
         print(host, port, url)
 
-        #gov_data = ip2gov.get_gov_data_by_ip(field['ip'])
+        #gov_data = ip2gov.get(field['ip'])
         #if gov_data:
         #    DEPARTMENT = gov_data.get('DEP')
         #    DEPARTMENT_CLASS = gov_data.get('Class')

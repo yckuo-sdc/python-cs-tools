@@ -29,7 +29,7 @@ if __name__ == '__main__':
 
     results = []
     for segmented_list in segmented_lists:
-        gov_data = ip2gov.get_gov_data_by_ip_list(segmented_list)
+        gov_data = ip2gov.get(segmented_list)
         print(gov_data)
         if gov_data:
             results.extend(gov_data)

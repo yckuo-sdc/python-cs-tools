@@ -24,7 +24,7 @@ for service in services:
     print(service['ip'], service['port'])
     LABEL = annoymous.is_anonymous_binding(service['ip'], service['port'])
     print(LABEL)
-    gov_data = ip2gov.get_gov_data_by_ip(service['ip'])
+    gov_data = ip2gov.get(service['ip'])
     output.append(service | {'department': gov_data['DEP']} | {'label': LABEL})
 
 output_dict = func.arr_dict_to_flat_dict(output)

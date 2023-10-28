@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
         field['service'] = f"{field['ip']}:{field['port']}"
 
-        gov_data = ip2gov.get_gov_data_by_ip(field['ip'])
+        gov_data = ip2gov.get(field['ip'])
         if gov_data:
             label['dep'] = gov_data.get('DEP')
             label['class'] = gov_data.get('Class')

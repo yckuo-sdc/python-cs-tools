@@ -72,6 +72,7 @@ for network_direction in network_directions:
         print(df)
         frames.append(df)
 
+total_df = pd.DataFrame()
 try:
     total_df = pd.concat(frames, ignore_index=True)
     print(total_df)
@@ -83,9 +84,9 @@ if total_df.empty:
 
 # Enrich ip with organiztaion name
 total_df['src'] = total_df['src'].apply(
-    lambda x: f"{x} {ip2gov.get_gov_data_by_ip(x, 'ACC')}")
+    lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
 total_df['dst'] = total_df['dst'].apply(
-    lambda x: f"{x} {ip2gov.get_gov_data_by_ip(x, 'ACC')}")
+    lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
 
 SUBJECT = "DDI Alert: Webshell Response"
 TABLE = total_df.to_html(justify='left', index=False)
