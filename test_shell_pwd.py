@@ -25,7 +25,7 @@ target_shell = shell_categories[target_shell_index]
 
 q = Q("match", ruleName=target_shell) & Q("match", app='HTTP')
 
-s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
+s = Search(using=es.get_es_node(), index='new_ddi*') \
     .query(q) \
     .sort({"@timestamp": {"order": "desc"}})    
 

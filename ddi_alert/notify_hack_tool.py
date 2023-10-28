@@ -34,7 +34,7 @@ selected_keys = [
 print("Search hack tool...")
 q = Q("wildcard", ruleName__keyword=HACK_TOOL_KEYWORD)
 
-s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
+s = Search(using=es.get_es_node(), index='new_ddi*') \
     .query(q) \
     .filter("range", **{'@timestamp':{"gte": GTE,"lt": LT}}) \
     .sort({"@timestamp": {"order": "desc"}})

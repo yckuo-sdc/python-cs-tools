@@ -245,7 +245,12 @@ if __name__ == '__main__':
 
         ### Final. Publish ###
         input("Press Enter to continue...")
-        driver.find_element(By.XPATH, "//input[@type='submit']").click()
+        try:
+            driver.find_element(By.XPATH, "//input[@type='submit']").click()
+        except NoSuchElementException:
+            input(
+                "The element: 'input:submit' was not found on the web page, Press Enter to continue..."
+            )
 
     # Write the modified DataFrame back to the worksheet
     execution_results_df = pd.DataFrame(execution_results)

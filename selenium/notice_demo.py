@@ -22,6 +22,19 @@ def find_files_with_name(directory, target_name):
     return False
 
 
+def get_department_file_path(directory, department_name):
+    """Function get file path with department name."""
+    file_types = ['zip', 'csv']
+
+    for file_type in file_types:
+        file_name = f"{department_name}.{file_type}"
+        file_path = find_files_with_name(directory, file_name)
+        if file_path:
+            return file_path
+
+    return False
+
+
 def concatenate_values(series):
     """Function concatenate the list."""
     return ', '.join(series)
@@ -36,15 +49,15 @@ if __name__ == '__main__':
     profile = {
         'path_to_excel':
         os.path.join(os.path.dirname(__file__), 'notices', 'excels',
-                     'notice_example.xlsx'),
+                     'citrix_cve_2023_4966.xlsx'),
         'path_to_attach_dir':
         os.path.join(os.path.dirname(__file__), 'notices', 'attachments',
-                     'notice_example'),
+                     'citrix_cve_2023_4966'),
     }
 
     PATH_TO_EXCEL = profile.get('path_to_excel')
-    # Specify the sheet name or index
 
+    # Specify the sheet name or index
     SHEET1_NAME = '警訊內容'
     SHEET2_NAME = '機關資訊'
     SHEET3_NAME = '執行結果'
@@ -67,20 +80,19 @@ if __name__ == '__main__':
 
     inputs = df1.to_dict('records')
     inputs = next(iter(inputs), None)
-    deparments = df2.to_dict('records')
+    departments = df2.to_dict('records')
     print(inputs)
-    print(deparments)
+    print(departments)
 
     # Attachment validation
     if inputs['notice.attachment'] == '有':
         attach_directory = profile.get('path_to_attach_dir')
-        for deparment in deparments:
-            file_name = f"{deparment['name']}.csv"
-            file_path = find_files_with_name(attach_directory, file_name)
-            print(file_path)
-            if not file_path:
-                sys.exit(f"Exit: Can't find attachment: {file_name}")
-            deparment['file_path'] = file_path
+        for department in departments:
+            department['file_path'] = get_department_file_path(
+                attach_directory, department['name'])
+            if not department['file_path']:
+                sys.exit(f"Exit: Can't find attachment: {department['name']}")
+            print(department['file_path'])
 
     ### Run Browser in background
     options = webdriver.ChromeOptions()
@@ -114,9 +126,9 @@ if __name__ == '__main__':
     driver.find_element(By.XPATH, "//input[@type='submit']").click()
 
     execution_results = []
-    for deparment in deparments:
+    for department in departments:
         ### Part 2. Classification ###
-        print(deparment['name'])
+        print(department['name'])
 
         # Directing the driver to the defined url
         driver.get(f"{HOST}/notice/Notice.do?method:publishNoticeStep1")
@@ -140,12 +152,12 @@ if __name__ == '__main__':
 
         ### Part 3. Filling ###
         subject = Template(inputs['notice.subject']).substitute(
-            department_name=deparment['name'])
-        content = Template(
-            inputs['notice.content']).substitute(department_ip=deparment['ip'])
+            department_name=department['name'])
+        content = Template(inputs['notice.content']).substitute(
+            department_ip=department['ip'])
         suggestion = inputs['notice.suggestion']
         reference = inputs['notice.reference']
-        ips = deparment['ip'].split(", ")
+        ips = department['ip'].split(", ")
 
         # notice.source = ['外部資安組織', '本院自行發現', 'GSN威脅情蒐機制']
         select_element = driver.find_element(By.NAME, "notice.source")
@@ -182,7 +194,7 @@ if __name__ == '__main__':
         if inputs['notice.attachment'] == '有':
             # Specify the path to the file you want to upload
             driver.find_element(By.NAME,
-                                "myFile").send_keys(deparment['file_path'])
+                                "myFile").send_keys(department['file_path'])
             driver.find_element(By.XPATH, "//input[@type='submit']").click()
 
         input("Press Enter to continue...")
@@ -197,7 +209,7 @@ if __name__ == '__main__':
 
         driver.execute_script("goToSelectToPage()")
         driver.find_element(By.ID, "NoticePrePublish_search").send_keys(
-            deparment['name'])
+            department['name'])
         driver.find_element(By.ID, "NoticePrePublish_normal_query").click()
 
         #### Part 6. Add Address ###
@@ -218,11 +230,16 @@ if __name__ == '__main__':
         td = driver.find_element(By.XPATH, "//table/tbody/tr[1]/td[1]")
         notice_id = td.text
 
-        execution_results.append(deparment | {'notice_id': notice_id})
+        execution_results.append(department | {'notice_id': notice_id})
 
         ### Final. Publish ###
         input("Press Enter to continue...")
-        driver.find_element(By.XPATH, "//input[@type='submit']").click()
+        try:
+            driver.find_element(By.XPATH, "//input[@type='submit']").click()
+        except NoSuchElementException:
+            input(
+                "The element: 'input:submit' was not found on the web page, Press Enter to continue..."
+            )
 
     # Write the modified DataFrame back to the worksheet
     execution_results_df = pd.DataFrame(execution_results)

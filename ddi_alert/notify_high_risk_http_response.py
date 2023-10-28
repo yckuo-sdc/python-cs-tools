@@ -32,7 +32,7 @@ print("Search high risk http response...")
 q = Q("match", Serverity=SEVERITY) & Q("match", app='HTTP') & Q(
     "match", ruleName='response')
 
-s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
+s = Search(using=es.get_es_node(), index='new_ddi*') \
     .query(q) \
     .filter("range", **{'@timestamp':{"gte": GTE,"lt": LT}}) \
     .sort({"@timestamp": {"order": "desc"}})

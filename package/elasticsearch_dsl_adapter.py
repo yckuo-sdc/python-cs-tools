@@ -30,7 +30,7 @@ class ElasticsearchDslAdapter():
         return self.__es
 
     def search_sample(self):
-        s = Search(using=self.__es, index='new_ddi_2023.*') \
+        s = Search(using=self.__es, index='new_ddi*') \
             .query("match", ruleName="Response") \
             .sort({"@timestamp": {"order": "desc"}})    
 

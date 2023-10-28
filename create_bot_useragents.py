@@ -16,7 +16,7 @@ BUCKETS_SIZE = 1000
 
 q = Q("match", evtSubCat="Trojan")
 
-s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
+s = Search(using=es.get_es_node(), index='new_ddi*') \
     .sort({"@timestamp": {"order": "desc"}})
     #.query(q) \
 #.filter("range", **{'@timestamp':{"gte": GTE,"lt": LT}}) \

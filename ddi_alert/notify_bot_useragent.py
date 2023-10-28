@@ -43,7 +43,7 @@ q = Q('bool',
       ],
       minimum_should_match=1)
 
-s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
+s = Search(using=es.get_es_node(), index='new_ddi*') \
     .query(q) \
     .filter("range", **{'@timestamp':{"gte": GTE,"lt": LT}}) \
     .sort({"@timestamp": {"order": "desc"}})
@@ -60,7 +60,7 @@ useragents_with_filehash = func.filter_scan_hits_by_keys(
 
 q = Q("match", requestClientApplication='certutil')
 
-s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
+s = Search(using=es.get_es_node(), index='new_ddi*') \
     .query(q) \
     .filter("range", **{'@timestamp':{"gte": GTE,"lt": LT}}) \
     .sort({"@timestamp": {"order": "desc"}})
@@ -77,7 +77,8 @@ useragents_without_filehash = func.filter_scan_hits_by_keys(
 df = pd.concat([
     pd.DataFrame(useragents_with_filehash),
     pd.DataFrame(useragents_without_filehash)
-], ignore_index=True)
+],
+               ignore_index=True)
 print(df)
 
 if df.empty:

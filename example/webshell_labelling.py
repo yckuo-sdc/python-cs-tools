@@ -26,7 +26,7 @@ es = ElasticsearchAdapter()
 vt = VirusTotal()
 ip2org = Ip2orgAdapter()
 
-indices = 'new_ddi_2023.*'
+indices = 'new_ddi*'
 
 # define the query
 query = {    

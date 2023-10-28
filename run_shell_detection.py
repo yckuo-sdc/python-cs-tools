@@ -47,7 +47,7 @@ for network_direction in network_directions:
             "match", ruleName=network_direction['rulename']) & Q("match",
                                                                  app='HTTP')
 
-        s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
+        s = Search(using=es.get_es_node(), index='new_ddi*') \
             .query(q) \
             .filter("range", **{'@timestamp':{"gte": gte,"lt": lt}}) \
             .sort({"@timestamp": {"order": "desc"}})
@@ -88,7 +88,7 @@ for network_direction in network_directions:
                 q_per_service = q & Q("match", src=service['ip']) & Q(
                     "match", spt=service['port'])
 
-            s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
+            s = Search(using=es.get_es_node(), index='new_ddi*') \
                 .query(q_per_service) \
                 .filter("range", **{'@timestamp':{"gte": gte, "lt": lt}}) \
                 .sort({"@timestamp": {"order": "desc"}})

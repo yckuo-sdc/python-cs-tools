@@ -10,7 +10,7 @@ from package.virustotal import VirusTotal
 es = ElasticsearchAdapter()
 vt = VirusTotal()
 
-indices = 'new_ddi_2023.*'
+indices = 'new_ddi*'
 
 # define the query
 query = {    

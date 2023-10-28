@@ -45,7 +45,7 @@ for network_direction in network_directions:
             "match", ruleName=network_direction['rulename']) & Q("match",
                                                                  app='HTTP')
 
-        s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
+        s = Search(using=es.get_es_node(), index='new_ddi*') \
             .query(q) \
             .filter("range", **{'@timestamp':{"gte": GTE,"lt": LT}}) \
             .sort({"@timestamp": {"order": "desc"}})

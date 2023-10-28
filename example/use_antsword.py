@@ -13,7 +13,7 @@ es = ElasticsearchDslAdapter()
 
 q = Q("match", ruleName='antsword') & Q("match", app='HTTP')
 
-s = Search(using=es.get_es_node(), index='new_ddi_2023.*') \
+s = Search(using=es.get_es_node(), index='new_ddi*') \
     .query(q) \
     .filter("range", **{'@timestamp':{"gte": "now-14d/d","lt": "now/d"}}) \
     .sort({"@timestamp": {"order": "desc"}})    

@@ -55,7 +55,7 @@ class ElasticsearchAdapter:
 if __name__ == '__main__':
     es = ElasticsearchAdapter()
 
-    indices = 'new_ddi_2023.*'
+    indices = 'new_ddi*'
 
     # define the search query
     query = {    

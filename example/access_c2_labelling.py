@@ -23,7 +23,7 @@ print(url_list)
 
 
 
-#indices = 'new_ddi_2023.*'
+#indices = 'new_ddi*'
 #
 #
 #
