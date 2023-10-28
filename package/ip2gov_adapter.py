@@ -17,6 +17,31 @@ class Ip2govAdapter:
             self.host = host
             self.apikey = apikey
 
+    def get(self, request_ip, field_name=""):
+        url = self.host + "/json"
+
+        payload = {'ip': ','.join(request_ip)}
+        headers = {
+            "content-type": "application/x-www-form-urlencoded",
+        }
+
+        try:
+            response = requests.post(url,
+                                     data=payload,
+                                     headers=headers,
+                                     timeout=10).json()
+        except Exception as e:
+            print(e)
+            return False
+
+        if not isinstance(ip, list):
+            data = next(iter(response), None)
+
+        if field_name:
+            return data.get(field_name, False)
+
+        return data
+
     def get_gov_data_by_ip(self, ip, field_name=""):
         url = self.host + "/json"
 

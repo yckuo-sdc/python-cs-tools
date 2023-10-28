@@ -14,7 +14,7 @@ from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 from package.ip2gov_adapter import Ip2govAdapter
 
 mail = SendMail()
-mail.set_recipient("t910729@gmail.com")
+mail.set_ddi_alert_recipients()
 es = ElasticsearchDslAdapter()
 ip2gov = Ip2govAdapter()
 

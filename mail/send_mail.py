@@ -27,6 +27,7 @@ class SendMail:
             self.password = password
             self.sender = sender
 
+        self.ddi_alert_recipients = os.getenv("MAIL_DDI_ALERT_RECIPIENTS")
         self.recipient = ""
         self.subject = ""
         self.body = ""
@@ -34,6 +35,9 @@ class SendMail:
 
     def set_recipient(self, recipient):
         self.recipient = recipient
+
+    def set_ddi_alert_recipients(self):
+        self.recipient = self.ddi_alert_recipients
 
     def set_subject(self, subject):
         self.subject = subject
