@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+from urllib.parse import urlparse
 
 import requests
 from dotenv import load_dotenv
@@ -20,7 +21,8 @@ class Ip2govAdapter:
     def ping(self):
         try:
             # Run the 'ping' command
-            subprocess.run(['ping', '-c', '1', '-w2', self.host],
+            hostname = urlparse(self.host).hostname
+            subprocess.run(['ping', '-c', '1', hostname],
                            stdout=subprocess.PIPE,
                            stderr=subprocess.PIPE,
                            check=True)

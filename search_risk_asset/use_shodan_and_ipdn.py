@@ -17,6 +17,10 @@ if __name__ == '__main__':
     sa = ShodanAdapter()
 
     is_ping_successful = ip2gov.ping()
+    if is_ping_successful:
+        print('ip2gov: Yay Connected')
+    else:
+        print('ip2gov: Awww it could not connect!')
 
     search_filters = [
         {
