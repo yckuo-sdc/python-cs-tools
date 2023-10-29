@@ -16,17 +16,18 @@ if __name__ == '__main__':
     ip2gov = Ip2govAdapter()
     sa = ShodanAdapter()
 
+    is_ping_successful = ip2gov.ping()
+
     search_filters = [
         {
             'asn': 'AS4782',
             'http.title': 'NetScaler AAA',
-        }, 
+        },
         {
             'country': 'tw',
             'http.title': 'NetScaler AAA',
         },
     ]
-
 
     match_field = [{
         'label': 'ip',
@@ -49,7 +50,6 @@ if __name__ == '__main__':
         },
     }]
 
-
     fields = []
     for search_filter in search_filters:
         field = sa.basic_query_cursor(search_filter, match_field)
@@ -63,15 +63,18 @@ if __name__ == '__main__':
 
         field['service'] = f"{field['ip']}:{field['port']}"
 
-        gov_data = ip2gov.get(field['ip'])
-        if gov_data:
-            label['dep'] = gov_data.get('DEP')
-            label['class'] = gov_data.get('Class')
-            label['acc'] = gov_data.get('ACC')
+        if is_ping_successful:
+            data = ip2gov.get(field['ip'])
+            label['dep'] = data.get('DEP')
+            label['class'] = data.get('Class')
+            label['acc'] = data.get('ACC')
 
         output.append(field | label)
 
     df = pd.DataFrame(output)
+    # Keep first duplicate value
+    df = df.drop_duplicates(subset=['service'])
+
     path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
                                "use_shodan_and_ipdn.csv")
     df.to_csv(path_to_csv, index=False, encoding='utf-8-sig')

@@ -1,8 +1,8 @@
 import json
 import os
+import subprocess
 
 import requests
-from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
 
@@ -16,6 +16,17 @@ class Ip2govAdapter:
         else:
             self.host = host
             self.apikey = apikey
+
+    def ping(self):
+        try:
+            # Run the 'ping' command
+            subprocess.run(['ping', '-c', '1', '-w2', self.host],
+                           stdout=subprocess.PIPE,
+                           stderr=subprocess.PIPE,
+                           check=True)
+            return True  # If the ping command succeeds, return True
+        except subprocess.CalledProcessError:
+            return False  # If the ping command fails, return False
 
     def get(self, request_ip, field_name=""):
         url = self.host + "/json"
@@ -31,9 +42,9 @@ class Ip2govAdapter:
 
         try:
             data = requests.post(url,
-                                     data=payload,
-                                     headers=headers,
-                                     timeout=10).json()
+                                 data=payload,
+                                 headers=headers,
+                                 timeout=10).json()
         except Exception as e:
             print(e)
             return False
@@ -95,6 +106,9 @@ if __name__ == '__main__':
     print(ip2gov.get(ip, 'ACC'))
     print(ip2gov.get(ip))
     ip_list = [
-        '60.248.16.43', '1.34.129.67', '1.34.74.153', '62.122.184.157',
+        '60.248.16.43',
+        '1.34.129.67',
+        '1.34.74.153',
+        '62.122.184.157',
     ]
     print(ip2gov.get(ip_list))
