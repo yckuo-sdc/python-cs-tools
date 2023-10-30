@@ -86,7 +86,8 @@ if __name__ == '__main__':
     fields = pd.read_csv(path_to_csv).to_dict(orient='records')
     print(f"Records found: {len(fields)}")
 
-    label_keys = ['access_code', 'hex_str', 'timestamp']
+    #label_keys = ['access_code', 'hex_str', 'timestamp']
+    label_keys = ['access_code', 'timestamp']
     output = []
     for field in fields:
         DEFAULT_VALUE = None
@@ -101,11 +102,11 @@ if __name__ == '__main__':
 
         label['timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         label['access_code'] = get_response_code(field['url'])
-        if label['access_code'] not in ACCESSIBLE_CODES:
-            output.append(field | label)
-            continue
+        #if label['access_code'] not in ACCESSIBLE_CODES:
+        #    output.append(field | label)
+        #    continue
 
-        label['hex_str'] = get_implanted_pattern(field['url'])
+        #label['hex_str'] = get_implanted_pattern(field['url'])
         output.append(field | label)
 
     df = pd.DataFrame(output)

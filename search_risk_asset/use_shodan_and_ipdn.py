@@ -25,11 +25,12 @@ if __name__ == '__main__':
     search_filters = [
         {
             'asn': 'AS4782',
-            'http.title': 'NetScaler AAA',
+            'http.html': 'webui',
+            'product': 'OpenResty,nginx'
         },
         {
-            'country': 'tw',
-            'http.title': 'NetScaler AAA',
+            'asn': 'AS4782',
+            'all_no_quotes': 'server: openresty'
         },
     ]
 
