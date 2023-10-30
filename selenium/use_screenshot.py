@@ -5,14 +5,14 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 
 # The place we will direct our WebDriver to
-url = 'https://www.tainan.gov.tw'
-url = 'https://www.nics.nat.gov.tw/.htm'
 
 urls = [
-    'http://210.241.99.254:80',
-    'http://61.60.10.65:80',
-    'http://210.241.29.105:80',
-    'http://210.241.72.161:80',
+    'http://210.241.73.127:80', 
+    'http://210.241.73.126:80', 
+    'http://210.241.73.96:80', 
+    'http://210.241.72.149:80', 
+    'http://210.241.99.254:80', 
+    'http://210.241.72.161:80', 
 ]
 
 # Run Browser in background

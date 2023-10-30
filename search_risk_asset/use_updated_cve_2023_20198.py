@@ -29,6 +29,24 @@ def get_response_code(url):
         print(e)
         return None
 
+def get_generic_response(url):
+    """Functions"""
+    try:
+        headers = {
+            'user-agent':
+            'mozilla/5.0 (windows nt 10.0; win64; x64) applewebkit/537.36 (khtml, like gecko) chrome/115.0.0.0 safari/537.36'
+        }
+        path = "/%25"
+        # ignore verifying the ssl certificate
+        response = requests.get(f"{url}{path}",
+                                headers=headers,
+                                allow_redirects=False,
+                                verify=False,
+                                timeout=5)
+        return response.text.strip()
+    except Exception as e:
+        print(e)
+        return None
 
 def is_hexadecimal_string(input_string):
     """Function"""
@@ -84,36 +102,26 @@ def get_implanted_pattern(request_url):
 if __name__ == '__main__':
 
     path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
-                               "use_shodan_and_ipdn.csv")
+                               "use_cve_2023_20198_filtered.csv")
 
     fields = pd.read_csv(path_to_csv).to_dict(orient='records')
     print(f"Records found: {len(fields)}")
 
     #label_keys = ['access_code', 'hex_str', 'timestamp']
-    label_keys = ['access_code', 'timestamp']
+    label_keys = ['response_string', 'timestamp']
     output = []
     for field in fields:
         DEFAULT_VALUE = None
         label = dict.fromkeys(label_keys, DEFAULT_VALUE)
 
-        SCHEMA = 'http'
-        if field['module'] == 'https':
-            SCHEMA = 'https'
-
-        field['url'] = f"{SCHEMA}://{field['service']}"
         print(field['url'])
 
         label['timestamp'] = datetime.datetime.now().strftime(
             "%Y-%m-%d %H:%M:%S")
-        label['access_code'] = get_response_code(field['url'])
-        #if label['access_code'] not in ACCESSIBLE_CODES:
-        #    output.append(field | label)
-        #    continue
-
-        #label['hex_str'] = get_implanted_pattern(field['url'])
+        label['response_string'] = get_generic_response(field['url'])
         output.append(field | label)
 
     df = pd.DataFrame(output)
     path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
-                               "use_cve_2023_20198.csv")
+                               "use_cve_2023_20198_generic.csv")
     df.to_csv(path_to_csv, index=False, encoding='utf-8-sig')

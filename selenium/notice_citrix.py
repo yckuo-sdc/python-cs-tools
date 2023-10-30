@@ -1,6 +1,7 @@
 """ Selenium Project """
 import os
 import sys
+import time
 from datetime import datetime
 from string import Template
 
@@ -233,13 +234,13 @@ if __name__ == '__main__':
         execution_results.append(department | {'notice_id': notice_id})
 
         ### Final. Publish ###
-        input("Press Enter to continue...")
         try:
             driver.find_element(By.XPATH, "//input[@type='submit']").click()
         except NoSuchElementException:
             input(
                 "The element: 'input:submit' was not found on the web page, Press Enter to continue..."
             )
+        input("Press Enter to continue...")
 
     # Write the modified DataFrame back to the worksheet
     execution_results_df = pd.DataFrame(execution_results)
