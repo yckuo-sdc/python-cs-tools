@@ -2,8 +2,8 @@ import os
 
 import pandas as pd
 
-IMPORT_FILE_NAME = 'citrix_cve_2023_4966.xlsx'
-EXPORT_DIR_NAME = 'citrix_cve_2023_4966'
+IMPORT_FILE_NAME = 'ngnix_ingress_controller.xlsx'
+EXPORT_DIR_NAME = 'ngnix_ingress_controller'
 
 # Specify the sheet name or index
 PATH_TO_EXCEL = os.path.join(os.path.dirname(__file__), 'notices', 'excels',

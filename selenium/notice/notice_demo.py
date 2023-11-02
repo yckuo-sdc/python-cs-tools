@@ -6,7 +6,6 @@ from string import Template
 
 import pandas as pd
 from dotenv import load_dotenv
-
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.service import Service
@@ -48,10 +47,10 @@ if __name__ == '__main__':
 
     profile = {
         'path_to_excel':
-        os.path.join(os.path.dirname(__file__), 'notices', 'excels',
+        os.path.join(os.path.dirname(__file__), 'excels',
                      'citrix_cve_2023_4966.xlsx'),
         'path_to_attach_dir':
-        os.path.join(os.path.dirname(__file__), 'notices', 'attachments',
+        os.path.join(os.path.dirname(__file__), 'attachments',
                      'citrix_cve_2023_4966'),
     }
 

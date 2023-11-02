@@ -25,12 +25,7 @@ if __name__ == '__main__':
     search_filters = [
         {
             'asn': 'AS4782',
-            'http.html': 'webui',
-            'product': 'OpenResty,nginx'
-        },
-        {
-            'asn': 'AS4782',
-            'all_no_quotes': 'server: openresty'
+            'ssl.cert.issuer.CN': 'Kubernetes Ingress Controller Fake Certificate'
         },
     ]
 

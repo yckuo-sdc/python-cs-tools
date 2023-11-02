@@ -1,18 +1,18 @@
 """ Selenium Project """
-import argparse
 import os
 import sys
+import time
 from datetime import datetime
 from string import Template
 
 import pandas as pd
 from dotenv import load_dotenv
-
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
+
 
 def find_files_with_name(directory, target_name):
     """Function confirm that file is existed."""
@@ -39,33 +39,23 @@ def concatenate_values(series):
     """Function concatenate the list."""
     return ', '.join(series)
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--excel', help='Path to the excel (e.g. ./excel.xlsx)')
-parser.add_argument(
-    '--attach-dir',
-    help='Path to the attachment directory (e.g. ./attachments)')
-
-args = parser.parse_args()
-
-if args.excel is None:
-    print('Path to excel must be provided (e.g. --excel ./notice.xlsx)')
-    sys.exit(0)
-
-if args.attach_dir is None:
-    print(
-        'Path to attachment directory must be provided (e.g. --attach-dir ./attachments)'
-    )
-    sys.exit(0)
-
-PATH_TO_EXCEL = args.excel
-PATH_TO_ATTACH_DIR = args.attach_dir
-
 
 if __name__ == '__main__':
     load_dotenv()
     HOST = os.getenv('NOTICE_HOST')
     USERNAME = os.getenv('NOTICE_USERNAME')
     PASSWORD = os.getenv('NOTICE_PASSWORD')
+
+    profile = {
+        'path_to_excel':
+        os.path.join(os.path.dirname(__file__), 'excels',
+                     'ngnix_ingress_controller.xlsx'),
+        'path_to_attach_dir':
+        os.path.join(os.path.dirname(__file__), 'attachments',
+                     'ngnix_ingress_controller'),
+    }
+
+    PATH_TO_EXCEL = profile.get('path_to_excel')
 
     # Specify the sheet name or index
     SHEET1_NAME = '警訊內容'
@@ -96,14 +86,15 @@ if __name__ == '__main__':
 
     # Attachment validation
     if inputs['notice.attachment'] == '有':
+        attach_directory = profile.get('path_to_attach_dir')
         for department in departments:
             department['file_path'] = get_department_file_path(
-                PATH_TO_ATTACH_DIR, department['name'])
+                attach_directory, department['name'])
             if not department['file_path']:
                 sys.exit(f"Exit: Can't find attachment: {department['name']}")
             print(department['file_path'])
 
-    input()
+    input("Press Enter to continue...")
 
     ### Run Browser in background
     options = webdriver.ChromeOptions()
@@ -244,13 +235,13 @@ if __name__ == '__main__':
         execution_results.append(department | {'notice_id': notice_id})
 
         ### Final. Publish ###
-        input("Press Enter to continue...")
         try:
             driver.find_element(By.XPATH, "//input[@type='submit']").click()
         except NoSuchElementException:
             input(
                 "The element: 'input:submit' was not found on the web page, Press Enter to continue..."
             )
+        input("Press Enter to continue...")
 
     # Write the modified DataFrame back to the worksheet
     execution_results_df = pd.DataFrame(execution_results)
