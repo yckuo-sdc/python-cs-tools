@@ -1,4 +1,4 @@
-""" Selenium Project """
+""" Automated Notice Project """
 import argparse
 import os
 import sys
@@ -7,12 +7,12 @@ from string import Template
 
 import pandas as pd
 from dotenv import load_dotenv
-
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
+
 
 def find_files_with_name(directory, target_name):
     """Function confirm that file is existed."""
@@ -24,9 +24,9 @@ def find_files_with_name(directory, target_name):
 
 def get_department_file_path(directory, department_name):
     """Function get file path with department name."""
-    file_types = ['zip', 'csv']
+    file_type_orders = ['zip', 'csv', 'png', 'jpg']
 
-    for file_type in file_types:
+    for file_type in file_type_orders:
         file_name = f"{department_name}.{file_type}"
         file_path = find_files_with_name(directory, file_name)
         if file_path:
@@ -38,6 +38,7 @@ def get_department_file_path(directory, department_name):
 def concatenate_values(series):
     """Function concatenate the list."""
     return ', '.join(series)
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--excel', help='Path to the excel (e.g. ./excel.xlsx)')
@@ -57,13 +58,12 @@ if args.attach_dir is None:
     )
     sys.exit(0)
 
-PATH_TO_EXCEL = args.excel
-PATH_TO_ATTACH_DIR = args.attach_dir
-
+PATH_TO_EXCEL = os.path.join(os.path.dirname(__file__), args.excel)
+PATH_TO_ATTACH_DIR = os.path.join(os.path.dirname(__file__), args.attach_dir)
 
 if __name__ == '__main__':
     load_dotenv()
-    HOST = os.getenv('NOTICE_HOST')
+    HOST = os.getenv('NOTICE_HOST', 'http://10.3.40.19:8000')
     USERNAME = os.getenv('NOTICE_USERNAME')
     PASSWORD = os.getenv('NOTICE_PASSWORD')
 
@@ -105,9 +105,7 @@ if __name__ == '__main__':
 
     input("Press Enter to continue...")
 
-    ### Run Browser in background
     options = webdriver.ChromeOptions()
-    #options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
     options.add_argument('--ignore-certificate-errors')
@@ -120,7 +118,10 @@ if __name__ == '__main__':
     # Setting an implicit wait of 2 seconds
     driver.implicitly_wait(2)
 
-    ### Part 1. Login ###
+    # ============
+    # Part1. login
+    # ============
+
     # Directing the driver to the defined url
     driver.get(HOST)
     print(driver.title)
@@ -138,7 +139,11 @@ if __name__ == '__main__':
 
     execution_results = []
     for department in departments:
-        ### Part 2. Classification ###
+
+        # =====================
+        # Part2. Classification
+        # =====================
+
         print(department['name'])
 
         # Directing the driver to the defined url
@@ -154,14 +159,17 @@ if __name__ == '__main__':
         select = Select(select_element)
         select.select_by_visible_text(inputs['typeId'])
 
-        # eventId = {'150': '可疑程式', '158': '社交工程攻擊', '147': '系統弱點', '155': '跳板主機通知', '157': 'Bot', '151': '對外攻擊', '153': 'spam', '154': '請求協助處理', '148': '可疑連線', '149': '資訊洩漏', '152': '網頁攻擊事件', '165': '其他'
+        # eventId = {'165': '其他'}
         select_element = driver.find_element(By.NAME, "eventId")
         select = Select(select_element)
         select.select_by_visible_text(inputs['eventId'])
 
         driver.find_element(By.XPATH, "//input[@type='submit']").click()
 
-        ### Part 3. Filling ###
+        # ==============
+        # Part3. Filling
+        # ==============
+
         subject = Template(inputs['notice.subject']).substitute(
             department_name=department['name'])
         content = Template(inputs['notice.content']).substitute(
@@ -208,12 +216,16 @@ if __name__ == '__main__':
                                 "myFile").send_keys(department['file_path'])
             driver.find_element(By.XPATH, "//input[@type='submit']").click()
 
+        # ==============
+        # Part4. Preview
+        # ==============
         input("Press Enter to continue...")
 
-        #### Part 4. Preview ###
         driver.find_element(By.XPATH, "//input[@type='submit']").click()
 
-        #### Part 5. Search Address ###
+        # ==========================
+        # Part5. Search Organization
+        # ==========================
 
         # Clear all recipients
         driver.get(f"{HOST}/notice/NoticePrePublish!deleteAllTo.do")
@@ -223,7 +235,9 @@ if __name__ == '__main__':
             department['name'])
         driver.find_element(By.ID, "NoticePrePublish_normal_query").click()
 
-        #### Part 6. Add Address ###
+        # ===========================
+        # Part6. Add Email Recipients
+        # ===========================
         checkboxes = driver.find_elements(By.XPATH,
                                           "//input[@name='selectGroup']")
 
@@ -235,22 +249,27 @@ if __name__ == '__main__':
             driver.find_element(By.ID, "NoticePrePublish_normal_ok").click()
         except NoSuchElementException:
             input(
-                "The element: 'NoticePrePublish_normal_ok' was not found on the web page, Press Enter to continue..."
-            )
+                "The element: 'NoticePrePublish_normal_ok' was not found on the web page,"
+                + "Press Enter to continue...")
 
         td = driver.find_element(By.XPATH, "//table/tbody/tr[1]/td[1]")
         notice_id = td.text
 
         execution_results.append(department | {'notice_id': notice_id})
 
-        ### Final. Publish ###
+        # ==============
+        # Part7. Publish
+        # ==============
         input("Press Enter to continue...")
         try:
-            driver.find_element(By.XPATH, "//input[@type='submit']").click()
+            publish_button = driver.find_element(
+                By.XPATH, "//tr[last()]//input[@type='submit']")
+            publish_button.click()
+            print(publish_button.get_attribute("value"))
         except NoSuchElementException:
             input(
-                "The element: 'input:submit' was not found on the web page, Press Enter to continue..."
-            )
+                "The element: 'publish button' was not found on the web page,"
+                + "Press Enter to continue...")
         input("Press Enter to continue...")
 
     # Write the modified DataFrame back to the worksheet
