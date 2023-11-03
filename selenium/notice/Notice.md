@@ -12,7 +12,7 @@ NOTICE_PASSWORD=
 ```
 **Copy example excel**
 ```
-cp example example.xlsx
+cp .excel.example example.xlsx
 ```
 
 ## Publish notices 
