@@ -9,7 +9,7 @@ from elasticsearch_dsl import Q, Search
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import helper.function as func
 import helper.network_validator as network
-import webshell_detection_model as wdm
+import one_word_trojan.webshell_detection_model as wdm
 from mail.send_mail import SendMail
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 from package.ip2gov_adapter import Ip2govAdapter

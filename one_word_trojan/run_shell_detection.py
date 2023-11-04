@@ -1,16 +1,19 @@
 #!/usr/bin/python3
 import os
+import sys
 from datetime import datetime
 
 import numpy as np
 import pandas as pd
 from elasticsearch_dsl import Q, Search
 
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import helper.function as func
 import helper.network_validator as network
-import webshell_detection_model as wdm
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 from package.ip2gov_adapter import Ip2govAdapter
+
+import webshell_detection_model as wdm
 
 es = ElasticsearchDslAdapter()
 ip2gov = Ip2govAdapter()
@@ -133,7 +136,7 @@ for network_direction in network_directions:
             path_to_csv = path_to_csv + '_no_early_stop'
         path_to_csv = path_to_csv + '.csv'
 
-        path_to_csv = os.path.join(os.path.dirname(__file__),
+        path_to_csv = os.path.join(os.path.dirname(__file__), '..',
                                    'data/shell_trials', path_to_csv)
 
         if total_df.empty:
