@@ -27,7 +27,7 @@ host = os.getenv("MAIL_HOST")
 sender = os.getenv("MAIL_SENDER")
 app_password = os.getenv("MAIL_APP_PASSWORD")
 
-recipient = "t910729@gmail.com"
+recipient = "ussername@gmail.com"
 
 body = "Mike"
 

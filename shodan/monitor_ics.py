@@ -8,7 +8,7 @@ from shodan import Shodan
 from shodan.cli.helpers import get_api_key
 
 # Configuration
-EMAIL_TO = 't910729@gmail.com'
+EMAIL_TO = 'username@gmail.com'
 EMAIL_FROM = 'ics-alerts'
 
 load_dotenv()

@@ -28,6 +28,7 @@ class SendMail:
             self.sender = sender
 
         self.ddi_alert_recipients = os.getenv("MAIL_DDI_ALERT_RECIPIENTS")
+        self.rss_news_recipients = os.getenv("MAIL_RSS_NEWS_RECIPIENTS")
         self.recipient = ""
         self.subject = ""
         self.body = ""
@@ -38,6 +39,9 @@ class SendMail:
 
     def set_ddi_alert_recipients(self):
         self.recipient = self.ddi_alert_recipients
+
+    def set_rss_news_recipients(self):
+        self.recipient = self.rss_news_recipients
 
     def set_subject(self, subject):
         self.subject = subject
@@ -102,7 +106,7 @@ if __name__ == '__main__':
     #]
 
     mail = SendMail()
-    mail.set_recipient("t910729@gmail.com")
+    mail.set_recipient("username@gmail.com")
     mail.set_subject("DDI Alert")
     mail.set_body(body)
     #mail.add_attachment(attachments)

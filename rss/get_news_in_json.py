@@ -59,7 +59,7 @@ def save_previous_state(filename, data):
 
 
 mail = SendMail()
-mail.set_recipient("t910729@gmail.com")
+mail.set_rss_news_recipients()
 CS_RSS_FEEDS_FILENAME = 'cs_rss_feeds.json'
 cs_rss_feeds = load_cs_rss_feeds(CS_RSS_FEEDS_FILENAME)
 print(cs_rss_feeds)
