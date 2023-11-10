@@ -8,8 +8,8 @@ import pandas as pd
 from elasticsearch_dsl import Q, Search
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-import helper.function as func
 from mail.send_mail import SendMail
+from package.ddi_processor import DDIProcessor
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 from package.ip2gov_adapter import Ip2govAdapter
 
@@ -17,6 +17,7 @@ mail = SendMail()
 mail.set_ddi_alert_recipients()
 es = ElasticsearchDslAdapter()
 ip2gov = Ip2govAdapter()
+dp = DDIProcessor()
 
 GTE = "now-1h"
 LT = "now"
@@ -57,17 +58,9 @@ for network_direction in network_directions:
         print(s.to_dict())
         print(f"Total Hits: {response.hits.total}")
 
-        selected_keys = [
-            '@timestamp', 'ruleName', 'reason', 'Serverity', 'request', 'cs8',
-            'fname', 'fileHash', 'cs4', 'requestClientApplication', 'src',
-            'dst', 'spt', 'dpt'
-        ]
 
-        filtered_source_data = func.filter_scan_hits_by_keys(
-            s.scan(), selected_keys)
-
-        inputs = func.arr_dict_to_flat_dict(filtered_source_data)
-        df = pd.DataFrame(inputs)
+        webshell_responses = dp.filter_all_hits_by_selected_fields(s.scan())
+        df = pd.DataFrame(webshell_responses)
 
         print(df)
         frames.append(df)

@@ -24,8 +24,9 @@ if __name__ == '__main__':
 
     search_filters = [
         {
-            'asn': 'AS4782',
-            'ssl.cert.issuer.CN': 'Kubernetes Ingress Controller Fake Certificate'
+            'product': 'ActiveMQ',
+            'country': 'tw',
+            'port': '61613',
         },
     ]
 
@@ -39,15 +40,13 @@ if __name__ == '__main__':
         'label': 'product',
         'field': 'product'
     }, {
-        'label': 'ssl',
-        'field': {
-            'ssl': 'cipher'
-        },
-    }, {
         'label': 'module',
         'field': {
             '_shodan': 'module'
         },
+    }, {
+        'label': 'tags',
+        'field': 'tags'
     }]
 
     fields = []
@@ -55,7 +54,7 @@ if __name__ == '__main__':
         field = sa.basic_query_cursor(search_filter, match_field)
         fields.extend(field)
 
-    label_keys = ['dep', 'class', 'acc']
+    label_keys = ['isac', 'class', 'dep', 'acc']
     output = []
     for field in fields:
         DEFAULT_VALUE = None
@@ -65,8 +64,9 @@ if __name__ == '__main__':
 
         if is_ping_successful:
             data = ip2gov.get(field['ip'])
-            label['dep'] = data.get('DEP')
+            label['isac'] = data.get('ISAC')
             label['class'] = data.get('Class')
+            label['dep'] = data.get('DEP')
             label['acc'] = data.get('ACC')
 
         output.append(field | label)

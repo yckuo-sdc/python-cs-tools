@@ -7,10 +7,10 @@ import pandas as pd
 from elasticsearch_dsl import Q, Search
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-import helper.function as func
 import helper.network_validator as network
 import one_word_trojan.webshell_detection_model as wdm
 from mail.send_mail import SendMail
+from package.ddi_processor import DDIProcessor
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 from package.ip2gov_adapter import Ip2govAdapter
 
@@ -18,6 +18,7 @@ mail = SendMail()
 mail.set_ddi_alert_recipients()
 es = ElasticsearchDslAdapter()
 ip2gov = Ip2govAdapter()
+dp = DDIProcessor()
 
 EARLY_STOPPING = True
 GTE = "now-1h"
@@ -106,19 +107,15 @@ for network_direction in network_directions:
             print(f"Total Hits: {response.hits.total}")
             print(f"Total Process Hits: {len(response.hits.hits)}")
 
-            selected_keys = [
-                '@timestamp', 'ruleName', 'reason', 'request', 'cs8', 'fname',
-                'fileHash', 'cs4', 'requestClientApplication', 'src', 'dst',
-                'spt', 'dpt'
-            ]
-
-            filtered_source_data = func.filter_hits_by_keys(
-                response.hits.hits, selected_keys)
-
-            inputs = func.arr_dict_to_flat_dict(filtered_source_data)
-            labels = wdm.get_webshell_labels(filtered_source_data,
+            inputs = dp.filter_all_hits_by_selected_fields(s.scan())
+            labels = wdm.get_webshell_labels(inputs,
                                              early_stopping=EARLY_STOPPING)
-            results = inputs | labels
+
+
+            results = []
+            for item1, item2 in zip(inputs, labels):
+                results.append(item1 | item2)
+
             df = pd.DataFrame(results)
             frames.append(df)
 

@@ -12,7 +12,6 @@ from package.virustotal import VirusTotal
 
 def get_webshell_labels(docs, early_stopping=True):
     vt = VirusTotal()
-    #ip2gov = Ip2govAdapter()
     bt = BoturlValidator()
 
     label_keys = ['http_success', 'filehash_malicious', 'boturl_malicious'] 
@@ -41,6 +40,6 @@ def get_webshell_labels(docs, early_stopping=True):
         label['boturl_malicious'] = bt.is_malicious_by_boturl(doc['request'], doc['cs8'])
         labels.append(label)
 
-    labels = func.arr_dict_to_flat_dict(labels)
+    #labels = func.arr_dict_to_flat_dict(labels)
 
     return labels

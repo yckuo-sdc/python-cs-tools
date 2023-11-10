@@ -8,8 +8,8 @@ from elasticsearch_dsl import Q, Search
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
-import helper.function as func
 from mail.send_mail import SendMail
+from package.ddi_processor import DDIProcessor
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 from package.ip2gov_adapter import Ip2govAdapter
 
@@ -17,19 +17,15 @@ mail = SendMail()
 mail.set_ddi_alert_recipients()
 es = ElasticsearchDslAdapter()
 ip2gov = Ip2govAdapter()
+dp = DDIProcessor()
 
-GTE = "now-1h"
+GTE = "now-1d"
 LT = "now"
 
 ######## HKTL_PASS.COE, HKTL_PASSVIEW, HKTL_PDFRestrictionsRemover, HKTL_PRODKEY
 ##E.G.## HKTL_FILEUP, HKTL_KEYGEN, HKTL_CCDOOR
 ######## HKTL_PROXY, HKTL_RADMIN.component', HKTL_ETHERFLOOD
 HACK_TOOL_KEYWORD = "HKTL*"
-
-selected_keys = [
-    '@timestamp', 'ruleName', 'reason', 'Serverity', 'request', 'cs8', 'fname',
-    'fileHash', 'cs4', 'requestClientApplication', 'src', 'dst', 'spt', 'dpt'
-]
 
 print("Search hack tool...")
 q = Q("wildcard", ruleName__keyword=HACK_TOOL_KEYWORD)
@@ -45,7 +41,7 @@ response = s.execute()
 print(s.to_dict())
 print(f"Total Hits: {response.hits.total}")
 
-hack_tool_response = func.filter_scan_hits_by_keys(s.scan(), selected_keys)
+hack_tool_response = dp.filter_all_hits_by_selected_fields(s.scan())
 
 df = pd.DataFrame(hack_tool_response)
 print(df)
