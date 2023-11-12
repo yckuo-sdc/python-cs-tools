@@ -1,11 +1,4 @@
-import json
-import os
-import subprocess
-from urllib.parse import urlparse
-
-import requests
-from dotenv import load_dotenv
-
+"""Module"""
 
 class DDIProcessor:
 

@@ -8,8 +8,8 @@ import pandas as pd
 from elasticsearch_dsl import Q, Search
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-import helper.function as func
 import helper.network_validator as network
+from package.ddi_processor import DDIProcessor
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 from package.ip2gov_adapter import Ip2govAdapter
 
@@ -17,6 +17,7 @@ import webshell_detection_model as wdm
 
 es = ElasticsearchDslAdapter()
 ip2gov = Ip2govAdapter()
+dp = DDIProcessor()
 
 network_directions = [
     {
@@ -40,7 +41,7 @@ shell_categories = [
     'godzilla',
 ]
 
-early_stopping = False
+EARLY_STOPPING = True
 gte = "now-14d/d"
 lt = "now/d"
 
@@ -100,22 +101,18 @@ for network_direction in network_directions:
             response = s.execute()
 
             print(s.to_dict())
-            print('Total Hits: {}'.format(response.hits.total))
-            print('Total Process Hits: {}'.format(len(response.hits.hits)))
+            print(f"Total Hits: {response.hits.total}")
+            print(f"Total Process Hits: {len(response.hits.hits)}")
 
-            selected_keys = [
-                '@timestamp', 'ruleName', 'reason', 'request', 'cs8',
-                'fileHash', 'cs4', 'requestClientApplication', 'src', 'dst',
-                'spt', 'dpt'
-            ]
+            inputs = dp.filter_all_hits_by_selected_fields(s.scan())
+            labels = wdm.get_webshell_labels(inputs,
+                                             early_stopping=EARLY_STOPPING)
 
-            filtered_source_data = func.filter_hits_by_keys(
-                response.hits.hits, selected_keys)
 
-            inputs = func.arr_dict_to_flat_dict(filtered_source_data)
-            labels = wdm.get_webshell_labels(filtered_source_data,
-                                             early_stopping=early_stopping)
-            results = inputs | labels
+            results = []
+            for item1, item2 in zip(inputs, labels):
+                results.append(item1 | item2)
+
             df = pd.DataFrame(results)
             frames.append(df)
 
@@ -132,7 +129,7 @@ for network_direction in network_directions:
         path_to_csv = target_shell + '_' + network_direction[
             'rulename'] + '_' + current_datetime
 
-        if not early_stopping:
+        if not EARLY_STOPPING:
             path_to_csv = path_to_csv + '_no_early_stop'
         path_to_csv = path_to_csv + '.csv'
 
