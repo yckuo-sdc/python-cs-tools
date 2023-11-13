@@ -7,12 +7,16 @@ import pandas as pd
 from elasticsearch_dsl import Q, Search
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+#pylint: disable=wrong-import-position
 import helper.network_validator as network
 import one_word_trojan.webshell_detection_model as wdm
 from mail.send_mail import SendMail
 from package.ddi_processor import DDIProcessor
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 from package.ip2gov_adapter import Ip2govAdapter
+
+#pylint: enable=wrong-import-position
 
 mail = SendMail()
 mail.set_ddi_alert_recipients()
@@ -110,7 +114,6 @@ for network_direction in network_directions:
             inputs = dp.filter_all_hits_by_selected_fields(s.scan())
             labels = wdm.get_webshell_labels(inputs,
                                              early_stopping=EARLY_STOPPING)
-
 
             results = []
             for item1, item2 in zip(inputs, labels):

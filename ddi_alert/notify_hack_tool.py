@@ -8,10 +8,13 @@ from elasticsearch_dsl import Q, Search
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
+#pylint: disable=wrong-import-position
 from mail.send_mail import SendMail
 from package.ddi_processor import DDIProcessor
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 from package.ip2gov_adapter import Ip2govAdapter
+
+#pylint: enable=wrong-import-position
 
 mail = SendMail()
 mail.set_ddi_alert_recipients()
@@ -51,10 +54,8 @@ if df.empty:
     sys.exit(0)
 
 # Enrich ip with organiztaion name
-df['src'] = df['src'].apply(
-    lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
-df['dst'] = df['dst'].apply(
-    lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
+df['src'] = df['src'].apply(lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
+df['dst'] = df['dst'].apply(lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
 
 SUBJECT = "DDI Alert: Hack Tool"
 TABLE = df.to_html(justify='left', index=False)

@@ -8,11 +8,14 @@ from elasticsearch_dsl import Q, Search
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
+#pylint: disable=wrong-import-position
 from mail.send_mail import SendMail
 from package.ddi_processor import DDIProcessor
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 from package.ip2gov_adapter import Ip2govAdapter
 from package.shodan_adapter import ShodanAdapter
+
+#pylint: enable=wrong-import-position
 
 mail = SendMail()
 mail.set_ddi_alert_recipients()
@@ -36,12 +39,14 @@ qnap_ip_list = [value for dictionary in field for value in dictionary.values()]
 QNAP_IPS = ' '.join(qnap_ip_list)
 
 print("Search qnaps...")
-q = Q('bool',
-      must=[#Q("match", app='HTTP'),
-            Q("match", ruleName='response')],
-      should=[Q("match", src=QNAP_IPS),
-              Q("match", dst=QNAP_IPS)],
-      minimum_should_match=1)
+q = Q(
+    'bool',
+    must=[  #Q("match", app='HTTP'),
+        Q("match", ruleName='response')
+    ],
+    should=[Q("match", src=QNAP_IPS),
+            Q("match", dst=QNAP_IPS)],
+    minimum_should_match=1)
 
 s = Search(using=es.get_es_node(), index='new_ddi*') \
     .query(q) \
