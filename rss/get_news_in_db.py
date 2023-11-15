@@ -10,8 +10,12 @@ import pandas as pd
 import spacy
 from dotenv import load_dotenv
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'mail'))
-from send_mail import SendMail
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
+#pylint: disable=wrong-import-position
+from mail.send_mail import SendMail
+
+#pylint: enable=wrong-import-position
 
 
 def is_gmt_format(time_string):

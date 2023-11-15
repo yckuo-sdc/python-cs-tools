@@ -1,23 +1,24 @@
 """Module Proof of Concept for CVE-2023-20198."""
-import datetime
 import os
 import sys
 
 import pandas as pd
-import requests
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
+#pylint: disable=wrong-import-position
 from package.ip2gov_adapter import Ip2govAdapter
 from package.shodan_adapter import ShodanAdapter
+
+#pylint: enable=wrong-import-position
 
 if __name__ == '__main__':
 
     ip2gov = Ip2govAdapter()
     sa = ShodanAdapter()
 
-    is_ping_successful = ip2gov.ping()
-    if is_ping_successful:
+    IS_PING_SUCCESSFUL = ip2gov.ping()
+    if IS_PING_SUCCESSFUL:
         print('ip2gov: Yay Connected')
     else:
         print('ip2gov: Awww it could not connect!')
@@ -62,7 +63,7 @@ if __name__ == '__main__':
 
         field['service'] = f"{field['ip']}:{field['port']}"
 
-        if is_ping_successful:
+        if IS_PING_SUCCESSFUL:
             data = ip2gov.get(field['ip'])
             label['isac'] = data.get('ISAC')
             label['class'] = data.get('Class')
