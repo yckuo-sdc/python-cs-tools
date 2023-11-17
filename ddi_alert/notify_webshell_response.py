@@ -78,7 +78,7 @@ except Exception as e:
 if total_df.empty:
     sys.exit('DataFrame is empty!')
 
-# Enrich ip with organiztaion name
+# Enrich ip with organization name
 total_df['src'] = total_df['src'].apply(
     lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
 total_df['dst'] = total_df['dst'].apply(

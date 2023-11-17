@@ -144,7 +144,7 @@ if not interested_id:
 
 total_df = total_df.loc[interested_id]
 
-# Enrich ip with organiztaion name
+# Enrich ip with organization name
 total_df['src'] = total_df['src'].apply(
     lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
 total_df['dst'] = total_df['dst'].apply(

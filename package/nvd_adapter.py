@@ -1,132 +1,149 @@
+"""Modules"""
 import os
+import sys
+from datetime import datetime, timedelta
 
-import shodan
+import requests
 from dotenv import load_dotenv
+from requests.exceptions import RequestException
 
 
-class ShodanAdapter:
-    __api = None
+class NVDAdapter:
+    __host = None
+    __apikey = None
 
-    def __init__(self, api=""):
-        if api == "":
+    def __init__(self, host="", apikey=""):
+        if host == "" or apikey == "":
             load_dotenv()
-            apikey = os.getenv("SHODAN_NICS_APIKEY")
-            self.__api = shodan.Shodan(apikey)
+            self.__host = os.getenv("NVD_HOST")
+            self.__apikey = os.getenv("NVD_APIKEY")
         else:
-            self.__api = api
+            self.__host = host
+            self.__apikey = apikey
 
-    def basic_query(self,
-                    search_filters,
-                    match_fields,
-                    retrieve_all_pages=False):
+    def get_cves(self, params):
         """Method printing python version."""
+
+        query = " ".join(f"{k}:\"{v}\"" for k, v in params.items())
+        print(f'Query: {query}')
+
+        url = self.__host + "/cves/2.0"
+        headers = {
+            'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+            "apiKey": self.__apikey
+        }
+
         try:
-            if isinstance(search_filters, dict):
-                query = ' '.join(f'{key}:"{value}"'
-                                 for key, value in search_filters.items()
-                                 if key != 'all_no_quotes')
-                query = query.replace('all:', '')
-                if 'all_no_quotes' in search_filters:
-                    query = f'{query} {search_filters["all_no_quotes"]}'
-            else:
-                query = search_filters
+            response = requests.get(url,
+                                    params=params,
+                                    headers=headers,
+                                    timeout=30)
+        except RequestException as req_err:
+            print(req_err)
+            return None
 
-            print(f'Query: {query}')
-            result = self.__api.search(query)
-            total = result['total']
-            print(f"Results found: {total}")
+        # Check if the request was successful (status code 200)
+        if response.status_code != 200:
+            print(f"Error: {response.status_code}, {response.text}")
+            return None
 
-            results = []
-            if not retrieve_all_pages:
-                results = result['matches']
-            else:
-                page = 1
-                print("Paginate search results...")
-                while True:
-                    response = self.__api.search(query, page=page)
-                    results.extend(response['matches'])
-                    page_total = len(response['matches'])
-                    print(len(results), page_total, page)
+        data = response.json()
+        print(f"Results found: {data['totalResults']}")
+        return data
 
-                    if page_total == 0:
-                        break
-                    page = page + 1
-
-            matches = []
-            ## Loop through the matches and print each IP
-            for result in results:
-                match = {}
-                for match_field in match_fields:
-                    match[match_field['label']] = result.get(
-                            match_field['field'])
-
-                matches.append(match)
-
-            return matches
-
-        except Exception as e:
-            print(f"Error: {e}")
-            return False
-
-    def basic_query_cursor(self, search_filters, match_fields):
+    def parse_cve_fields(self, cves):
         """Method printing python version."""
-        try:
-            if isinstance(search_filters, dict):
-                query = ' '.join(f'{key}:"{value}"'
-                                 for key, value in search_filters.items()
-                                 if key != 'all_no_quotes')
-                query = query.replace('all:', '')
-                if 'all_no_quotes' in search_filters:
-                    query = f'{query} {search_filters["all_no_quotes"]}'
-            else:
-                query = search_filters
+        if cves is None:
+            return None
 
-            print(f'Query: {query}')
-            banners = self.__api.search_cursor(query)
+        parsed_cves = []
+        for vul in cves['vulnerabilities']:
+            cve = vul['cve']
+            cpe_matches = cve['configurations'][0]['nodes'][0]['cpeMatch']
+            cpes = [m['criteria'] for m in cpe_matches]
+            cpe_str = " ".join(cpes)
 
-            matches = []
-            ## Loop through the matches and print each IP
-            for banner in banners:
-                match = {}
-                for match_field in match_fields:
-                    if isinstance(match_field['field'], dict):
-                        items = match_field['field'].items()
-                        item = next(iter(items), None)
-                        match[match_field['label']] = banner.get(
-                                item[0], {}).get(item[1])
-                    else:
-                        match[match_field['label']] = banner.get(
-                                match_field['field'])
+            parsed_cves.append({
+                'id': cve['id'],
+                'published_at': cve['published'],
+                'last_modified_at': cve['lastModified'],
+                'status': cve['vulnStatus'],
+                'description': cve['descriptions'][0]['value'],
+                'cpe_matches': cpe_str,
+            })
 
-                matches.append(match)
+        return parsed_cves
 
-            print(f"Results found: {len(matches)}")
-            return matches
+    def get_cves_with_cpes(self,
+                           pub_start_date="",
+                           pub_end_date="",
+                           selected_severities=""):
+        """Method printing python version."""
 
-        except Exception as e:
-            print(f"Error: {e}")
-            return False
+        if pub_start_date == "" or pub_end_date == "":
+            pub_end_date = datetime.now()
+            pub_start_date = pub_end_date - timedelta(days=7)
+
+
+        if selected_severities == "":
+            selected_severities = ['CRITICAL', 'HIGH']
+
+        # Format the datetime object as ISO 8601 string
+        pub_start_date_iso8601 = pub_start_date.isoformat()
+        pub_end_date_iso8601 = pub_end_date.isoformat()
+
+        cves_with_cpes = []
+        for selected_severity in selected_severities:
+            params = {
+                'pubStartDate': pub_start_date_iso8601,
+                'pubEndDate': pub_end_date_iso8601,
+                'noRejected': '',
+                'virtualMatchString': 'cpe:2.3:*:*:*:*:*:*',
+                'cvssV3Severity': selected_severity,
+            }
+            cves = self.get_cves(params)
+            parsed_cves = self.parse_cve_fields(cves)
+            for index, value in enumerate(parsed_cves):
+                parsed_cves[index]['cvssV3Severity'] = selected_severity.lower(
+                )
+            cves_with_cpes.extend(parsed_cves)
+
+        return cves_with_cpes
+
+    def get_last_one_week_cves_with_cpes(self):
+        """Method printing python version."""
+
+        # Get the current and one week ago datetime
+        current_datetime = datetime.now()
+        one_week_ago = current_datetime - timedelta(days=8)
+
+        # Format the datetime object as ISO 8601 string
+        current_iso8601_datetime = current_datetime.isoformat()
+        one_week_ago_iso8601_datetime = one_week_ago.isoformat()
+
+        selected_severities = ['CRITICAL', 'HIGH']
+
+        cves_with_cpes = []
+        for selected_severity in selected_severities:
+            params = {
+                'pubStartDate': one_week_ago_iso8601_datetime,
+                'pubEndDate': current_iso8601_datetime,
+                'noRejected': '',
+                'virtualMatchString': 'cpe:2.3:*:*:*:*:*:*',
+                'cvssV3Severity': selected_severity,
+            }
+            cves = self.get_cves(params)
+            parsed_cves = self.parse_cve_fields(cves)
+            for index, value in enumerate(parsed_cves):
+                parsed_cves[index]['cvssV3Severity'] = selected_severity.lower(
+                )
+            cves_with_cpes.extend(parsed_cves)
+
+        return cves_with_cpes
 
 
 if __name__ == '__main__':
-    sa = ShodanAdapter()
-
-    search_filters = {
-        'country': 'tw',
-        'org': "Government Service Network (GSN)",
-        'all': 'ldap',
-    }
-
-    match_fields = [
-        {
-            'label': 'ip',
-            'field': 'ip_str'
-        },
-        {
-            'label': 'port',
-            'field': 'port'
-        },
-    ]
-
-    r = sa.basic_query(search_filters, match_fields)
-    print(r)
+    nvd = NVDAdapter()
+    one_week_cves = nvd.get_last_one_week_cves_with_cpes()
+    print(one_week_cves)

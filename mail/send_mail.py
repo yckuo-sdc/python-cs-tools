@@ -29,6 +29,7 @@ class SendMail:
 
         self.ddi_alert_recipients = os.getenv("MAIL_DDI_ALERT_RECIPIENTS")
         self.rss_news_recipients = os.getenv("MAIL_RSS_NEWS_RECIPIENTS")
+        self.nvd_alert_recipients = os.getenv("MAIL_NVD_ALERT_RECIPIENTS")
         self.recipient = ""
         self.subject = ""
         self.body = ""
@@ -42,6 +43,9 @@ class SendMail:
 
     def set_rss_news_recipients(self):
         self.recipient = self.rss_news_recipients
+
+    def set_nvd_alert_recipients(self):
+        self.recipient = self.nvd_alert_recipients
 
     def set_subject(self, subject):
         self.subject = subject

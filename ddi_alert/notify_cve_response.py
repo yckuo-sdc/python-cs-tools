@@ -25,8 +25,16 @@ dp = DDIProcessor()
 GTE = "now-1h"
 LT = "now"
 
+severities = [
+    "6",
+    "8",
+]
+
+SEVERITY_STR = ' '.join(severities)
+
 print("Search cve response...")
-q = Q("match", ruleName='cve') & Q("match", ruleName='response')
+q = Q("match", ruleName='cve') & Q("match", ruleName='response') & Q(
+    "match", Serverity=SEVERITY_STR)
 s = Search(using=es.get_es_node(), index='new_ddi*') \
     .query(q) \
     .filter("range", **{'@timestamp':{"gte": GTE,"lt": LT}}) \
@@ -46,7 +54,7 @@ if df.empty:
     print('DataFrame is empty!')
     sys.exit(0)
 
-# Enrich ip with organiztaion name
+# Enrich ip with organization name
 df['src'] = df['src'].apply(lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
 df['dst'] = df['dst'].apply(lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
 

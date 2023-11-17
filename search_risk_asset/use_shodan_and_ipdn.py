@@ -24,10 +24,18 @@ if __name__ == '__main__':
         print('ip2gov: Awww it could not connect!')
 
     search_filters = [
+        #{
+        #    'title': 'BIG-IP&reg;- Redirect',
+        #    'asn': 'AS4782',
+        #},
         {
-            'product': 'ActiveMQ',
-            'country': 'tw',
-            'port': '61613',
+            'http.html': 'webui',
+            'asn': 'AS4782',
+            'product': 'OpenResty,nginx',
+        },
+        {
+            'all_no_quotes': 'server: openresty',
+            'asn': 'AS4782'
         },
     ]
 
@@ -40,6 +48,9 @@ if __name__ == '__main__':
     }, {
         'label': 'product',
         'field': 'product'
+    }, {
+        'label': 'os',
+        'field': 'os'
     }, {
         'label': 'module',
         'field': {
@@ -55,22 +66,15 @@ if __name__ == '__main__':
         field = sa.basic_query_cursor(search_filter, match_field)
         fields.extend(field)
 
-    label_keys = ['isac', 'class', 'dep', 'acc']
     output = []
     for field in fields:
-        DEFAULT_VALUE = None
-        label = dict.fromkeys(label_keys, DEFAULT_VALUE)
-
         field['service'] = f"{field['ip']}:{field['port']}"
 
         if IS_PING_SUCCESSFUL:
-            data = ip2gov.get(field['ip'])
-            label['isac'] = data.get('ISAC')
-            label['class'] = data.get('Class')
-            label['dep'] = data.get('DEP')
-            label['acc'] = data.get('ACC')
-
-        output.append(field | label)
+            label = ip2gov.get(field['ip'])
+            output.append(field | label)
+        else:
+            output.append(field)
 
     df = pd.DataFrame(output)
     # Keep first duplicate value

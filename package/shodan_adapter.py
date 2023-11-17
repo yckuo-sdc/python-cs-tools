@@ -15,6 +15,28 @@ class ShodanAdapter:
         else:
             self.__api = api
 
+    def get_hit_number(self, search_filters):
+        """Method printing python version."""
+        try:
+            if isinstance(search_filters, dict):
+                query = ' '.join(f'{key}:"{value}"'
+                                 for key, value in search_filters.items()
+                                 if key != 'all_no_quotes')
+                query = query.replace('all:', '')
+                if 'all_no_quotes' in search_filters:
+                    query = f'{query} {search_filters["all_no_quotes"]}'
+            else:
+                query = search_filters
+
+            print(f'Query: {query}')
+            result = self.__api.search(query)
+            hit_number = result['total']
+
+            return hit_number
+        except Exception as e:
+            print(f"Error: {e}")
+            return False
+
     def basic_query(self,
                     search_filters,
                     match_fields,
