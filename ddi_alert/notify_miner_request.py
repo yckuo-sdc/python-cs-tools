@@ -28,7 +28,7 @@ GTE = "now-1h"
 LT = "now"
 
 print("Search miner request...")
-q = Q("match", ruleName='miner') & Q("match", ruleName='request') 
+q = Q("match", ruleName='miner') & Q("match", ruleName='request')
 s = Search(using=es.get_es_node(), index='new_ddi*') \
     .query(q) \
     .filter("range", **{'@timestamp':{"gte": GTE,"lt": LT}}) \
@@ -44,11 +44,15 @@ dp.set_selected_fields([
     '@timestamp', 'ruleName', 'reason', 'Serverity', 'src', 'dst', 'spt', 'dpt'
 ])
 miners = dp.filter_all_hits_by_selected_fields(s.scan())
-mine_ips = [m['dst'] for m in miners]
+selected_miner_indices = [
+    i for i, m in enumerate(miners) if ip2gov.is_gov(m['src'])
+]
+selected_miners = [miners[i] for i in selected_miner_indices]
+mine_ips = [m['dst'] for m in selected_miners]
 labels = vt.get_malicious_number_by_ips(mine_ips)
 
 results = []
-for item1, item2 in zip(miners, labels):
+for item1, item2 in zip(selected_miners, labels):
     results.append(item1 | item2)
 
 df = pd.DataFrame(results)

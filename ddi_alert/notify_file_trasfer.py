@@ -25,12 +25,10 @@ dp = DDIProcessor()
 GTE = "now-1h"
 LT = "now"
 
-EVT_SUB_CAT = "Trojan"
-HEURISTIC_FLAG = "0"  # Disable heuristic detection
+FILE_TRANSFER_KEYWORD = "*File Transfer"
 
-print("Search trojan http response...")
-q = Q("match", evtSubCat=EVT_SUB_CAT) & Q("match", app='HTTP') & Q(
-    "match", ruleName='response') & Q("match", cn7=HEURISTIC_FLAG)
+print("Search file transfer...")
+q = Q("wildcard", ruleName__keyword=FILE_TRANSFER_KEYWORD)
 s = Search(using=es.get_es_node(), index='new_ddi*') \
     .query(q) \
     .filter("range", **{'@timestamp':{"gte": GTE,"lt": LT}}) \
@@ -54,7 +52,7 @@ if df.empty:
 df['src'] = df['src'].apply(lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
 df['dst'] = df['dst'].apply(lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
 
-SUBJECT = "DDI Alert: Trojan Http Response"
+SUBJECT = "DDI Alert: File Transfer"
 TABLE = df.to_html(justify='left', index=False)
 
 mail.set_subject(SUBJECT)

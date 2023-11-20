@@ -91,7 +91,7 @@ class VirusTotal:
 
     def get_malicious_number_by_ips(self, request_ips):
         if not request_ips:
-            return False
+            return []
 
         first_seen_index = {}
         is_first_seen = [

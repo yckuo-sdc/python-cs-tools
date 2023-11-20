@@ -1,17 +1,19 @@
+"""Module"""
 import os
 
-import shodan
 from dotenv import load_dotenv
+from shodan import Shodan
 
 
 class ShodanAdapter:
+    """Class representing a adapter"""
     __api = None
 
     def __init__(self, api=""):
         if api == "":
             load_dotenv()
             apikey = os.getenv("SHODAN_NICS_APIKEY")
-            self.__api = shodan.Shodan(apikey)
+            self.__api = Shodan(apikey)
         else:
             self.__api = api
 

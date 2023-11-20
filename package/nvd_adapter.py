@@ -1,6 +1,5 @@
 """Modules"""
 import os
-import sys
 from datetime import datetime, timedelta
 
 import requests
@@ -9,6 +8,7 @@ from requests.exceptions import RequestException
 
 
 class NVDAdapter:
+    """Class representing a adapter"""
     __host = None
     __apikey = None
 
@@ -30,9 +30,12 @@ class NVDAdapter:
         url = self.__host + "/cves/2.0"
         headers = {
             'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-            "apiKey": self.__apikey
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            '(KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+            "apiKey":
+            self.__apikey
         }
+        print(headers)
 
         try:
             response = requests.get(url,
@@ -57,23 +60,33 @@ class NVDAdapter:
         if cves is None:
             return None
 
-        parsed_cves = []
+        cpe_keys = ['criteria', 'versionStartIncluding', 'versionEndExcluding']
+        parsed_cve_fields = []
         for vul in cves['vulnerabilities']:
             cve = vul['cve']
-            cpe_matches = cve['configurations'][0]['nodes'][0]['cpeMatch']
-            cpes = [m['criteria'] for m in cpe_matches]
-            cpe_str = " ".join(cpes)
+            cpes = []
+            cpes_with_version = []
+            for configuration in cve['configurations']:
+                for node in configuration['nodes']:
+                    for cpe_match in node['cpeMatch']:
+                        matching_values = [cpe_match[key] for key in cpe_keys if key in cpe_match]
+                        cpes.append(cpe_match['criteria'])
+                        cpes_with_version.append("|".join(matching_values))
 
-            parsed_cves.append({
-                'id': cve['id'],
+            cpe_str = " ".join(cpes)
+            cpe_with_version_str = " ".join(cpes_with_version)
+
+            parsed_cve_fields.append({
+                'cve_id': cve['id'],
                 'published_at': cve['published'],
                 'last_modified_at': cve['lastModified'],
                 'status': cve['vulnStatus'],
                 'description': cve['descriptions'][0]['value'],
                 'cpe_matches': cpe_str,
+                'cpe_matches_with_version': cpe_with_version_str,
             })
 
-        return parsed_cves
+        return parsed_cve_fields
 
     def get_cves_with_cpes(self,
                            pub_start_date="",
@@ -84,7 +97,6 @@ class NVDAdapter:
         if pub_start_date == "" or pub_end_date == "":
             pub_end_date = datetime.now()
             pub_start_date = pub_end_date - timedelta(days=7)
-
 
         if selected_severities == "":
             selected_severities = ['CRITICAL', 'HIGH']
@@ -104,38 +116,7 @@ class NVDAdapter:
             }
             cves = self.get_cves(params)
             parsed_cves = self.parse_cve_fields(cves)
-            for index, value in enumerate(parsed_cves):
-                parsed_cves[index]['cvssV3Severity'] = selected_severity.lower(
-                )
-            cves_with_cpes.extend(parsed_cves)
-
-        return cves_with_cpes
-
-    def get_last_one_week_cves_with_cpes(self):
-        """Method printing python version."""
-
-        # Get the current and one week ago datetime
-        current_datetime = datetime.now()
-        one_week_ago = current_datetime - timedelta(days=8)
-
-        # Format the datetime object as ISO 8601 string
-        current_iso8601_datetime = current_datetime.isoformat()
-        one_week_ago_iso8601_datetime = one_week_ago.isoformat()
-
-        selected_severities = ['CRITICAL', 'HIGH']
-
-        cves_with_cpes = []
-        for selected_severity in selected_severities:
-            params = {
-                'pubStartDate': one_week_ago_iso8601_datetime,
-                'pubEndDate': current_iso8601_datetime,
-                'noRejected': '',
-                'virtualMatchString': 'cpe:2.3:*:*:*:*:*:*',
-                'cvssV3Severity': selected_severity,
-            }
-            cves = self.get_cves(params)
-            parsed_cves = self.parse_cve_fields(cves)
-            for index, value in enumerate(parsed_cves):
+            for index, _ in enumerate(parsed_cves):
                 parsed_cves[index]['cvssV3Severity'] = selected_severity.lower(
                 )
             cves_with_cpes.extend(parsed_cves)
@@ -145,5 +126,11 @@ class NVDAdapter:
 
 if __name__ == '__main__':
     nvd = NVDAdapter()
-    one_week_cves = nvd.get_last_one_week_cves_with_cpes()
-    print(one_week_cves)
+
+    custom_params = {
+        'cveId': 'CVE-2023-5539',
+    }
+
+    the_cves = nvd.get_cves(custom_params)
+    the_parsed_cves = nvd.parse_cve_fields(the_cves)
+    print(the_parsed_cves)

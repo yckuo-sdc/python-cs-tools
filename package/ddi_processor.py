@@ -1,12 +1,13 @@
 """Module"""
 
+
 class DDIProcessor:
 
     def __init__(self):
         self.selected_fields = [
-            '@timestamp', 'ruleName', 'reason', 'Serverity', 'request', 'cs8',
-            'fname', 'fileHash', 'cs4', 'requestClientApplication', 'src',
-            'dst', 'spt', 'dpt'
+            '@timestamp', 'ruleName', 'reason', 'evtSubCat', 'Serverity',
+            'request', 'cs8', 'fname', 'fileHash', 'requestClientApplication',
+            'src', 'dst', 'spt', 'dpt'
         ]
 
     def set_selected_fields(self, selected_fields):

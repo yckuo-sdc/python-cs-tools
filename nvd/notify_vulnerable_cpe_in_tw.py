@@ -23,7 +23,7 @@ nvd = NVDAdapter()
 sa = ShodanAdapter()
 
 pub_end_date = datetime.now()
-pub_start_date = pub_end_date - timedelta(days=8)
+pub_start_date = pub_end_date - timedelta(days=7)
 selected_severities = ['CRITICAL', 'HIGH']
 
 cves = nvd.get_cves_with_cpes(pub_start_date, pub_end_date,
@@ -33,7 +33,7 @@ frames = []
 for cve in cves:
     cpe_matches = cve['cpe_matches'].split()
     unique_cpe_matches = list(set(cpe_matches))
-    del cve['cpe_matches']
+    cve.pop('cpe_matches')
 
     results = []
     for cpe_match in unique_cpe_matches:
@@ -42,7 +42,7 @@ for cve in cves:
         if not hit_number:
             continue
 
-        results.append({'tw_hits': hit_number, 'cpe_match': cpe_match} | cve)
+        results.append({'tw_hits': hit_number, 'vulnerable_cpe': cpe_match} | cve)
 
     df = pd.DataFrame(results)
     frames.append(df)

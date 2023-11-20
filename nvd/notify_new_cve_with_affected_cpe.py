@@ -23,7 +23,7 @@ nvd = NVDAdapter()
 sa = ShodanAdapter()
 
 pub_end_date = datetime.now()
-pub_start_date = pub_end_date - timedelta(days=7)
+pub_start_date = pub_end_date - timedelta(days=8)
 selected_severities = ['CRITICAL', 'HIGH']
 
 cves = nvd.get_cves_with_cpes(pub_start_date, pub_end_date,
@@ -36,7 +36,7 @@ if df.empty:
     print('DataFrame is empty!')
     sys.exit(0)
 
-SUBJECT = "NVD Alert: New CVE with CPE"
+SUBJECT = "NVD Alert: New CVE with Affected CPE"
 TABLE = df.to_html(justify='left', index=False)
 
 mail.set_subject(SUBJECT)

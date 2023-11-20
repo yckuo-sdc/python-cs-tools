@@ -1,3 +1,4 @@
+"""Module"""
 import os
 import subprocess
 from urllib.parse import urlparse
@@ -7,6 +8,7 @@ from dotenv import load_dotenv
 
 
 class Ip2govAdapter:
+    """Class representing a adapter"""
 
     def __init__(self, host="", apikey=""):
         if host == "":
@@ -30,6 +32,9 @@ class Ip2govAdapter:
             return False  # If the ping command fails, return False
 
     def get(self, request_ip, field_name=""):
+        if not request_ip:
+            return None
+
         url = self.host + "/json"
 
         if isinstance(request_ip, list):
@@ -54,7 +59,7 @@ class Ip2govAdapter:
             data = next(iter(data), None)
 
         if field_name:
-            return data.get(field_name, False)
+            return data.get(field_name, None)
 
         return data
 
