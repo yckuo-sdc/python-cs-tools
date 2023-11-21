@@ -80,16 +80,21 @@ if __name__ == '__main__':
                         engine='openpyxl',
                         sheet_name=SHEET2_NAME)
 
-    ## Grouping by multiple columns
-    df2['port'] = df2['port'].astype(str)
-    grouped_data = df2.groupby('name')
-    df2 = grouped_data.agg({
-        'ip': concatenate_values,
-        'port': concatenate_values
-    }).reset_index()
-
     inputs = df1.to_dict('records')
     inputs = next(iter(inputs), None)
+
+    if inputs['typeId'] == 'EWA':
+        grouped_data = df2.groupby('name')
+        df2 = grouped_data.agg({
+            'ip': concatenate_values,
+        }).reset_index()
+    elif inputs['typeId'] == 'INT':
+        grouped_data = df2.groupby('department_name')
+        df2 = grouped_data.agg({
+            'department_ip': concatenate_values,
+            'ioc_ip': concatenate_values,
+        }).reset_index()
+
     departments = df2.to_dict('records')
     print(inputs)
     print(departments)
@@ -98,11 +103,14 @@ if __name__ == '__main__':
     if inputs['notice.attachment'] == '有':
         for department in departments:
             department['file_path'] = get_department_file_path(
-                PATH_TO_ATTACH_DIR, department['name'])
+                PATH_TO_ATTACH_DIR, department['department_name'])
             if not department['file_path']:
-                sys.exit(f"Exit: Can't find attachment: {department['name']}")
+                sys.exit(
+                    f"Exit: Can't find attachment: {department['department_name']}"
+                )
             print(department['file_path'])
 
+    print(departments)
     input("Press Enter to continue...")
 
     options = webdriver.ChromeOptions()
@@ -144,7 +152,7 @@ if __name__ == '__main__':
         # Part2. Classification
         # =====================
 
-        print(department['name'])
+        print(department['department_name'])
 
         # Directing the driver to the defined url
         driver.get(f"{HOST}/notice/Notice.do?method:publishNoticeStep1")
@@ -171,12 +179,13 @@ if __name__ == '__main__':
         # ==============
 
         subject = Template(inputs['notice.subject']).substitute(
-            department_name=department['name'])
+            department_name=department['department_name'])
         content = Template(inputs['notice.content']).substitute(
-            department_ip=department['ip'])
+            department_ip=department['department_ip'])
         suggestion = inputs['notice.suggestion']
         reference = inputs['notice.reference']
-        ips = department['ip'].split(", ")
+        ips = department['department_ip'].split(", ")
+        ioc_ips = department['ioc_ip'].split(", ")
 
         # notice.source = ['外部資安組織', '本院自行發現', 'GSN威脅情蒐機制']
         select_element = driver.find_element(By.NAME, "notice.source")
@@ -201,7 +210,20 @@ if __name__ == '__main__':
 
         if inputs['typeId'] == 'INT':
             driver.find_element(By.NAME, "notice.approach").send_keys(
-                inputs['approach'])
+                inputs['notice.approach'])
+
+        if department['ioc_ip']:
+            select_element = driver.find_element(By.CLASS_NAME, "select_ipdn")
+            select = Select(select_element)
+            select.select_by_visible_text("IP")
+            select_element = driver.find_element(By.CLASS_NAME,
+                                                 "select_malicioustype")
+            select = Select(select_element)
+            select.select_by_visible_text("惡意CandC與下載站")
+            for ioc_ip in ioc_ips:
+                driver.find_element(By.XPATH,
+                                    "//input[@id='ioc']").send_keys(ioc_ip)
+                driver.execute_script("addMal()")
 
         for ip in ips:
             driver.find_element(By.XPATH, "//input[@id='ip']").send_keys(ip)
@@ -232,7 +254,7 @@ if __name__ == '__main__':
 
         driver.execute_script("goToSelectToPage()")
         driver.find_element(By.ID, "NoticePrePublish_search").send_keys(
-            department['name'])
+            department['department_name'])
         driver.find_element(By.ID, "NoticePrePublish_normal_query").click()
 
         # ===========================

@@ -35,7 +35,39 @@ class NVDAdapter:
             "apiKey":
             self.__apikey
         }
-        print(headers)
+
+        try:
+            response = requests.get(url,
+                                    params=params,
+                                    headers=headers,
+                                    timeout=30)
+        except RequestException as req_err:
+            print(req_err)
+            return None
+
+        # Check if the request was successful (status code 200)
+        if response.status_code != 200:
+            print(f"Error: {response.status_code}, {response.text}")
+            return None
+
+        data = response.json()
+        print(f"Results found: {data['totalResults']}")
+        return data
+
+    def get_cpe_matches(self, params):
+        """Method printing python version."""
+
+        query = " ".join(f"{k}:\"{v}\"" for k, v in params.items())
+        print(f'Query: {query}')
+
+        url = self.__host + "/cpematch/2.0"
+        headers = {
+            'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            '(KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+            "apiKey":
+            self.__apikey
+        }
 
         try:
             response = requests.get(url,
@@ -64,29 +96,77 @@ class NVDAdapter:
         parsed_cve_fields = []
         for vul in cves['vulnerabilities']:
             cve = vul['cve']
-            cpes = []
             cpes_with_version = []
             for configuration in cve['configurations']:
                 for node in configuration['nodes']:
                     for cpe_match in node['cpeMatch']:
-                        matching_values = [cpe_match[key] for key in cpe_keys if key in cpe_match]
-                        cpes.append(cpe_match['criteria'])
-                        cpes_with_version.append("|".join(matching_values))
+                        matching_values = [
+                            cpe_match[key] for key in cpe_keys
+                            if key in cpe_match
+                        ]
+                        cpe_match_value = " | ".join(matching_values)
+                        cpes_with_version.append(cpe_match_value)
 
-            cpe_str = " ".join(cpes)
             cpe_with_version_str = " ".join(cpes_with_version)
 
             parsed_cve_fields.append({
-                'cve_id': cve['id'],
-                'published_at': cve['published'],
-                'last_modified_at': cve['lastModified'],
-                'status': cve['vulnStatus'],
-                'description': cve['descriptions'][0]['value'],
-                'cpe_matches': cpe_str,
-                'cpe_matches_with_version': cpe_with_version_str,
+                'cve_id':
+                cve['id'],
+                'published_at':
+                cve['published'],
+                'last_modified_at':
+                cve['lastModified'],
+                'status':
+                cve['vulnStatus'],
+                'description':
+                cve['descriptions'][0]['value'],  # English language
+                'cpe_matches_with_version':
+                cpe_with_version_str,
             })
 
         return parsed_cve_fields
+
+    def parse_cpe_matches_fields(self, cpe_matches):
+        """Method printing python version."""
+        if cpe_matches is None:
+            return None
+
+        parsed_cpe_matches_fields = []
+        for match_string in cpe_matches['matchStrings']:
+            cpe_match_string = match_string['matchString']
+
+            if 'matches' in cpe_match_string:
+                for cpe_match in cpe_match_string['matches']:
+                    parsed_cpe_matches_fields.append(cpe_match['cpeName'])
+            else:
+                parsed_cpe_matches_fields.append(cpe_match_string['criteria'])
+
+        return parsed_cpe_matches_fields
+
+    def get_cpe_matches_in_cves(self, cves):
+        """ Method printing python version.
+
+        Args:
+            cves(list): cve records.
+
+        Returns:
+            dict: cpe matches in cve
+        """
+
+        if cves is None:
+            return None
+
+        cpe_matches_in_cves = {}
+        for cve in cves:
+            params = {
+                'cveId': cve['cve_id'],
+            }
+
+            cpe_matches = self.get_cpe_matches(params)
+            parsed_cpe_matches = self.parse_cpe_matches_fields(cpe_matches)
+            cpe_matches_in_cves[cve['cve_id']] = parsed_cpe_matches
+
+        return cpe_matches_in_cves
 
     def get_cves_with_cpes(self,
                            pub_start_date="",
@@ -116,6 +196,10 @@ class NVDAdapter:
             }
             cves = self.get_cves(params)
             parsed_cves = self.parse_cve_fields(cves)
+
+            if not parsed_cves:
+                continue
+
             for index, _ in enumerate(parsed_cves):
                 parsed_cves[index]['cvssV3Severity'] = selected_severity.lower(
                 )
@@ -134,3 +218,15 @@ if __name__ == '__main__':
     the_cves = nvd.get_cves(custom_params)
     the_parsed_cves = nvd.parse_cve_fields(the_cves)
     print(the_parsed_cves)
+
+    the_cpe_matches = nvd.get_cpe_matches_in_cves(the_parsed_cves)
+    print(the_cpe_matches)
+
+    #custom_params = {
+    #    #'cveId': 'CVE-2023-20198',
+    #    'cveId': 'CVE-2023-6126',
+    #}
+
+    #the_cpe_matches = nvd.get_cpe_matches(custom_params)
+    #the_parsed_cpe_matches = nvd.parse_cpe_matches_fields(the_cpe_matches)
+    #print(the_parsed_cpe_matches)

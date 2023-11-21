@@ -22,22 +22,22 @@ ip2gov = Ip2govAdapter()
 nvd = NVDAdapter()
 sa = ShodanAdapter()
 
-pub_end_date = datetime.now()
-pub_start_date = pub_end_date - timedelta(days=7)
-selected_severities = ['CRITICAL', 'HIGH']
+params = {
+    'cveId': 'CVE-2023-20198',
+}
 
 print("Search cves...")
-cves = nvd.get_cves_with_cpes(pub_start_date, pub_end_date,
-                              selected_severities)
+cves = nvd.get_cves(params)
+parsed_cves = nvd.parse_cve_fields(cves)
 print("Search match strings in cves...")
-cpes_in_cves = nvd.get_cpe_matches_in_cves(cves)
+cpes_in_cves = nvd.get_cpe_matches_in_cves(parsed_cves)
 
 cpe_list = list(cpes_in_cves.values())
 match_string_num = sum(len(c) for c in cpe_list)
 print(f"Match strings found: {match_string_num}")
 
 frames = []
-for cve in cves:
+for cve in parsed_cves:
     cpe_matches = cpes_in_cves[cve['cve_id']]
     unique_cpe_matches = list(set(cpe_matches))
 
@@ -48,7 +48,10 @@ for cve in cves:
         if not hit_number:
             continue
 
-        results.append({'tw_hits': hit_number, 'vulnerable_cpe': cpe_match} | cve)
+        results.append({
+            'tw_hits': hit_number,
+            'vulnerable_cpe': cpe_match
+        } | cve)
 
     df = pd.DataFrame(results)
     frames.append(df)
@@ -63,9 +66,9 @@ except pd.errors.MergeError as e:
 if total_df.empty:
     sys.exit('DataFrame is empty!')
 
-SUBJECT = "NVD Alert: Vulnerable CPE in TW"
-TABLE = total_df.to_html(justify='left', index=False)
-
-mail.set_subject(SUBJECT)
-mail.set_template_body(mapping=TABLE)
-mail.send()
+#SUBJECT = "NVD Alert: Vulnerable CPE in TW"
+#TABLE = total_df.to_html(justify='left', index=False)
+#
+#mail.set_subject(SUBJECT)
+#mail.set_template_body(mapping=TABLE)
+#mail.send()
