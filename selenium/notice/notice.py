@@ -83,34 +83,33 @@ if __name__ == '__main__':
     inputs = df1.to_dict('records')
     inputs = next(iter(inputs), None)
 
-    if inputs['typeId'] == 'EWA':
-        grouped_data = df2.groupby('name')
-        df2 = grouped_data.agg({
-            'ip': concatenate_values,
-        }).reset_index()
-    elif inputs['typeId'] == 'INT':
-        grouped_data = df2.groupby('department_name')
+    grouped_data = df2.groupby('department_name')
+    if 'ioc_ip' in df2:
         df2 = grouped_data.agg({
             'department_ip': concatenate_values,
             'ioc_ip': concatenate_values,
         }).reset_index()
+    else:
+        df2 = grouped_data.agg({
+            'department_ip': concatenate_values,
+        }).reset_index()
 
-    departments = df2.to_dict('records')
+    records = df2.to_dict('records')
     print(inputs)
-    print(departments)
+    print(records)
 
     # Attachment validation
     if inputs['notice.attachment'] == '有':
-        for department in departments:
-            department['file_path'] = get_department_file_path(
-                PATH_TO_ATTACH_DIR, department['department_name'])
-            if not department['file_path']:
+        for record in records:
+            record['file_path'] = get_department_file_path(
+                PATH_TO_ATTACH_DIR, record['department_name'])
+            if not record['file_path']:
                 sys.exit(
-                    f"Exit: Can't find attachment: {department['department_name']}"
+                    f"Exit: Can't find attachment: {record['department_name']}"
                 )
-            print(department['file_path'])
+            print(record['file_path'])
 
-    print(departments)
+    print(records)
     input("Press Enter to continue...")
 
     options = webdriver.ChromeOptions()
@@ -146,13 +145,13 @@ if __name__ == '__main__':
     driver.find_element(By.XPATH, "//input[@type='submit']").click()
 
     execution_results = []
-    for department in departments:
+    for record in records:
 
         # =====================
         # Part2. Classification
         # =====================
 
-        print(department['department_name'])
+        print(record['department_name'])
 
         # Directing the driver to the defined url
         driver.get(f"{HOST}/notice/Notice.do?method:publishNoticeStep1")
@@ -179,13 +178,12 @@ if __name__ == '__main__':
         # ==============
 
         subject = Template(inputs['notice.subject']).substitute(
-            department_name=department['department_name'])
+            department_name=record['department_name'])
         content = Template(inputs['notice.content']).substitute(
-            department_ip=department['department_ip'])
+            department_ip=record['department_ip'])
         suggestion = inputs['notice.suggestion']
         reference = inputs['notice.reference']
-        ips = department['department_ip'].split(", ")
-        ioc_ips = department['ioc_ip'].split(", ")
+        ips = record['department_ip'].split(", ")
 
         # notice.source = ['外部資安組織', '本院自行發現', 'GSN威脅情蒐機制']
         select_element = driver.find_element(By.NAME, "notice.source")
@@ -212,7 +210,7 @@ if __name__ == '__main__':
             driver.find_element(By.NAME, "notice.approach").send_keys(
                 inputs['notice.approach'])
 
-        if department['ioc_ip']:
+        if record['ioc_ip']:
             select_element = driver.find_element(By.CLASS_NAME, "select_ipdn")
             select = Select(select_element)
             select.select_by_visible_text("IP")
@@ -220,6 +218,8 @@ if __name__ == '__main__':
                                                  "select_malicioustype")
             select = Select(select_element)
             select.select_by_visible_text("惡意CandC與下載站")
+
+            ioc_ips = record['ioc_ip'].split(", ")
             for ioc_ip in ioc_ips:
                 driver.find_element(By.XPATH,
                                     "//input[@id='ioc']").send_keys(ioc_ip)
@@ -233,9 +233,8 @@ if __name__ == '__main__':
         driver.find_element(By.NAME, "notice.reference").send_keys(reference)
 
         if inputs['notice.attachment'] == '有':
-            # Specify the path to the file you want to upload
             driver.find_element(By.NAME,
-                                "myFile").send_keys(department['file_path'])
+                                "myFile").send_keys(record['file_path'])
             driver.find_element(By.XPATH, "//input[@type='submit']").click()
 
         # ==============
@@ -254,7 +253,7 @@ if __name__ == '__main__':
 
         driver.execute_script("goToSelectToPage()")
         driver.find_element(By.ID, "NoticePrePublish_search").send_keys(
-            department['department_name'])
+            record['department_name'])
         driver.find_element(By.ID, "NoticePrePublish_normal_query").click()
 
         # ===========================
@@ -277,7 +276,7 @@ if __name__ == '__main__':
         td = driver.find_element(By.XPATH, "//table/tbody/tr[1]/td[1]")
         notice_id = td.text
 
-        execution_results.append(department | {'notice_id': notice_id})
+        execution_results.append(record | {'notice_id': notice_id})
 
         # ==============
         # Part7. Publish
