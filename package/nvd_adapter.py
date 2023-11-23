@@ -133,13 +133,20 @@ class NVDAdapter:
 
         parsed_cpe_matches_fields = []
         for match_string in cpe_matches['matchStrings']:
-            cpe_match_string = match_string['matchString']
+            cpe = match_string['matchString']
 
-            if 'matches' in cpe_match_string:
-                for cpe_match in cpe_match_string['matches']:
-                    parsed_cpe_matches_fields.append(cpe_match['cpeName'])
-            else:
-                parsed_cpe_matches_fields.append(cpe_match_string['criteria'])
+            field = {}
+            field['criteria'] = cpe.get('criteria')
+            field['version_start_including'] = cpe.get('versionStartIncluding')
+            field['version_end_excluding'] = cpe.get('versionEndExcluding')
+            field['match_strings'] = None
+
+            if 'matches' in cpe:
+                field['match_strings'] = [c['cpeName'] for c in cpe['matches']]
+
+            print(field)
+            input()
+            parsed_cpe_matches_fields.append(field)
 
         return parsed_cpe_matches_fields
 
@@ -211,22 +218,22 @@ class NVDAdapter:
 if __name__ == '__main__':
     nvd = NVDAdapter()
 
-    custom_params = {
-        'cveId': 'CVE-2023-5539',
-    }
-
-    the_cves = nvd.get_cves(custom_params)
-    the_parsed_cves = nvd.parse_cve_fields(the_cves)
-    print(the_parsed_cves)
-
-    the_cpe_matches = nvd.get_cpe_matches_in_cves(the_parsed_cves)
-    print(the_cpe_matches)
-
     #custom_params = {
-    #    #'cveId': 'CVE-2023-20198',
-    #    'cveId': 'CVE-2023-6126',
+    #    'cveId': 'CVE-2023-46604',
     #}
 
-    #the_cpe_matches = nvd.get_cpe_matches(custom_params)
-    #the_parsed_cpe_matches = nvd.parse_cpe_matches_fields(the_cpe_matches)
-    #print(the_parsed_cpe_matches)
+    #the_cves = nvd.get_cves(custom_params)
+    #the_parsed_cves = nvd.parse_cve_fields(the_cves)
+    #print(the_parsed_cves)
+
+    #the_cpe_matches = nvd.get_cpe_matches_in_cves(the_parsed_cves)
+    #print(the_cpe_matches)
+
+    custom_params = {
+        #'cveId': 'CVE-2023-20198',
+        'cveId': 'CVE-2023-6126',
+    }
+
+    the_cpe_matches = nvd.get_cpe_matches(custom_params)
+    the_parsed_cpe_matches = nvd.parse_cpe_matches_fields(the_cpe_matches)
+    print(the_parsed_cpe_matches)

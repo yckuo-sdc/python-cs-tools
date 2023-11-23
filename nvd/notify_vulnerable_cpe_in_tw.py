@@ -24,7 +24,10 @@ sa = ShodanAdapter()
 
 pub_end_date = datetime.now()
 pub_start_date = pub_end_date - timedelta(days=7)
-selected_severities = ['CRITICAL', 'HIGH']
+selected_severities = [
+    'CRITICAL', 
+    #'HIGH',
+]
 
 print("Search cves...")
 cves = nvd.get_cves_with_cpes(pub_start_date, pub_end_date,
@@ -32,23 +35,42 @@ cves = nvd.get_cves_with_cpes(pub_start_date, pub_end_date,
 print("Search match strings in cves...")
 cpes_in_cves = nvd.get_cpe_matches_in_cves(cves)
 
-cpe_list = list(cpes_in_cves.values())
-match_string_num = sum(len(c) for c in cpe_list)
-print(f"Match strings found: {match_string_num}")
+#cpe_list = list(cpes_in_cves.values())
+#match_string_num = sum(len(c) for c in cpe_list)
+#print(f"Match strings found: {match_string_num}")
 
 frames = []
 for cve in cves:
     cpe_matches = cpes_in_cves[cve['cve_id']]
-    unique_cpe_matches = list(set(cpe_matches))
 
     results = []
-    for cpe_match in unique_cpe_matches:
-        search_filter = {'cpe': cpe_match, 'country': 'tw'}
+    for cpe_match in cpe_matches:
+        search_filter = {'cpe': cpe_match['criteria'], 'country': 'tw'}
         hit_number = sa.get_hit_number(search_filter)
+
         if not hit_number:
             continue
 
-        results.append({'tw_hits': hit_number, 'vulnerable_cpe': cpe_match} | cve)
+        results.append({
+            'tw_hits': hit_number,
+            'vulnerable_cpe': cpe_match['criteria']
+        } | cve)
+
+        if not cpe_match['match_strings']:
+            continue
+
+        for match_string in cpe_match['match_strings']:
+            search_filter = {'cpe': match_string, 'country': 'tw'}
+            hit_number = sa.get_hit_number(search_filter)
+
+            if not hit_number:
+                continue
+
+            results.append({
+                'tw_hits': hit_number,
+                'vulnerable_cpe': match_string
+            } | cve)
+
 
     df = pd.DataFrame(results)
     frames.append(df)

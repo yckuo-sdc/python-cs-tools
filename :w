@@ -42,31 +42,20 @@ for cve in parsed_cves:
 
     results = []
     for cpe_match in cpe_matches:
-        search_filter = {'cpe': cpe_match['criteria'], 'country': 'tw'}
+        cpe_str = cpe_match['criteria']
+        search_filter = {'cpe': cpe_str, 'country': 'tw'}
         hit_number = sa.get_hit_number(search_filter)
 
         if not hit_number:
             continue
 
-        results.append({
-            'tw_hits': hit_number,
-            'vulnerable_cpe': cpe_match['criteria']
-        } | cve)
-
         if not cpe_match['match_strings']:
             continue
 
-        for match_string in cpe_match['match_strings']:
-            search_filter = {'cpe': match_string, 'country': 'tw'}
-            hit_number = sa.get_hit_number(search_filter)
-
-            if not hit_number:
-                continue
-
-            results.append({
-                'tw_hits': hit_number,
-                'vulnerable_cpe': match_string
-            } | cve)
+        results.append({
+            'tw_hits': hit_number,
+            'vulnerable_cpe': cpe_match
+        } | cve)
 
     df = pd.DataFrame(results)
     frames.append(df)
