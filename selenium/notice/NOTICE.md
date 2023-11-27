@@ -13,7 +13,8 @@ NOTICE_USERNAME=
 NOTICE_PASSWORD=
 ```
 **Get sample excel file**
-- `cp .excel.example example.xlsx`
+- `cp .ewa.excel.example ewa_example.xlsx`
+- `cp .int.excel.example int_example.xlsx`
 
 ## Publish notices 
 **Usage**

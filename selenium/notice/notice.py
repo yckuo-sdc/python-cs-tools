@@ -95,8 +95,6 @@ if __name__ == '__main__':
         }).reset_index()
 
     records = df2.to_dict('records')
-    print(inputs)
-    print(records)
 
     # Attachment validation
     if inputs['notice.attachment'] == '有':
@@ -107,8 +105,8 @@ if __name__ == '__main__':
                 sys.exit(
                     f"Exit: Can't find attachment: {record['department_name']}"
                 )
-            print(record['file_path'])
 
+    print(inputs)
     print(records)
     input("Press Enter to continue...")
 
@@ -270,8 +268,8 @@ if __name__ == '__main__':
             driver.find_element(By.ID, "NoticePrePublish_normal_ok").click()
         except NoSuchElementException:
             input(
-                "The element: 'NoticePrePublish_normal_ok' was not found on the web page,"
-                + "Press Enter to continue...")
+                "The element: 'NoticePrePublish_normal_ok' was not found on the web page"
+                ", press Enter to continue...")
 
         td = driver.find_element(By.XPATH, "//table/tbody/tr[1]/td[1]")
         notice_id = td.text
@@ -286,11 +284,9 @@ if __name__ == '__main__':
             publish_button = driver.find_element(
                 By.XPATH, "//tr[last()]//input[@type='submit']")
             publish_button.click()
-            print(publish_button.get_attribute("value"))
         except NoSuchElementException:
-            input(
-                "The element: 'publish button' was not found on the web page,"
-                + "Press Enter to continue...")
+            input("The element: 'publish button' was not found on the web page"
+                  ", press Enter to continue...")
         input("Press Enter to continue...")
 
     # Write the modified DataFrame back to the worksheet

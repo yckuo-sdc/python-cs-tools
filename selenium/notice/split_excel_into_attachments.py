@@ -38,7 +38,7 @@ if __name__ == '__main__':
                        sheet_name=SHEET2_NAME)
 
     # Group the DataFrame by 'Category'
-    grouped = df.groupby('name')
+    grouped = df.groupby('department_name')
 
     # Get all group names
     group_names = grouped.groups.keys()

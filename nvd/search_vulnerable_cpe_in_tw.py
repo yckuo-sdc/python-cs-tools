@@ -23,7 +23,7 @@ nvd = NVDAdapter()
 sa = ShodanAdapter()
 
 params = {
-    'cveId': 'CVE-2023-20198',
+    'cveId': 'CVE-2023-46604',
 }
 
 print("Search cves...")
@@ -81,9 +81,6 @@ except pd.errors.MergeError as e:
 if total_df.empty:
     sys.exit('DataFrame is empty!')
 
-#SUBJECT = "NVD Alert: Vulnerable CPE in TW"
-#TABLE = total_df.to_html(justify='left', index=False)
-#
-#mail.set_subject(SUBJECT)
-#mail.set_template_body(mapping=TABLE)
-#mail.send()
+path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
+                           "use_nvd_cve_2023_46604.csv")
+df.to_csv(path_to_csv, index=False, encoding='utf-8-sig')
