@@ -13,14 +13,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from mail.send_mail import SendMail
 from package.ddi_processor import DDIProcessor
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
-from package.ip2gov_adapter import Ip2govAdapter
 
 #pylint: enable=wrong-import-position
 
 mail = SendMail()
 mail.set_ddi_alert_recipients()
 es = ElasticsearchDslAdapter()
-ip2gov = Ip2govAdapter()
 dp = DDIProcessor()
 
 GTE = "now-1h"
@@ -65,24 +63,19 @@ for network_direction in network_directions:
         webshell_responses = dp.filter_all_hits_by_selected_fields(s.scan())
         df = pd.DataFrame(webshell_responses)
 
-        print(df)
         frames.append(df)
 
 total_df = pd.DataFrame()
 try:
     total_df = pd.concat(frames, ignore_index=True)
-    print(total_df)
 except Exception as e:
     print(e)
 
 if total_df.empty:
     sys.exit('DataFrame is empty!')
 
-# Enrich ip with organization name
-total_df['src'] = total_df['src'].apply(
-    lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
-total_df['dst'] = total_df['dst'].apply(
-    lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
+total_df = dp.enrich_dataframe(total_df)
+print(total_df)
 
 SUBJECT = "DDI Alert: Webshell Response"
 TABLE = total_df.to_html(justify='left', index=False)

@@ -12,7 +12,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from mail.send_mail import SendMail
 from package.ddi_processor import DDIProcessor
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
-from package.ip2gov_adapter import Ip2govAdapter
 from package.shodan_adapter import ShodanAdapter
 
 #pylint: enable=wrong-import-position
@@ -20,7 +19,6 @@ from package.shodan_adapter import ShodanAdapter
 mail = SendMail()
 mail.set_ddi_alert_recipients()
 es = ElasticsearchDslAdapter()
-ip2gov = Ip2govAdapter()
 dp = DDIProcessor()
 sa = ShodanAdapter()
 
@@ -63,15 +61,13 @@ print(f"Total Hits: {response.hits.total}")
 qnaps = dp.filter_all_hits_by_selected_fields(s.scan())
 
 df = pd.DataFrame(qnaps)
-print(df)
 
 if df.empty:
     print('DataFrame is empty!')
     sys.exit(0)
 
-# Enrich ip with organization name
-df['src'] = df['src'].apply(lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
-df['dst'] = df['dst'].apply(lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
+df = dp.enrich_dataframe(df)
+print(df)
 
 SUBJECT = "DDI Alert: QNAP"
 TABLE = df.to_html(justify='left', index=False)

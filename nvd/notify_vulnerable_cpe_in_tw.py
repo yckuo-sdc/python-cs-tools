@@ -26,18 +26,14 @@ pub_end_date = datetime.now()
 pub_start_date = pub_end_date - timedelta(days=7)
 selected_severities = [
     'CRITICAL', 
-    #'HIGH',
+    'HIGH',
 ]
 
-print("Search cves...")
+print("Search cves with vulnerable cpe...")
 cves = nvd.get_cves_with_cpes(pub_start_date, pub_end_date,
                               selected_severities)
-print("Search match strings in cves...")
+print("Search cpe match strings in cves...")
 cpes_in_cves = nvd.get_cpe_matches_in_cves(cves)
-
-#cpe_list = list(cpes_in_cves.values())
-#match_string_num = sum(len(c) for c in cpe_list)
-#print(f"Match strings found: {match_string_num}")
 
 frames = []
 for cve in cves:

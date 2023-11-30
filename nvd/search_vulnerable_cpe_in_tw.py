@@ -1,8 +1,8 @@
 """Module detect nvd events and send alert mail."""
 #!/usr/bin/python3
+import argparse
 import os
 import sys
-from datetime import datetime, timedelta
 
 import pandas as pd
 
@@ -16,48 +16,41 @@ from package.shodan_adapter import ShodanAdapter
 
 #pylint: enable=wrong-import-position
 
-mail = SendMail()
-mail.set_nvd_alert_recipients()
-ip2gov = Ip2govAdapter()
-nvd = NVDAdapter()
-sa = ShodanAdapter()
+parser = argparse.ArgumentParser()
+parser.add_argument('--cve-id', help='The CVE ID (e.g. CVE-2023-36845)')
 
-params = {
-    'cveId': 'CVE-2023-46604',
-}
+args = parser.parse_args()
 
-print("Search cves...")
-cves = nvd.get_cves(params)
-parsed_cves = nvd.parse_cve_fields(cves)
-print("Search match strings in cves...")
-cpes_in_cves = nvd.get_cpe_matches_in_cves(parsed_cves)
+if args.cve_id is None:
+    print('The CVE ID must be provided (e.g. --cve-id CVE-2023-36845)')
+    sys.exit(0)
 
-#cpe_list = list(cpes_in_cves.values())
-#match_string_num = sum(len(c) for c in cpe_list)
-#print(f"Match strings found: {match_string_num}")
+CVE_ID = args.cve_id
 
-frames = []
-for cve in parsed_cves:
-    cpe_matches = cpes_in_cves[cve['cve_id']]
+if __name__ == '__main__':
+    mail = SendMail()
+    mail.set_nvd_alert_recipients()
+    ip2gov = Ip2govAdapter()
+    nvd = NVDAdapter()
+    sa = ShodanAdapter()
 
-    results = []
-    for cpe_match in cpe_matches:
-        search_filter = {'cpe': cpe_match['criteria'], 'country': 'tw'}
-        hit_number = sa.get_hit_number(search_filter)
+    params = {
+        'cveId': CVE_ID,
+    }
 
-        if not hit_number:
-            continue
+    print("Search cves...")
+    cves = nvd.get_cves(params)
+    parsed_cves = nvd.parse_cve_fields(cves)
+    print("Search cpe match strings in cves...")
+    cpes_in_cves = nvd.get_cpe_matches_in_cves(parsed_cves)
 
-        results.append({
-            'tw_hits': hit_number,
-            'vulnerable_cpe': cpe_match['criteria']
-        } | cve)
+    frames = []
+    for cve in parsed_cves:
+        cpe_matches = cpes_in_cves[cve['cve_id']]
 
-        if not cpe_match['match_strings']:
-            continue
-
-        for match_string in cpe_match['match_strings']:
-            search_filter = {'cpe': match_string, 'country': 'tw'}
+        results = []
+        for cpe_match in cpe_matches:
+            search_filter = {'cpe': cpe_match['criteria'], 'country': 'tw'}
             hit_number = sa.get_hit_number(search_filter)
 
             if not hit_number:
@@ -65,22 +58,37 @@ for cve in parsed_cves:
 
             results.append({
                 'tw_hits': hit_number,
-                'vulnerable_cpe': match_string
+                'vulnerable_cpe': cpe_match['criteria']
             } | cve)
 
-    df = pd.DataFrame(results)
-    frames.append(df)
+            if not cpe_match['match_strings']:
+                continue
 
-total_df = pd.DataFrame()
-try:
-    total_df = pd.concat(frames, ignore_index=True)
-    print(total_df)
-except pd.errors.MergeError as e:
-    print(e)
+            for match_string in cpe_match['match_strings']:
+                search_filter = {'cpe': match_string, 'country': 'tw'}
+                hit_number = sa.get_hit_number(search_filter)
 
-if total_df.empty:
-    sys.exit('DataFrame is empty!')
+                if not hit_number:
+                    continue
 
-path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
-                           "use_nvd_cve_2023_46604.csv")
-df.to_csv(path_to_csv, index=False, encoding='utf-8-sig')
+                results.append({
+                    'tw_hits': hit_number,
+                    'vulnerable_cpe': match_string
+                } | cve)
+
+        df = pd.DataFrame(results)
+        frames.append(df)
+
+    total_df = pd.DataFrame()
+    try:
+        total_df = pd.concat(frames, ignore_index=True)
+        print(total_df)
+    except pd.errors.MergeError as e:
+        print(e)
+
+    if total_df.empty:
+        sys.exit('DataFrame is empty!')
+
+    path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
+                               "search_vulnerable_cpe_in_tw.csv")
+    df.to_csv(path_to_csv, index=False, encoding='utf-8-sig')

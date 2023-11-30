@@ -1,0 +1,17 @@
+-
+  event_name: Bash File 
+  search: 
+    gte: now-1h
+    lte: now
+    query:
+      -
+        operator: null
+        method: wildcard
+        field: ruleName__keyword
+        keyword: "*BASH*"
+      -
+        operator: "&"
+        method: match
+        field: ruleName
+        keyword: "response"
+    filter_function: null 

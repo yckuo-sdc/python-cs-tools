@@ -1,5 +1,6 @@
 """Modules"""
 import os
+import time
 from datetime import datetime, timedelta
 
 import requests
@@ -40,7 +41,9 @@ class NVDAdapter:
             response = requests.get(url,
                                     params=params,
                                     headers=headers,
-                                    timeout=30)
+                                    timeout=60)
+            time.sleep(6)
+
         except RequestException as req_err:
             print(req_err)
             return None
@@ -73,7 +76,8 @@ class NVDAdapter:
             response = requests.get(url,
                                     params=params,
                                     headers=headers,
-                                    timeout=30)
+                                    timeout=60)
+            time.sleep(6)
         except RequestException as req_err:
             print(req_err)
             return None
@@ -96,7 +100,7 @@ class NVDAdapter:
         parsed_cve_fields = []
         for vul in cves['vulnerabilities']:
             cve = vul['cve']
-            cpes_with_version = []
+            cpe_criterias_with_version = []
             for configuration in cve['configurations']:
                 for node in configuration['nodes']:
                     for cpe_match in node['cpeMatch']:
@@ -105,9 +109,10 @@ class NVDAdapter:
                             if key in cpe_match
                         ]
                         cpe_match_value = " | ".join(matching_values)
-                        cpes_with_version.append(cpe_match_value)
+                        cpe_criterias_with_version.append(cpe_match_value)
 
-            cpe_with_version_str = " ".join(cpes_with_version)
+            cpe_criteria_with_version_str = " ".join(
+                cpe_criterias_with_version)
 
             parsed_cve_fields.append({
                 'cve_id':
@@ -120,8 +125,8 @@ class NVDAdapter:
                 cve['vulnStatus'],
                 'description':
                 cve['descriptions'][0]['value'],  # English language
-                'cpe_matches_with_version':
-                cpe_with_version_str,
+                'cpe_criterias_with_version':
+                cpe_criteria_with_version_str,
             })
 
         return parsed_cve_fields
@@ -145,7 +150,6 @@ class NVDAdapter:
                 field['match_strings'] = [c['cpeName'] for c in cpe['matches']]
 
             print(field)
-            input()
             parsed_cpe_matches_fields.append(field)
 
         return parsed_cpe_matches_fields

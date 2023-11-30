@@ -12,7 +12,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from mail.send_mail import SendMail
 from package.ddi_processor import DDIProcessor
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
-from package.ip2gov_adapter import Ip2govAdapter
 from package.virustotal import VirusTotal
 
 #pylint: enable=wrong-import-position
@@ -21,7 +20,6 @@ mail = SendMail()
 mail.set_ddi_alert_recipients()
 dp = DDIProcessor()
 es = ElasticsearchDslAdapter()
-ip2gov = Ip2govAdapter()
 vt = VirusTotal()
 
 GTE = "now-1h"
@@ -56,7 +54,6 @@ for item1, item2 in zip(selected_miners, labels):
     results.append(item1 | item2)
 
 df = pd.DataFrame(results)
-print(df)
 
 if df.empty:
     print('DataFrame is empty!')
@@ -72,9 +69,8 @@ if not interested_id:
 
 df = df.loc[interested_id]
 
-# Enrich ip with organization name
-df['src'] = df['src'].apply(lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
-df['dst'] = df['dst'].apply(lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
+df = dp.enrich_dataframe(df)
+print(df)
 
 SUBJECT = "DDI Alert: Miner Request"
 TABLE = df.to_html(justify='left', index=False)

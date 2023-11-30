@@ -23,12 +23,14 @@ dp = DDIProcessor()
 GTE = "now-1h"
 LT = "now"
 
-EVT_SUB_CAT = "Trojan"
-HEURISTIC_FLAG = "0"  # Disable heuristic detection
+######## HKTL_PASS.COE, HKTL_PASSVIEW, HKTL_PDFRestrictionsRemover, HKTL_PRODKEY
+##E.G.## HKTL_FILEUP, HKTL_KEYGEN, HKTL_CCDOOR
+######## HKTL_PROXY, HKTL_RADMIN.component', HKTL_ETHERFLOOD
+HACK_TOOL_KEYWORD = "*BASH*"
 
-print("Search trojan http response...")
-q = Q("match", evtSubCat=EVT_SUB_CAT) & Q("match", app='HTTP') & Q(
-    "match", ruleName='response') & Q("match", cn7=HEURISTIC_FLAG)
+print("Search bash...")
+q = Q("wildcard", ruleName__keyword=HACK_TOOL_KEYWORD)
+
 s = Search(using=es.get_es_node(), index='new_ddi*') \
     .query(q) \
     .filter("range", **{'@timestamp':{"gte": GTE,"lt": LT}}) \
@@ -40,8 +42,9 @@ response = s.execute()
 print(s.to_dict())
 print(f"Total Hits: {response.hits.total}")
 
-trojans = dp.filter_all_hits_by_selected_fields(s.scan())
-df = pd.DataFrame(trojans)
+hack_tool_response = dp.filter_all_hits_by_selected_fields(s.scan())
+
+df = pd.DataFrame(hack_tool_response)
 
 if df.empty:
     print('DataFrame is empty!')
@@ -50,7 +53,7 @@ if df.empty:
 df = dp.enrich_dataframe(df)
 print(df)
 
-SUBJECT = "DDI Alert: Trojan Http Response"
+SUBJECT = "DDI Alert: Bash File"
 TABLE = df.to_html(justify='left', index=False)
 
 mail.set_subject(SUBJECT)

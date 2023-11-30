@@ -12,17 +12,15 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from mail.send_mail import SendMail
 from package.ddi_processor import DDIProcessor
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
-from package.ip2gov_adapter import Ip2govAdapter
 
 #pylint: enable=wrong-import-position
 
 mail = SendMail()
 mail.set_ddi_alert_recipients()
 es = ElasticsearchDslAdapter()
-ip2gov = Ip2govAdapter()
 dp = DDIProcessor()
 
-GTE = "now-1d"
+GTE = "now-1h"
 LT = "now"
 
 ######## HKTL_PASS.COE, HKTL_PASSVIEW, HKTL_PDFRestrictionsRemover, HKTL_PRODKEY
@@ -47,15 +45,13 @@ print(f"Total Hits: {response.hits.total}")
 hack_tool_response = dp.filter_all_hits_by_selected_fields(s.scan())
 
 df = pd.DataFrame(hack_tool_response)
-print(df)
 
 if df.empty:
     print('DataFrame is empty!')
     sys.exit(0)
 
-# Enrich ip with organization name
-df['src'] = df['src'].apply(lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
-df['dst'] = df['dst'].apply(lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
+df = dp.enrich_dataframe(df)
+print(df)
 
 SUBJECT = "DDI Alert: Hack Tool"
 TABLE = df.to_html(justify='left', index=False)

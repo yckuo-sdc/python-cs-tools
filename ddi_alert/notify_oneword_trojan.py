@@ -14,14 +14,12 @@ import one_word_trojan.webshell_detection_model as wdm
 from mail.send_mail import SendMail
 from package.ddi_processor import DDIProcessor
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
-from package.ip2gov_adapter import Ip2govAdapter
 
 #pylint: enable=wrong-import-position
 
 mail = SendMail()
 mail.set_ddi_alert_recipients()
 es = ElasticsearchDslAdapter()
-ip2gov = Ip2govAdapter()
 dp = DDIProcessor()
 
 EARLY_STOPPING = True
@@ -125,7 +123,6 @@ for network_direction in network_directions:
 total_df = pd.DataFrame()
 try:
     total_df = pd.concat(frames, ignore_index=True)
-    print(total_df)
 except Exception as e:
     print(e)
 
@@ -144,11 +141,8 @@ if not interested_id:
 
 total_df = total_df.loc[interested_id]
 
-# Enrich ip with organization name
-total_df['src'] = total_df['src'].apply(
-    lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
-total_df['dst'] = total_df['dst'].apply(
-    lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
+total_df = dp.enrich_dataframe(total_df)
+print(total_df)
 
 SUBJECT = "DDI Alert: Oneword Trojan"
 table = total_df.to_html(justify='left', index=False)

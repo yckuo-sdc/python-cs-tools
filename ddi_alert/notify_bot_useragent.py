@@ -12,14 +12,12 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 from mail.send_mail import SendMail
 from package.ddi_processor import DDIProcessor
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
-from package.ip2gov_adapter import Ip2govAdapter
 
 #pylint: enable=wrong-import-position
 
 mail = SendMail()
 mail.set_ddi_alert_recipients()
 es = ElasticsearchDslAdapter()
-ip2gov = Ip2govAdapter()
 dp = DDIProcessor()
 
 GTE = "now-1h"
@@ -30,6 +28,7 @@ useragents = [
     "certutil",
     "wget",
     "python",
+    "go-http-client",
 ]
 
 USERAGENT_STR = ' '.join(useragents)
@@ -76,15 +75,13 @@ df = pd.concat([
     pd.DataFrame(useragents_without_filehash)
 ],
                ignore_index=True)
-print(df)
 
 if df.empty:
     print('DataFrame is empty!')
     sys.exit(0)
 
-# Enrich ip with organization name
-df['src'] = df['src'].apply(lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
-df['dst'] = df['dst'].apply(lambda x: f"{x} {ip2gov.get(x, 'ACC')}")
+df = dp.enrich_dataframe(df)
+print(df)
 
 SUBJECT = "DDI Alert: Bot Useragent"
 TABLE = df.to_html(justify='left', index=False)
