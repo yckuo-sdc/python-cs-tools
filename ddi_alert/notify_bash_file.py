@@ -58,4 +58,4 @@ TABLE = df.to_html(justify='left', index=False)
 
 mail.set_subject(SUBJECT)
 mail.set_template_body(mapping=TABLE)
-mail.send()
+#mail.send()

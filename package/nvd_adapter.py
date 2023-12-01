@@ -101,6 +101,7 @@ class NVDAdapter:
         for vul in cves['vulnerabilities']:
             cve = vul['cve']
             cpe_criterias_with_version = []
+            cpe_criterias = []
             for configuration in cve['configurations']:
                 for node in configuration['nodes']:
                     for cpe_match in node['cpeMatch']:
@@ -110,9 +111,12 @@ class NVDAdapter:
                         ]
                         cpe_match_value = " | ".join(matching_values)
                         cpe_criterias_with_version.append(cpe_match_value)
+                        cpe_criterias.append(cpe_match['criteria'])
 
             cpe_criteria_with_version_str = " ".join(
                 cpe_criterias_with_version)
+
+            cpe_criteria_str = " ".join(cpe_criterias)
 
             parsed_cve_fields.append({
                 'cve_id':
@@ -125,6 +129,8 @@ class NVDAdapter:
                 cve['vulnStatus'],
                 'description':
                 cve['descriptions'][0]['value'],  # English language
+                'cpe_criterias':
+                cpe_criteria_str,
                 'cpe_criterias_with_version':
                 cpe_criteria_with_version_str,
             })

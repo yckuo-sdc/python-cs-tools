@@ -30,9 +30,10 @@ severities = [
 
 SEVERITY_STR = ' '.join(severities)
 
+CVE_KEYWORD = "*CVE*"
 print("Search cve response...")
-q = Q("match", ruleName='cve') & Q("match", ruleName='response') & Q(
-    "match", Serverity=SEVERITY_STR)
+q = Q("wildcard", ruleName__keyword=CVE_KEYWORD) & Q(
+    "match", ruleName='response') & Q("match", Serverity=SEVERITY_STR)
 s = Search(using=es.get_es_node(), index='new_ddi*') \
     .query(q) \
     .filter("range", **{'@timestamp':{"gte": GTE,"lt": LT}}) \
