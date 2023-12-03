@@ -8,7 +8,7 @@ from elasticsearch_dsl import Q, Search
 
 import yaml
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 #pylint: disable=wrong-import-position
 from mail.send_mail import SendMail
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     ip2gov = Ip2govAdapter()
     dp = DDIProcessor()
 
-    PATH_TO_YAML = os.path.join(os.path.dirname(__file__), "ddi_rule.yml")
+    PATH_TO_YAML = os.path.join(os.path.dirname(__file__), "yaml", "ddi_rule.yml")
     ddi_rules = parse_rules(PATH_TO_YAML)
     print(ddi_rules)
 

@@ -23,13 +23,10 @@ dp = DDIProcessor()
 GTE = "now-1h"
 LT = "now"
 
-######## HKTL_PASS.COE, HKTL_PASSVIEW, HKTL_PDFRestrictionsRemover, HKTL_PRODKEY
-##E.G.## HKTL_FILEUP, HKTL_KEYGEN, HKTL_CCDOOR
-######## HKTL_PROXY, HKTL_RADMIN.component', HKTL_ETHERFLOOD
-HACK_TOOL_KEYWORD = "*BASH*"
+BASH_FILE_KEYWORD = "*BASH*"
 
-print("Search bash...")
-q = Q("wildcard", ruleName__keyword=HACK_TOOL_KEYWORD)
+print("Search bash file...")
+q = Q("wildcard", ruleName__keyword=BASH_FILE_KEYWORD)
 
 s = Search(using=es.get_es_node(), index='new_ddi*') \
     .query(q) \
@@ -58,4 +55,4 @@ TABLE = df.to_html(justify='left', index=False)
 
 mail.set_subject(SUBJECT)
 mail.set_template_body(mapping=TABLE)
-#mail.send()
+mail.send()

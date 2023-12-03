@@ -6,10 +6,10 @@ from datetime import datetime
 import pandas as pd
 import pytz
 
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(os.path.dirname(__file__))
 
 #pylint: disable=wrong-import-position
-from package.ip2gov_adapter import Ip2govAdapter
+from ip2gov_adapter import Ip2govAdapter
 
 #pylint: enable=wrong-import-position
 
