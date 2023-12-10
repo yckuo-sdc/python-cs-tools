@@ -24,17 +24,8 @@ if __name__ == '__main__':
         print('ip2gov: Awww it could not connect!')
 
     search_filters = [
-        #{
-        #    'title': 'BIG-IP&reg;- Redirect',
-        #    'asn': 'AS4782',
-        #},
         {
-            'http.html': 'webui',
-            'asn': 'AS4782',
-            'product': 'OpenResty,nginx',
-        },
-        {
-            'all_no_quotes': 'server: openresty',
+            'all_no_quotes': 'RICOH',
             'asn': 'AS4782'
         },
     ]
@@ -79,6 +70,7 @@ if __name__ == '__main__':
     df = pd.DataFrame(output)
     # Keep first duplicate value
     df = df.drop_duplicates(subset=['service'])
+    df = df.sort_values(by='service')
 
     path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
                                "use_shodan_and_ipdn.csv")

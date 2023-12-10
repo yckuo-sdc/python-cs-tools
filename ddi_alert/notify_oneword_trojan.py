@@ -13,6 +13,7 @@ import helper.network_validator as network
 import one_word_trojan.webshell_detection_model as wdm
 from mail.send_mail import SendMail
 from package.ddi_processor import DDIProcessor
+from package.ip2gov_adapter import Ip2govAdapter
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 
 #pylint: enable=wrong-import-position
@@ -20,6 +21,7 @@ from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 mail = SendMail()
 mail.set_ddi_alert_recipients()
 es = ElasticsearchDslAdapter()
+ip2gov = Ip2govAdapter()
 dp = DDIProcessor()
 
 EARLY_STOPPING = True

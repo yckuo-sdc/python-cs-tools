@@ -1,10 +1,8 @@
 """Module"""
 import os
 import sys
-from datetime import datetime
 
 import pandas as pd
-import pytz
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -63,7 +61,8 @@ class DDIProcessor:
                 dataframe[field] = pd.to_datetime(dataframe[field], utc=True)
                 dataframe[field] = dataframe[field].dt.tz_convert(
                     local_timezone)
-                dataframe[field] = dataframe[field].dt.strftime("%Y-%m-%d %H:%M:%S")
+                dataframe[field] = dataframe[field].dt.strftime(
+                    "%Y-%m-%d %H:%M:%S")
 
                 break
 

@@ -38,14 +38,13 @@ qnap_ip_list = [f['ip'] for f in fields]
 QNAP_IPS = ' '.join(qnap_ip_list)
 
 print("Search qnaps...")
-q = Q(
-    'bool',
-    must=[  #Q("match", app='HTTP'),
-        Q("match", ruleName='response')
-    ],
-    should=[Q("match", src=QNAP_IPS),
-            Q("match", dst=QNAP_IPS)],
-    minimum_should_match=1)
+q = Q('bool',
+      must=[Q("match", ruleName='response')],
+      should=[Q("match", src=QNAP_IPS),
+              Q("match", dst=QNAP_IPS)],
+      minimum_should_match=1)
+
+#q = Q("match", src=QNAP_IPS) | Q("match", dst=QNAP_IPS) & Q("match", ruleName='response')
 
 s = Search(using=es.get_es_node(), index='new_ddi*') \
     .query(q) \

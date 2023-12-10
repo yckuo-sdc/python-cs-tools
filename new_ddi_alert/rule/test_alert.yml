@@ -1,0 +1,22 @@
+-
+  title: Chopper Request with Boturl
+  description:
+  search: 
+    gte: now-1h
+    lte: now
+    query:
+      -
+        operator: must
+        method: exists
+        field_name: field
+        search_text: "cs8"
+      -
+        operator: must
+        method: wildcard
+        field_name: ruleName__keyword
+        search_text: "*CHOPPER*"
+      -
+        operator: must
+        method: match
+        field_name: ruleName
+        search_text: "request"

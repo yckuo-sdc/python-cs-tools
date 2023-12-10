@@ -11,6 +11,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 #pylint: disable=wrong-import-position
 from mail.send_mail import SendMail
 from package.ddi_processor import DDIProcessor
+from package.ip2gov_adapter import Ip2govAdapter
 from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 from package.virustotal import VirusTotal
 
@@ -20,6 +21,7 @@ mail = SendMail()
 mail.set_ddi_alert_recipients()
 dp = DDIProcessor()
 es = ElasticsearchDslAdapter()
+ip2gov = Ip2govAdapter()
 vt = VirusTotal()
 
 GTE = "now-1h"
@@ -39,7 +41,7 @@ print(s.to_dict())
 print(f"Total Hits: {response.hits.total}")
 
 dp.set_selected_fields([
-    '@timestamp', 'ruleName', 'reason', 'Serverity', 'src', 'dst', 'spt', 'dpt'
+    'rt', 'ruleName', 'reason', 'Serverity', 'src', 'dst', 'spt', 'dpt'
 ])
 miners = dp.filter_all_hits_by_selected_fields(s.scan())
 selected_miner_indices = [
