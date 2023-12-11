@@ -236,3 +236,20 @@
         method: match
         field_name: dst
         search_text_method: "qnap_ips"
+-
+  title: Huigezi Response
+  description:
+  search: 
+    gte: now-1h
+    lte: now
+    query:
+      -
+        operator: must
+        method: match
+        field_name: ruleName
+        search_text: "huigezi"
+      -
+        operator: must
+        method: match
+        field_name: ruleName
+        search_text: "response"

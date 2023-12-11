@@ -28,17 +28,17 @@ class DDIProcessor:
         self.vt = VirusTotal()
         self.sa = ShodanAdapter()
 
-    def set_selected_fields(self, selected_fields):
-        self.selected_fields = selected_fields
+    def filter_all_hits_by_selected_fields(self, hits, selected_fields=""):
 
-    def get_selected_fields(self):
-        return self.selected_fields
+        if selected_fields:
+            fields = selected_fields
+        else:
+            fields = self.selected_fields
 
-    def filter_all_hits_by_selected_fields(self, hits):
         filtered_hits = []
         for hit in hits:
             doc = {}
-            for field in self.selected_fields:
+            for field in fields:
                 if field in hit:
                     doc[field] = hit[field]
                 else:

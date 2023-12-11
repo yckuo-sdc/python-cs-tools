@@ -28,6 +28,13 @@ class NVDAdapter:
         query = " ".join(f"{k}:\"{v}\"" for k, v in params.items())
         print(f'Query: {query}')
 
+        headers = {
+            'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            '(KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+            "apiKey":
+            self.__apikey
+        }
         url = self.__host + "/cves/2.0"
         headers = {
             'User-Agent':
