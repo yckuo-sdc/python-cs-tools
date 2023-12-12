@@ -21,7 +21,6 @@ srcs = df['src'].tolist()
 dsts = df['dst'].tolist()
 
 print(df)
-input()
 
 API_TYPE = 'ip_pair_connect_record'
 START_DATE = '2023-12-01'
@@ -41,5 +40,5 @@ except Exception as e:
     print(e)
 
 path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
-                           "do_query_data.csv")
+                           "do_query_ip_pairs.csv")
 total_df.to_csv(path_to_csv, index=False, encoding='utf-8-sig')
