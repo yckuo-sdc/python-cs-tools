@@ -16,6 +16,10 @@ NOTICE_PASSWORD=
 - `cp .ewa.excel.example ewa_example.xlsx`
 - `cp .int.excel.example int_example.xlsx`
 
+## Installation
+The requirements.txt file should list all Python libraries that your notebooks depend on, and they will be installed using:
+```pip3 install -r requirements.txt```
+
 ## Publish notices 
 **Usage**
 ```

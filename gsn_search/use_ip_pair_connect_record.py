@@ -23,7 +23,7 @@ dsts = df['dst'].tolist()
 print(df)
 
 API_TYPE = 'ip_pair_connect_record'
-START_DATE = '2023-12-01'
+START_DATE = '2023-12-07'
 END_DATE = '2023-12-07'
 
 frames = []
@@ -36,7 +36,7 @@ for src, dst in zip(srcs, dsts):
 total_df = pd.DataFrame()
 try:
     total_df = pd.concat(frames, ignore_index=True)
-except Exception as e:
+except pd.errors.MergeError as e:
     print(e)
 
 path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",

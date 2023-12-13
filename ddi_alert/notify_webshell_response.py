@@ -68,7 +68,7 @@ for network_direction in network_directions:
 total_df = pd.DataFrame()
 try:
     total_df = pd.concat(frames, ignore_index=True)
-except Exception as e:
+except pd.errors.MergeError as e:
     print(e)
 
 if total_df.empty:

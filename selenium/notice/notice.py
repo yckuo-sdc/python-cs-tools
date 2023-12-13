@@ -37,7 +37,9 @@ def get_department_file_path(directory, department_name):
 
 def concatenate_values(series):
     """Function concatenate the list."""
-    filtered_series_strings = [str(item) for item in series if str(item) != 'nan']
+    filtered_series_strings = [
+        str(item) for item in series if str(item) != 'nan'
+    ]
     return ', '.join(filtered_series_strings)
 
 
