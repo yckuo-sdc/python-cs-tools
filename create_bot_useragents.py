@@ -10,6 +10,7 @@ from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 
 es = ElasticsearchDslAdapter()
 
+
 GTE = "now-1y/y"
 LT = "now/y"
 BUCKETS_SIZE = 1000
