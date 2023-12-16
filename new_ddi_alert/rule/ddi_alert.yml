@@ -1,272 +1,287 @@
 ---
--
-  title: Bash File Response
+- title: Bash File Response
   description:
   date: 2023/12/11
   search:
     gte: now-1h
     lte: now
     query:
-      -
-        operator: must
+      - operator: must
         method: wildcard
         field_name: ruleName__keyword
         search_text: "*BASH*"
-      -
-        operator: must
+      - operator: must
         method: match
         field_name: ruleName
         search_text: "response"
--
-  title: CVE Response
+- title: CVE Response
   description:
   date: 2023/12/11
   search:
     gte: now-1h
     lte: now
     query:
-      -
-        operator: must
+      - operator: must
         method: wildcard
         field_name: ruleName__keyword
         search_text: "*CVE*"
-      -
-        operator: must
+      - operator: must
         method: match
         field_name: ruleName
         search_text: "response"
-      -
-        operator: must
-        method: match
-        field_name: Serverity
-        search_text: "6 8"
--
-  title: Bot Useragent with Filehash
-  description:
-  date: 2023/12/11
-  search:
-    gte: now-1h
-    lte: now
-    query:
-      -
-        operator: must
-        method: exists
-        field_name: field
-        search_text: "fileHash"
-      -
-        operator: must
-        method: match
-        field_name: requestClientApplication
-        search_text: "curl certutil wget python go-http-client"
--
-  title: Bot Useragent
-  description:
-  date: 2023/12/11
-  search:
-    gte: now-1h
-    lte: now
-    query:
-      -
-        operator: must
-        method: match
-        field_name: requestClientApplication
-        search_text: "certutil"
--
-  title: ELF File Response
-  description:
-  date: 2023/12/11
-  search:
-    gte: now-1h
-    lte: now
-    query:
-      -
-        operator: must
-        method: match
-        field_name: ruleName
-        search_text: "elf"
-      -
-        operator: must
-        method: match
-        field_name: ruleName
-        search_text: "response"
--
-  title: File Transfer
-  description:
-  date: 2023/12/11
-  search:
-    gte: now-1h
-    lte: now
-    query:
-      -
-        operator: must
-        method: wildcard
-        field_name: ruleName__keyword
-        search_text: "*File Transfer"
--
-  title: Hack Tool
-  description:
-  date: 2023/12/11
-  search:
-    gte: now-1h
-    lte: now
-    query:
-      -
-        operator: must
-        method: wildcard
-        field_name: ruleName__keyword
-        search_text: "HKTL*"
--
-  title: High Risk Http Response
-  description:
-  date: 2023/12/11
-  search:
-    gte: now-1h
-    lte: now
-    query:
-      -
-        operator: must
+      - operator: must
         method: match
         field_name: Serverity
         search_text: "8"
-      -
-        operator: must
-        method: match
-        field_name: app
-        search_text: "http"
-      -
-        operator: must
-        method: match
-        field_name: ruleName
-        search_text: "response"
--
-  title: Trojan Http Response
+- title: Bot Useragent with Filehash
   description:
   date: 2023/12/11
   search:
     gte: now-1h
     lte: now
     query:
-      -
-        operator: must
+      - operator: must
+        method: exists
+        field_name: field
+        search_text: "fileHash"
+      - operator: must
+        method: match
+        field_name: requestClientApplication
+        search_text: "curl certutil wget python go-http-client"
+- title: Bot Useragent
+  description:
+  date: 2023/12/11
+  search:
+    gte: now-1h
+    lte: now
+    query:
+      - operator: must
+        method: match
+        field_name: requestClientApplication
+        search_text: "certutil"
+- title: ELF File Response
+  description:
+  date: 2023/12/11
+  search:
+    gte: now-1h
+    lte: now
+    query:
+      - operator: must
+        method: match
+        field_name: ruleName
+        search_text: "elf"
+      - operator: must
+        method: match
+        field_name: ruleName
+        search_text: "response"
+- title: File Transfer
+  description:
+  date: 2023/12/11
+  search:
+    gte: now-1h
+    lte: now
+    query:
+      - operator: must
+        method: wildcard
+        field_name: ruleName__keyword
+        search_text: "*File Transfer"
+- title: Hack Tool
+  description:
+  date: 2023/12/11
+  search:
+    gte: now-1h
+    lte: now
+    query:
+      - operator: must
+        method: wildcard
+        field_name: ruleName__keyword
+        search_text: "HKTL*"
+- title: High Risk Http Response
+  description:
+  date: 2023/12/11
+  search:
+    gte: now-1h
+    lte: now
+    query:
+      - operator: must
+        method: match
+        field_name: Serverity
+        search_text: "8"
+      - operator: must
+        method: match
+        field_name: app
+        search_text: "http"
+      - operator: must
+        method: match
+        field_name: ruleName
+        search_text: "response"
+- title: Trojan Http Response
+  description:
+  date: 2023/12/11
+  search:
+    gte: now-1h
+    lte: now
+    query:
+      - operator: must
         method: match
         field_name: evtSubCat
         search_text: "trojan"
-      -
-        operator: must
+      - operator: must
         method: match
         field_name: app
         search_text: "http"
-      -
-        operator: must
+      - operator: must
         method: match
         field_name: ruleName
         search_text: "response"
-      -
-        operator: must
+      - operator: must
         method: match
         field_name: cn7
         search_text: "0"     # Disable heuristic detection
--
-  title: Chopper Request with Boturl
+- title: Chopper Request with Boturl
   description:
   date: 2023/12/11
   search:
+    selected_fields:
+      "rt ruleName reason evtSubCat Serverity
+       app src dst spt dpt request cs8 requestClientApplication"
     gte: now-1h
     lte: now
     query:
-      -
-        operator: must
+      - operator: must
         method: exists
         field_name: field
         search_text: "cs8"
-      -
-        operator: must
+      - operator: must
         method: wildcard
         field_name: ruleName__keyword
         search_text: "*CHOPPER*"
-      -
-        operator: must
+      - operator: must
         method: match
         field_name: ruleName
         search_text: "request"
--
-  title: Webshell Response
+- title: Webshell Response
   description:
   date: 2023/12/11
   search:
     gte: now-1h
     lte: now
     query:
-      -
-        operator: must
+      - operator: must
         method: match
         field_name: ruleName
         search_text:
           "webshell possible_smchopperphpa
            chopper antsword behinder godzilla"
-      -
-        operator: must
+      - operator: must
         method: match
         field_name: ruleName
         search_text: "response"
--
-  title: Miner Request
+- title: Miner Request
   description:
   date: 2023/12/11
   search:
-    selected_fields: "rt ruleName reason Serverity src dst spt dpt"
+    selected_fields:
+      "rt ruleName reason Serverity
+       app src dst spt dpt"
     gte: now-1h
     lte: now
     query:
-      -
-        operator: must
+      - operator: must
         method: match
         field_name: ruleName
         search_text: "miner"
-      -
-        operator: must
+      - operator: must
         method: match
         field_name: ruleName
         search_text: "request"
     post_process_method: miner_request
--
-  title: Qnap Response
+- title: Qnap Response
   description:
   date: 2023/12/11
   search:
     gte: now-1h
     lte: now
     query:
-      -
-        operator: must
+      - operator: must
         method: match
         field_name: ruleName
         search_text: "response"
-      -
-        operator: should
+      - operator: should
         method: match
         field_name: src
         search_text_method: "qnap_ips"
-      -
-        operator: should
+      - operator: should
         method: match
         field_name: dst
         search_text_method: "qnap_ips"
--
-  title: Huigezi Response
+- title: Huigezi Response
   description:
   date: 2023/12/11
   search:
     gte: now-1h
     lte: now
     query:
-      -
-        operator: must
+      - operator: must
         method: match
         field_name: ruleName
         search_text: "huigezi"
-      -
-        operator: must
+      - operator: must
+        method: match
+        field_name: ruleName
+        search_text: "response"
+- title: Remote Command Shell
+  description:
+  date: 2023/12/13
+  search:
+    selected_fields:
+      "rt ruleName reason evtSubCat Serverity
+       app src dst spt dpt cs7"
+    gte: now-1h
+    lte: now
+    query:
+      - operator: must
+        method: match
+        field_name: ruleName
+        search_text: "remote"
+      - operator: must
+        method: match
+        field_name: ruleName
+        search_text: "shell"
+- title: Malware Family with Http Response
+  description:
+  date: 2023/12/14
+  search:
+    gte: now-1h
+    lte: now
+    query:
+      - operator: must
+        method: exists
+        field_name: field
+        search_text: "malFamily"
+      - operator: must
+        method: match
+        field_name: app
+        search_text: "http"
+      - operator: must
+        method: match
+        field_name: ruleName
+        search_text: "response"
+- title: Bot Response
+  description:
+  date: 2023/12/16
+  search:
+    selected_fields:
+      "rt ruleName reason evtSubCat Serverity
+       app src dst spt dpt request cs7 cs8"
+    gte: now-1h
+    lte: now
+    query:
+      - operator: must
+        method: match
+        field_name: evtSubCat
+        search_text: "bot"
+      - operator: must
         method: match
         field_name: ruleName
         search_text: "response"

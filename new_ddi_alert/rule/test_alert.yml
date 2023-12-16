@@ -1,35 +1,19 @@
--
-  title: Avtech COMMAND Injection Response
+---
+- title: Bot Response
   description:
-  search: 
-    gte: now-90d
+  date: 2023/12/16
+  search:
+    selected_fields:
+      "rt ruleName reason evtSubCat Serverity
+       app src dst spt dpt request cs7 cs8"
+    gte: now-12M
     lte: now
     query:
-      -
-        operator: must
+      - operator: must
         method: match
-        field_name: ruleName
-        search_text: "AVTECH"
-      -
-        operator: must
+        field_name: evtSubCat
+        search_text: "bot"
+      - operator: must
         method: match
         field_name: ruleName
         search_text: "response"
--
-  title: Avtech COMMAND Injection Request
-  description:
-  search: 
-    gte: now-90d
-    lte: now
-    query:
-      -
-        operator: must
-        method: match
-        field_name: ruleName
-        search_text: "AVTECH"
-      -
-        operator: must
-        method: match
-        field_name: ruleName
-        search_text: "request"
-

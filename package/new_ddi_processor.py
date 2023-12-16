@@ -16,24 +16,39 @@ from virustotal import VirusTotal
 
 
 class DDIProcessor:
+    """This is a docstring that provides a brief description of MyClass."""
 
     def __init__(self):
         self.date_fields = ['rt', '@timestamp']
         self.selected_fields = [
-            'rt', 'ruleName', 'reason', 'evtSubCat', 'Serverity', 'request',
-            'cs8', 'fname', 'fileHash', 'requestClientApplication', 'src',
-            'dst', 'spt', 'dpt'
+            'rt',
+            'ruleName',
+            'reason',
+            'evtSubCat',
+            'Serverity',
+            'app',
+            'src',
+            'dst',
+            'spt',
+            'dpt',
+            'request',
+            'fname',
+            'fileHash',
+            'requestClientApplication',
         ]
+        self.exclude_acc_strings = ['蜜罐', 'Honeynet']
+
         self.ip2gov = Ip2govAdapter()
         self.vt = VirusTotal()
         self.sa = ShodanAdapter()
 
     def filter_all_hits_by_selected_fields(self, hits, selected_fields=""):
+        """ This is a docstring that provides a brief description of my_function."""
 
-        if selected_fields:
-            fields = selected_fields
-        else:
+        if selected_fields == "":
             fields = self.selected_fields
+        else:
+            fields = selected_fields
 
         filtered_hits = []
         for hit in hits:
@@ -50,11 +65,19 @@ class DDIProcessor:
         return filtered_hits
 
     def enrich_dataframe(self, dataframe):
+        """ This is a docstring that provides a brief description of my_function."""
+
         # Enrich ip with organization name
         dataframe['src'] = dataframe['src'].apply(
             lambda x: f"{x} {self.ip2gov.get(x, 'ACC')}")
         dataframe['dst'] = dataframe['dst'].apply(
             lambda x: f"{x} {self.ip2gov.get(x, 'ACC')}")
+
+        # Filter out exclude ACC strings
+        dataframe = dataframe[
+            ~dataframe['src'].str.contains('|'.join(self.exclude_acc_strings))
+            &
+            ~dataframe['dst'].str.contains('|'.join(self.exclude_acc_strings))]
 
         for field in self.date_fields:
             if field in dataframe.columns:
@@ -74,6 +97,7 @@ class DDIProcessor:
         return dataframe
 
     def combine_boolean_query(self, querys):
+        """ This is a docstring that provides a brief description of my_function."""
 
         musts = []
         must_nots = []
@@ -103,7 +127,8 @@ class DDIProcessor:
 
         return compound_query
 
-    def do_qnap_ips(self, *args, **kwargs):
+    def do_qnap_ips(self):
+        """ This is a docstring that provides a brief description of my_function."""
 
         search_filter = {
             'product': 'qnap',
@@ -118,7 +143,9 @@ class DDIProcessor:
         qnap_ips = ' '.join(qnap_ip_list)
         return qnap_ips
 
-    def do_miner_request(self, *args, **kwargs):
+    def do_miner_request(self, **kwargs):
+        """ This is a docstring that provides a brief description of my_function."""
+
         expected_keys = ['hits']
 
         unexpected_keys = set(kwargs.keys()) - set(expected_keys)
@@ -143,11 +170,15 @@ class DDIProcessor:
         return filtered_fits
 
     def solve_for(self, name: str, *args, **kwargs):
+        """ This is a docstring that provides a brief description of my_function."""
+
         method_name = f"do_{name}"
         if hasattr(self, method_name) and callable(
                 func := getattr(self, method_name)):
             response = func(*args, **kwargs)
             return response
+
+        return None
 
 
 if __name__ == '__main__':

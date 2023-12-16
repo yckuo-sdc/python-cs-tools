@@ -59,9 +59,9 @@ if __name__ == "__main__":
             print(f"Total Hits: {response.hits.total}")
 
             if selected_fields:
-                dp.set_selected_fields(selected_fields.split(' '))
-
-            hits = dp.filter_all_hits_by_selected_fields(s.scan())
+                hits = dp.filter_all_hits_by_selected_fields(s.scan(), selected_fields.split(' '))
+            else:
+                hits = dp.filter_all_hits_by_selected_fields(s.scan())
 
             if post_process_method:
                 hits = dp.solve_for(post_process_method, hits=hits)
@@ -80,6 +80,5 @@ if __name__ == "__main__":
 
             mail.set_subject(SUBJECT)
             mail.set_template_body(mapping=TABLE)
-            #mail.send()
         except ElasticsearchDslException as e:
             print(e)

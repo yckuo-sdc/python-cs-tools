@@ -23,7 +23,7 @@ class GsnSearchAdapter:
 
         query_maps = {
             'ip': {
-                'method_names': [
+                'method_name': [
                     'ip_batch_hourly_count',
                     'ip_hourly_count',
                     'ip_connect_count',
@@ -32,12 +32,13 @@ class GsnSearchAdapter:
                     'ip_correlated_domain',
                     'dns_reverse_ans',
                     'http_host_by_client',
+                    'ip_pair_http_record',
                 ],
                 'field_name':
                 'IPs',
             },
             'http': {
-                'method_names': [
+                'method_name': [
                     'http_client',
                     'http_client_record',
                     'http_url_count',
@@ -48,7 +49,7 @@ class GsnSearchAdapter:
                 'URLs',
             },
             'dns': {
-                'method_names': [
+                'method_name': [
                     'dns_client',
                     'dns_client_record',
                     'dns_ans',
@@ -56,19 +57,28 @@ class GsnSearchAdapter:
                 'field_name': 'DNs'
             },
             'dns_a_record': {
-                'method_names': [
+                'method_name': [
                     'dns_record',
                 ],
-                'field_names': [
+                'field_name': [
                     'DN',
                     'IP',
+                ]
+            },
+            'http_record': {
+                'method_name': [
+                    'http_record',
+                ],
+                'field_name': [
+                    'URLs',
+                    'IPs',
                 ]
             }
         }
 
         field_name = None
         for value in query_maps.values():
-            if api_type in value['method_names']:
+            if api_type in value['method_name']:
                 field_name = value['field_name']
 
         return field_name
@@ -84,7 +94,24 @@ class GsnSearchAdapter:
         except subprocess.CalledProcessError:
             return False
 
-    def get_task_result(self, task_id):
+    def cancel_task(self, task_id):
+
+        url = self.host + f"/cancel_task/{task_id}"
+        headers = {
+            'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            '(KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+        }
+
+        try:
+            data = requests.get(url, headers=headers, timeout=10).json()
+        except RequestException as req_err:
+            print(req_err)
+            return None
+
+        return data
+
+    def get_task(self, task_id):
 
         url = self.host + f"/task/{task_id}"
         headers = {
@@ -135,26 +162,38 @@ class GsnSearchAdapter:
     def get(self, api_type, request_data, start_date, end_date):
 
         field_name = self.solve_for(api_type)
-        payload = {
-            "API_type": api_type,
-            field_name: request_data,
-            "start_date": start_date,
-            "end_date": end_date,
-        }
+        payload = {}
+        payload['API_type'] = api_type
+        payload['start_date'] = start_date
+        payload['end_date'] = end_date
+
+        if isinstance(field_name, list):
+            for field, data in zip(field_name, request_data.values()):
+                payload[field] = data
+        else:
+            payload[field_name] = request_data
+
         print(f"payload: {payload}")
+        input()
 
         task_id = self.get_task_id(payload)
         print(f"task_id: {task_id}")
 
         task_result = None
-        while True:
-            task_result = self.get_task_result(task_id)
-            task_status = task_result.get('task_status')
-            print(f"task_status: {task_status}")
-            if task_status == 'finished':
-                task_result = task_result['task_result']['result']
-                break
-            time.sleep(5)
+
+        try:
+            while True:
+                task_result = self.get_task(task_id)
+                task_status = task_result.get('task_status')
+                print(f"task_status: {task_status}")
+                if task_status == 'finished':
+                    task_result = task_result['task_result']['result']
+                    break
+                time.sleep(5)
+        except KeyboardInterrupt:
+            print("\nCtrl+C detected. Cleaning up...")
+            self.cancel_task(task_id)
+            print("Exiting gracefully.")
 
         return task_result
 

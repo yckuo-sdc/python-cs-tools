@@ -73,9 +73,14 @@ if __name__ == "__main__":
                 continue
 
             df = dp.enrich_dataframe(df)
+
+            if df.empty:
+                print('DataFrame is empty!')
+                continue
+
             print(df)
 
-            SUBJECT = f"New DDI Alert: {ddi_alert['title']}"
+            SUBJECT = f"DDI Alert: {ddi_alert['title']}"
             TABLE = df.to_html(justify='left', index=False)
 
             mail.set_subject(SUBJECT)
