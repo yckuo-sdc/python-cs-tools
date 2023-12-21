@@ -23,8 +23,8 @@ dsts = df['dst'].tolist()
 print(df)
 
 API_TYPE = 'ip_pair_connect_record'
-START_DATE = '2023-12-13'
-END_DATE = '2023-12-14'
+START_DATE = '2023-12-17'
+END_DATE = '2023-12-17'
 
 frames = []
 for src, dst in zip(srcs, dsts):

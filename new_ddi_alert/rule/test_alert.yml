@@ -1,18 +1,15 @@
 ---
-- title: Bot Response
+- title: SSH Response
   description:
-  date: 2023/12/16
+  date: 2023/12/19
   search:
-    selected_fields:
-      "rt ruleName reason evtSubCat Serverity
-       app src dst spt dpt request cs7 cs8"
-    gte: now-12M
+    gte: now-18M
     lte: now
     query:
       - operator: must
-        method: match
-        field_name: evtSubCat
-        search_text: "bot"
+        method: wildcard
+        field_name: ruleName__keyword
+        search_text: "*SSH*"
       - operator: must
         method: match
         field_name: ruleName

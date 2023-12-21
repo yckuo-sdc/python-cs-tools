@@ -5,7 +5,7 @@ import sys
 
 import pandas as pd
 import yaml
-from elasticsearch_dsl import ElasticsearchDslException, Q, Search
+from elasticsearch_dsl import ElasticsearchDslException, Search
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
@@ -34,7 +34,8 @@ if __name__ == "__main__":
     ip2gov = Ip2govAdapter()
     dp = DDIProcessor()
 
-    PATH_TO_YAML = os.path.join(os.path.dirname(__file__), "rule", "ddi_alert.yml")
+    PATH_TO_YAML = os.path.join(os.path.dirname(__file__), "rule",
+                                "ddi_alert.yml")
     ddi_alerts = parse_rules(PATH_TO_YAML)
 
     for ddi_alert in ddi_alerts:
@@ -58,10 +59,8 @@ if __name__ == "__main__":
             print(s.to_dict())
             print(f"Total Hits: {response.hits.total}")
 
-            if selected_fields:
-                hits = dp.filter_all_hits_by_selected_fields(s.scan(), selected_fields.split(' '))
-            else:
-                hits = dp.filter_all_hits_by_selected_fields(s.scan())
+            hits = dp.filter_hits_by_selected_fields(
+                s.scan(), selected_fields)
 
             if post_process_method:
                 hits = dp.solve_for(post_process_method, hits=hits)
@@ -72,16 +71,16 @@ if __name__ == "__main__":
                 print('DataFrame is empty!')
                 continue
 
-            df = dp.enrich_dataframe(df)
+            enriched_df = dp.enrich_dataframe(df)
 
-            if df.empty:
+            if enriched_df.empty:
                 print('DataFrame is empty!')
                 continue
 
-            print(df)
+            print(enriched_df)
 
             SUBJECT = f"DDI Alert: {ddi_alert['title']}"
-            TABLE = df.to_html(justify='left', index=False)
+            TABLE = enriched_df.to_html(justify='left', index=False)
 
             mail.set_subject(SUBJECT)
             mail.set_template_body(mapping=TABLE)

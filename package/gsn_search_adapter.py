@@ -174,7 +174,6 @@ class GsnSearchAdapter:
             payload[field_name] = request_data
 
         print(f"payload: {payload}")
-        input()
 
         task_id = self.get_task_id(payload)
         print(f"task_id: {task_id}")

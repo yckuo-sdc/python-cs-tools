@@ -14,21 +14,19 @@ from package.gsn_search_adapter import GsnSearchAdapter
 
 gs = GsnSearchAdapter()
 path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
-                           "query_url_and_ip.csv")
+                           "query_data.csv")
 
 df = pd.read_csv(path_to_csv)
-query_data = {}
-query_data['URLs'] = df['url'].tolist()
-query_data['IPs'] = df['ip'].tolist()
+query_data = df['query_data'].tolist()
 
-API_TYPE = 'http_record'
-START_DATE = '2023-12-13'
-END_DATE = '2023-12-14'
+API_TYPE = 'dns_client_record'
+START_DATE = '2023-11-01'
+END_DATE = '2023-11-30'
 
 records = gs.get(API_TYPE, query_data, START_DATE, END_DATE)
 print(f"Records found: {len(records)}")
 
 df = pd.DataFrame(records)
 path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
-                           "do_query_url_and_ip.csv")
+                           "do_query_data.csv")
 df.to_csv(path_to_csv, index=False, encoding='utf-8-sig')

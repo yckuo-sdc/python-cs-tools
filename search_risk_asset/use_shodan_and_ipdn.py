@@ -28,6 +28,10 @@ if __name__ == '__main__':
             'all_no_quotes': 'RICOH',
             'asn': 'AS4782'
         },
+        #{
+        #    'port': '515,631,9100',
+        #    'asn': 'AS4782'
+        #},
     ]
 
     match_field = [{

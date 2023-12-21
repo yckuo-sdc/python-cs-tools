@@ -58,10 +58,7 @@ if __name__ == "__main__":
             print(s.to_dict())
             print(f"Total Hits: {response.hits.total}")
 
-            if selected_fields:
-                hits = dp.filter_all_hits_by_selected_fields(s.scan(), selected_fields.split(' '))
-            else:
-                hits = dp.filter_all_hits_by_selected_fields(s.scan())
+            hits = dp.filter_hits_by_selected_fields(s.scan(), selected_fields)
 
             if post_process_method:
                 hits = dp.solve_for(post_process_method, hits=hits)
@@ -73,6 +70,9 @@ if __name__ == "__main__":
                 continue
 
             df = dp.enrich_dataframe(df)
+            pd.set_option('display.max_rows', None)
+            pd.set_option('display.max_columns', None)
+
             print(df)
 
             SUBJECT = f"New DDI Alert: {ddi_alert['title']}"

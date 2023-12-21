@@ -17,18 +17,18 @@ path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
                            "query_ip_pairs.csv")
 
 df = pd.read_csv(path_to_csv)
-srcs = df['src'].tolist()
-dsts = df['dst'].tolist()
+hosts = df['host'].tolist()
+clients = df['client'].tolist()
 
 print(df)
 
 API_TYPE = 'ip_pair_http_record'
-START_DATE = '2023-11-26'
-END_DATE = '2023-11-26'
+START_DATE = '2023-11-24'
+END_DATE = '2023-11-30'
 
 frames = []
-for src, dst in zip(srcs, dsts):
-    records = gs.get(API_TYPE, [src, dst], START_DATE, END_DATE)
+for host, client in zip(hosts, clients):
+    records = gs.get(API_TYPE, [host, client], START_DATE, END_DATE)
     print(f"Records found: {len(records)}")
     df = pd.DataFrame(records)
     frames.append(df)

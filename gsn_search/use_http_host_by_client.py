@@ -20,8 +20,8 @@ df = pd.read_csv(path_to_csv)
 query_data = df['query_data'].tolist()
 
 API_TYPE = 'http_host_by_client'
-START_DATE = '2023-12-13'
-END_DATE = '2023-12-13'
+START_DATE = '2023-12-01'
+END_DATE = '2023-12-21'
 
 records = gs.get(API_TYPE, query_data, START_DATE, END_DATE)
 print(f"Records found: {len(records)}")

@@ -42,13 +42,13 @@ class DDIProcessor:
         self.vt = VirusTotal()
         self.sa = ShodanAdapter()
 
-    def filter_all_hits_by_selected_fields(self, hits, selected_fields=""):
+    def filter_hits_by_selected_fields(self, hits, selected_fields=None):
         """ This is a docstring that provides a brief description of my_function."""
 
-        if selected_fields == "":
-            fields = self.selected_fields
+        if selected_fields:
+            fields = selected_fields.split(' ')
         else:
-            fields = selected_fields
+            fields = self.selected_fields
 
         filtered_hits = []
         for hit in hits:
