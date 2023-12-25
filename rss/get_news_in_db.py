@@ -92,7 +92,7 @@ if __name__ == '__main__':
     zh_nlp = spacy.load('zh_core_web_sm')
 
     mail = SendMail()
-    mail.set_rss_news_recipients()
+    mail.set_predefined_recipient("rss_news")
 
     # Create a connection to the MySQL server
     connection = mysql.connector.connect(host=os.getenv("DB_HOST"),

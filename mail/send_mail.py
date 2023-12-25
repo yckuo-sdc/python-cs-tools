@@ -8,6 +8,7 @@ from email.mime.text import MIMEText
 from pathlib import Path
 from string import Template
 
+import yaml
 from dotenv import load_dotenv
 from premailer import transform
 
@@ -27,25 +28,29 @@ class SendMail:
             self.password = password
             self.sender = sender
 
-        self.ddi_alert_recipients = os.getenv("MAIL_DDI_ALERT_RECIPIENTS")
-        self.rss_news_recipients = os.getenv("MAIL_RSS_NEWS_RECIPIENTS")
-        self.nvd_alert_recipients = os.getenv("MAIL_NVD_ALERT_RECIPIENTS")
         self.recipient = ""
         self.subject = ""
         self.body = ""
         self.attachments = []
+        self.predefined_recipients = self.__load_recipients()
+
+    def __load_recipients(self):
+        path_to_yaml = os.path.join(os.path.dirname(__file__),
+                                    "recipients.yml")
+        try:
+            with open(path_to_yaml, 'r', encoding='utf-8') as file:
+                data = yaml.safe_load(file)
+                return data.get('recipients', {})
+        except FileNotFoundError:
+            print(f"Error: File '{path_to_yaml}' not found.")
+            return {}
 
     def set_recipient(self, recipient):
         self.recipient = recipient
 
-    def set_ddi_alert_recipients(self):
-        self.recipient = self.ddi_alert_recipients
-
-    def set_rss_news_recipients(self):
-        self.recipient = self.rss_news_recipients
-
-    def set_nvd_alert_recipients(self):
-        self.recipient = self.nvd_alert_recipients
+    def set_predefined_recipient(self, recipient_group):
+        recipients = self.predefined_recipients.get(recipient_group, [])
+        self.recipient = ', '.join(recipients)
 
     def set_subject(self, subject):
         self.subject = subject
@@ -54,7 +59,9 @@ class SendMail:
         self.body = body
 
     def set_template_body(self, mapping):
-        template_path = Path(os.path.join(os.path.dirname(__file__), 'template', 'rwd_ddi.html'))
+        template_path = Path(
+            os.path.join(os.path.dirname(__file__), 'template',
+                         'rwd_ddi.html'))
         template_body = Template(template_path.read_text('utf-8'))
         template_body = template_body.substitute({"table": mapping})
         # Turns CSS blocks into style attributes with 'premailer'
@@ -74,9 +81,7 @@ class SendMail:
                 content["from"] = self.sender
                 content["to"] = self.recipient
                 content.attach(MIMEText(self.body, "html", "utf-8"))
-                #path_to_image = os.path.dirname(__file__) + "/../data/images/koala.jpg"
-                #content.attach(MIMEImage(Path(path_to_image).read_bytes(), Name="koala.jpg"))  # 郵件圖片內容
-                #path_to_csv_file = os.path.dirname(__file__) + "/../data/shell_trials/chopper_2023_08_22_17_13_58_no_early_stop.csv"
+
                 if self.attachments:
                     print(self.attachments)
                     for attachment in self.attachments:
@@ -98,20 +103,9 @@ class SendMail:
 
 if __name__ == '__main__':
 
-    template = Template(
-        Path(os.path.dirname(__file__) + "/template/welcome.html").read_text())
-    body = template.substitute({"user": "Mike"})
-
-    #textStream = StringIO()
-    #df.loc[interested_id].to_csv(textStream,index=False)
-    #attachments = [
-    #    {'type': 'buffer', 'value': textStream, 'name': 'attch1.csv' },
-    #    {'type': 'path', 'value': 'path_to_file', 'name': 'attch2.csv' },
-    #]
-
     mail = SendMail()
-    mail.set_recipient("username@gmail.com")
-    mail.set_subject("DDI Alert")
-    mail.set_body(body)
-    #mail.add_attachment(attachments)
-    mail.send()
+    mail.set_predefined_recipient("ddi_alert")
+    #mail.set_recipient("username@gmail.com")
+    #mail.set_subject("DDI Alert")
+    #mail.set_body(body)
+    #mail.send()

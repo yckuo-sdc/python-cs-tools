@@ -19,7 +19,7 @@ from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 #pylint: enable=wrong-import-position
 
 mail = SendMail()
-mail.set_ddi_alert_recipients()
+mail.set_predefined_recipient("ddi_alert")
 es = ElasticsearchDslAdapter()
 ip2gov = Ip2govAdapter()
 dp = DDIProcessor()

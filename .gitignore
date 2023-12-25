@@ -22,4 +22,5 @@ data/
 # igonre .env
 .env
 
-
+# ignore recipients yaml
+mail/recipients.yml

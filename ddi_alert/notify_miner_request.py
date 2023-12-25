@@ -18,7 +18,7 @@ from package.virustotal import VirusTotal
 #pylint: enable=wrong-import-position
 
 mail = SendMail()
-mail.set_ddi_alert_recipients()
+mail.set_predefined_recipient("ddi_alert")
 dp = DDIProcessor()
 es = ElasticsearchDslAdapter()
 ip2gov = Ip2govAdapter()

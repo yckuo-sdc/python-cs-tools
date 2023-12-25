@@ -1,16 +1,16 @@
 ---
-- title: SSH Response
+- title: Download Payload without Bash File
   description:
-  date: 2023/12/19
+  date: 2023/12/21
   search:
-    gte: now-18M
+    gte: now-4M
     lte: now
     query:
+      - operator: must_not
+        method: match
+        field_name: ruleName
+        search_text: "BINBASH"
       - operator: must
         method: wildcard
         field_name: ruleName__keyword
-        search_text: "*SSH*"
-      - operator: must
-        method: match
-        field_name: ruleName
-        search_text: "response"
+        search_text: "*Download*"

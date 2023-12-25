@@ -17,7 +17,7 @@ from package.shodan_adapter import ShodanAdapter
 #pylint: enable=wrong-import-position
 
 mail = SendMail()
-mail.set_nvd_alert_recipients()
+mail.set_predefined_recipient("nvd_alert")
 ip2gov = Ip2govAdapter()
 nvd = NVDAdapter()
 sa = ShodanAdapter()

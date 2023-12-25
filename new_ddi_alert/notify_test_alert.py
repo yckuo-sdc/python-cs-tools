@@ -29,7 +29,7 @@ def parse_rules(yaml_file_path):
 if __name__ == "__main__":
 
     mail = SendMail()
-    mail.set_ddi_alert_recipients()
+    mail.set_predefined_recipient("ddi_alert")
     es = ElasticsearchDslAdapter()
     ip2gov = Ip2govAdapter()
     dp = DDIProcessor()

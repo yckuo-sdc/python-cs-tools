@@ -2,7 +2,6 @@
 #!/usr/bin/python3
 import os
 import sys
-from datetime import datetime
 
 import pandas as pd
 from elasticsearch_dsl import Q, Search
@@ -17,7 +16,7 @@ from package.elasticsearch_dsl_adapter import ElasticsearchDslAdapter
 #pylint: enable=wrong-import-position
 
 mail = SendMail()
-mail.set_ddi_alert_recipients()
+mail.set_predefined_recipient("ddi_alert")
 es = ElasticsearchDslAdapter()
 dp = DDIProcessor()
 
