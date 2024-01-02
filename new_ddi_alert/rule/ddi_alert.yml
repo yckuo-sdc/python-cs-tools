@@ -142,9 +142,8 @@
   description:
   date: 2023/12/11
   search:
-    selected_fields:
-      "rt ruleName reason evtSubCat Serverity
-       app src dst spt dpt request cs8 requestClientApplication"
+    add_selected_fields: [cs8]
+    remove_selected_fields: [fname, fileHash]
     gte: now-1h
     lte: now
     query:
@@ -181,9 +180,7 @@
   description:
   date: 2023/12/11
   search:
-    selected_fields:
-      "rt ruleName reason Serverity
-       app src dst spt dpt"
+    remove_selected_fields: [request, fname, fileHash, requestClientApplication]
     gte: now-1h
     lte: now
     query:
@@ -234,9 +231,8 @@
   description:
   date: 2023/12/13
   search:
-    selected_fields:
-      "rt ruleName reason evtSubCat Serverity
-       app src dst spt dpt cs7"
+    add_selected_fields: [cs7]
+    remove_selected_fields: [request, fname, fileHash, requestClientApplication]
     gte: now-1h
     lte: now
     query:
@@ -271,9 +267,8 @@
   description:
   date: 2023/12/16
   search:
-    selected_fields:
-      "rt ruleName reason evtSubCat Serverity
-       app src dst spt dpt request cs7 cs8"
+    add_selected_fields: [cs7, cs8]
+    remove_selected_fields: [fname, fileHash, requestClientApplication]
     gte: now-1h
     lte: now
     query:
@@ -295,8 +290,25 @@
       - operator: must_not
         method: match
         field_name: ruleName
-        search_text: "BINBASH"
+        search_text: "binbash"
+      - operator: must_not
+        method: match
+        field_name: ruleName
+        search_text: "request"
       - operator: must
         method: wildcard
         field_name: ruleName__keyword
         search_text: "*Download*"
+- title: Connect C2 URL
+  description:
+  date: 2023/12/28
+  search:
+    add_selected_fields: [msg, urlCat]
+    remove_selected_fields: [ruleName, evtSubCat, fname, fileHash]
+    gte: now-1h
+    lte: now
+    query:
+      - operator: must
+        method: wildcard
+        field_name: msg__keyword
+        search_text: "*C&C Server*"

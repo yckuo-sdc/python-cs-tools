@@ -21,26 +21,39 @@ if __name__ == "__main__":
     gs = GsnSearchAdapter()
 
     query_data = [
-        '106.55.151.203',
-        '170.106.11.252',
-        '124.156.201.241',
-        '129.204.188.155',
-        '58.87.106.10',
-        '152.136.84.245',
-        '43.138.87.107',
-        '188.131.243.141',
-        '152.136.134.211',
-        '58.87.84.224',
-        '49.234.108.57',
-        '42.194.253.227',
-        '42.194.252.245',
-        '123.206.26.167',
+        'ceshi.hgzvip.net',
+        'custom.hgzvip.net',
+        'dota.hgzvip.net',
+        'down.hgzvip.net',
+        'jiqunxx.hgzvip.net',
+        'microsoft02.hgzvip.net',
+        'microsoft03.hgzvip.net',
+        'microsoft04.hgzvip.net',
+        'omcs.hgzvip.net',
+        'omcs02.hgzvip.net',
+        'p2p01.hgzvip.net',
+        'renzheng.hgzvip.net',
+        'saas.hgzvip.net',
+        'safe.hgzvip.net',
+        'shengcheng.hgzvip.net',
+        'spare.hgzvip.net',
+        'unins.hgzvip.net',
+        'update.hgzvip.net',
+        'esdaili01.huigezi.org',
+        'esdaili02.huigezi.org',
+        'esdaili03.huigezi.org',
+        'freees.huigezi.org',
+        'freeupdate.huigezi.org',
+        'shengcheng.huigezi.org',
+        'shoujiapi.huigezi.org',
+        'sjyzm.huigezi.org',
+        'xiezhuupdate01.huigezi.org',
     ]
 
     today = datetime.now().strftime('%Y-%m-%d')
     yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
 
-    API_TYPE = 'ip_connect_count'
+    API_TYPE = 'dns_client'
     START_DATE = yesterday
     END_DATE = today
 
@@ -48,9 +61,10 @@ if __name__ == "__main__":
     print(f"Records found: {len(records)}")
 
     df = pd.DataFrame(records)
+    df['query_DN'] = df['query_DN'].str.replace('.', '[.]')
     DF_SORTED = df.sort_values(by='count', ascending=False)
 
-    SUBJECT = "GSN Alert: Huigezi Ip Hit"
+    SUBJECT = "GSN Alert: Huigezi Dn Query"
     TABLE = DF_SORTED.to_html(justify='left', index=False)
 
     mail.set_subject(SUBJECT)

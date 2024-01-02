@@ -1,16 +1,14 @@
 ---
-- title: Download Payload without Bash File
+- title: C2 URL
   description:
-  date: 2023/12/21
+  date: 2023/12/28
   search:
-    gte: now-4M
+    add_selected_fields: [msg, urlCat]
+    remove_selected_fields: [ruleName, evtSubCat, fname, fileHash]
+    gte: now-6d
     lte: now
     query:
-      - operator: must_not
-        method: match
-        field_name: ruleName
-        search_text: "BINBASH"
       - operator: must
         method: wildcard
-        field_name: ruleName__keyword
-        search_text: "*Download*"
+        field_name: msg__keyword
+        search_text: "*C&C Server*"

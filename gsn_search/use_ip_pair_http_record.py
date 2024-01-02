@@ -14,7 +14,7 @@ from package.gsn_search_adapter import GsnSearchAdapter
 
 gs = GsnSearchAdapter()
 path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
-                           "query_ip_pairs.csv")
+                           "query_http_ip_pairs.csv")
 
 df = pd.read_csv(path_to_csv)
 hosts = df['host'].tolist()
@@ -23,8 +23,8 @@ clients = df['client'].tolist()
 print(df)
 
 API_TYPE = 'ip_pair_http_record'
-START_DATE = '2023-11-24'
-END_DATE = '2023-11-30'
+START_DATE = '2023-12-24'
+END_DATE = '2023-12-24'
 
 frames = []
 for host, client in zip(hosts, clients):
@@ -40,5 +40,5 @@ except pd.errors.MergeError as e:
     print(e)
 
 path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
-                           "do_query_ip_pairs.csv")
+                           "do_query_http_ip_pairs.csv")
 total_df.to_csv(path_to_csv, index=False, encoding='utf-8-sig')

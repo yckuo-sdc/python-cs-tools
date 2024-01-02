@@ -44,7 +44,8 @@ if __name__ == "__main__":
             search = ddi_alert['search']
             GTE = search.get('gte')
             LTE = search.get('lte')
-            selected_fields = search.get('selected_fields')
+            add_selected_fields = search.get('add_selected_fields')
+            remove_selected_fields = search.get('remove_selected_fields')
             post_process_method = search.get('post_process_method')
 
             q = dp.combine_boolean_query(search['query'])
@@ -59,8 +60,8 @@ if __name__ == "__main__":
             print(s.to_dict())
             print(f"Total Hits: {response.hits.total}")
 
-            hits = dp.filter_hits_by_selected_fields(
-                s.scan(), selected_fields)
+            hits = dp.filter_hits(s.scan(), add_selected_fields,
+                                  remove_selected_fields)
 
             if post_process_method:
                 hits = dp.solve_for(post_process_method, hits=hits)
@@ -80,7 +81,7 @@ if __name__ == "__main__":
             print(enriched_df)
 
             SUBJECT = f"DDI Alert: {ddi_alert['title']}"
-            TABLE = enriched_df.to_html(justify='left', index=False)
+            TABLE = enriched_df.to_html(justify='left', index=False, escape=False)
 
             mail.set_subject(SUBJECT)
             mail.set_template_body(mapping=TABLE)

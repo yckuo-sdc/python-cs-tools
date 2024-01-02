@@ -14,19 +14,19 @@ from package.gsn_search_adapter import GsnSearchAdapter
 
 gs = GsnSearchAdapter()
 path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
-                           "query_data.csv")
+                           "query_dn.csv")
 
 df = pd.read_csv(path_to_csv)
 query_data = df['query_data'].tolist()
 
 API_TYPE = 'dns_client'
-START_DATE = '2023-11-01'
-END_DATE = '2023-11-30'
+START_DATE = '2023-12-26'
+END_DATE = '2023-12-27'
 
 records = gs.get(API_TYPE, query_data, START_DATE, END_DATE)
 print(f"Records found: {len(records)}")
 
 df = pd.DataFrame(records)
 path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
-                           "do_query_data.csv")
+                           "do_query_dn.csv")
 df.to_csv(path_to_csv, index=False, encoding='utf-8-sig')

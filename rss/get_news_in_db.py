@@ -185,7 +185,7 @@ if __name__ == '__main__':
 
                 if ENABLE_NOTIFICATION:
                     # notify new itmes in channels
-                    subject = f"RSS Feed Notifier: {entry.title}"
+                    subject = f"RSS News: {entry.title}"
                     body = f"published: {entry.published}<br>"
                     body += f"link: {entry.link}"
                     mail.set_subject(subject)

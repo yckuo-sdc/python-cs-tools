@@ -1,8 +1,11 @@
 """Module"""
 import os
 import sys
+from operator import attrgetter
+from string import Template
 
 import pandas as pd
+from dotenv import load_dotenv
 from elasticsearch_dsl import Q
 
 sys.path.append(os.path.dirname(__file__))
@@ -19,8 +22,11 @@ class DDIProcessor:
     """This is a docstring that provides a brief description of MyClass."""
 
     def __init__(self):
+        load_dotenv()
+        self.kibana_host = os.getenv("DDI_KIBANA_HOST")
         self.date_fields = ['rt', '@timestamp']
         self.selected_fields = [
+            'meta.id',
             'rt',
             'ruleName',
             'reason',
@@ -64,20 +70,56 @@ class DDIProcessor:
 
         return filtered_hits
 
+    def filter_hits(self,
+                    hits,
+                    add_selected_fields=None,
+                    remove_selected_fields=None):
+        """ This is a docstring that provides a brief description of my_function."""
+
+        fields = self.selected_fields
+        if remove_selected_fields:
+            fields = [
+                item for item in fields if item not in remove_selected_fields
+            ]
+
+        if add_selected_fields:
+            fields = fields + add_selected_fields
+
+        filtered_hits = []
+        for hit in hits:
+            doc = {}
+            for field in fields:
+                try:
+                    doc[field] = attrgetter(field)(hit)
+                except AttributeError:
+                    doc[field] = None
+            filtered_hits.append(doc)
+
+        filtered_hits.sort(key=lambda x: x['rt'], reverse=True)
+
+        return filtered_hits
+
     def enrich_dataframe(self, dataframe):
         """ This is a docstring that provides a brief description of my_function."""
 
-        # Enrich ip with organization name
-        dataframe['src'] = dataframe['src'].apply(
-            lambda x: f"{x} {self.ip2gov.get(x, 'ACC')}")
-        dataframe['dst'] = dataframe['dst'].apply(
-            lambda x: f"{x} {self.ip2gov.get(x, 'ACC')}")
+        # Enrich ip with ACC and Filter out exclude ACC strings
+        if 'src' in dataframe.columns:
+            dataframe['src'] = dataframe['src'].apply(
+                lambda x: f"{x} {self.ip2gov.get(x, 'ACC')}")
+            dataframe = dataframe[~dataframe['src'].str.
+                                  contains('|'.join(self.exclude_acc_strings))]
 
-        # Filter out exclude ACC strings
-        dataframe = dataframe[
-            ~dataframe['src'].str.contains('|'.join(self.exclude_acc_strings))
-            &
-            ~dataframe['dst'].str.contains('|'.join(self.exclude_acc_strings))]
+        if 'dst' in dataframe.columns:
+            dataframe['dst'] = dataframe['dst'].apply(
+                lambda x: f"{x} {self.ip2gov.get(x, 'ACC')}")
+            dataframe = dataframe[~dataframe['dst'].str.
+                                  contains('|'.join(self.exclude_acc_strings))]
+
+        #if ['src', 'dst'] in dataframe.columns:
+        #    dataframe = dataframe[~dataframe['src'].str.contains('|'.join(
+        #        self.exclude_acc_strings))
+        #                          & ~dataframe['dst'].str.contains('|'.join(
+        #                              self.exclude_acc_strings))]
 
         for field in self.date_fields:
             if field in dataframe.columns:
@@ -93,6 +135,22 @@ class DDIProcessor:
                     "%Y-%m-%d %H:%M:%S")
 
                 break
+
+        if 'meta.id' in dataframe.columns:
+            # Define a template string with placeholders
+            template_string = (
+                "<a href='" + f"{self.kibana_host}" + "/app/kibana#/discover" +
+                "?_g=(time:(from:now-1M,mode:relative,to:now))" +
+                "&_a=(index:'new_ddi*',".replace("'", "%27") +
+                "query:(query_string:(query:'_id:$id')))".replace("'", "%27") +
+                "' target='_blank'>#</a>")
+
+            # Create a Template object
+            template = Template(template_string)
+
+            dataframe['meta.id'] = dataframe.apply(
+                lambda row: template.substitute(id=row['meta.id']), axis=1)
+            dataframe.rename(columns={'meta.id': ''}, inplace=True)
 
         return dataframe
 

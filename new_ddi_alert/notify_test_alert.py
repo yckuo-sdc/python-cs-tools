@@ -29,12 +29,13 @@ def parse_rules(yaml_file_path):
 if __name__ == "__main__":
 
     mail = SendMail()
-    mail.set_predefined_recipient("ddi_alert")
+    mail.set_predefined_recipient("test")
     es = ElasticsearchDslAdapter()
     ip2gov = Ip2govAdapter()
     dp = DDIProcessor()
 
-    PATH_TO_YAML = os.path.join(os.path.dirname(__file__), "rule", "test_alert.yml")
+    PATH_TO_YAML = os.path.join(os.path.dirname(__file__), "rule",
+                                "test_alert.yml")
     ddi_alerts = parse_rules(PATH_TO_YAML)
 
     for ddi_alert in ddi_alerts:
@@ -43,7 +44,8 @@ if __name__ == "__main__":
             search = ddi_alert['search']
             GTE = search.get('gte')
             LTE = search.get('lte')
-            selected_fields = search.get('selected_fields')
+            add_selected_fields = search.get('add_selected_fields')
+            remove_selected_fields = search.get('remove_selected_fields')
             post_process_method = search.get('post_process_method')
 
             q = dp.combine_boolean_query(search['query'])
@@ -58,7 +60,8 @@ if __name__ == "__main__":
             print(s.to_dict())
             print(f"Total Hits: {response.hits.total}")
 
-            hits = dp.filter_hits_by_selected_fields(s.scan(), selected_fields)
+            hits = dp.filter_hits(s.scan(), add_selected_fields,
+                                  remove_selected_fields)
 
             if post_process_method:
                 hits = dp.solve_for(post_process_method, hits=hits)
@@ -76,9 +79,10 @@ if __name__ == "__main__":
             print(df)
 
             SUBJECT = f"New DDI Alert: {ddi_alert['title']}"
-            TABLE = df.to_html(justify='left', index=False)
+            TABLE = df.to_html(justify='left', index=False, escape=False)
 
             mail.set_subject(SUBJECT)
             mail.set_template_body(mapping=TABLE)
+            mail.send()
         except ElasticsearchDslException as e:
             print(e)
