@@ -1,14 +1,16 @@
 ---
-- title: C2 URL
+- title: Bot Useragent with Filehash
   description:
-  date: 2023/12/28
+  date: 2023/12/11
   search:
-    add_selected_fields: [msg, urlCat]
-    remove_selected_fields: [ruleName, evtSubCat, fname, fileHash]
-    gte: now-6d
+    gte: now-1h
     lte: now
     query:
       - operator: must
-        method: wildcard
-        field_name: msg__keyword
-        search_text: "*C&C Server*"
+        method: exists
+        field_name: field
+        search_text: "fileHash"
+      - operator: must
+        method: match
+        field_name: requestClientApplication
+        search_text: "curl certutil wget python go-http-client Mozilla/5.0"

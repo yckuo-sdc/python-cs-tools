@@ -17,11 +17,11 @@ path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
                            "query_data.csv")
 
 df = pd.read_csv(path_to_csv)
+START_DATE = df['start_date'][0]
+END_DATE = df['end_date'][0]
 query_data = df['query_data'].tolist()
 
 API_TYPE = 'ip_connect_record'
-START_DATE = '2023-12-17'
-END_DATE = '2023-12-17'
 
 records = gs.get(API_TYPE, query_data, START_DATE, END_DATE)
 print(f"Records found: {len(records)}")

@@ -17,14 +17,14 @@ path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
                            "query_ip_pairs.csv")
 
 df = pd.read_csv(path_to_csv)
+START_DATE = df['start_date'][0]
+END_DATE = df['end_date'][0]
 srcs = df['src'].tolist()
 dsts = df['dst'].tolist()
 
 print(df)
 
 API_TYPE = 'ip_pair_connect_record'
-START_DATE = '2023-12-22'
-END_DATE = '2023-12-22'
 
 frames = []
 for src, dst in zip(srcs, dsts):

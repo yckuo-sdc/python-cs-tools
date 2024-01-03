@@ -15,6 +15,7 @@ NOTICE_PASSWORD=
 **Get sample excel file**
 - `cp .ewa.excel.example ewa_example.xlsx`
 - `cp .int.excel.example int_example.xlsx`
+- `cp .url.csv.example url.csv`
 
 ## Installation
 The requirements.txt file should list all Python libraries that your notebooks depend on, and they will be installed using:
@@ -44,4 +45,15 @@ options:
   --excel EXCEL         Path to the excel (e.g. ./excel.xlsx)
   --attach-dir ATTACH_DIR
                         Path to the attachment directory (e.g. ./attachments)
+```
+
+## Take Webpage Screenshot
+**Usage**
+```
+usage: screenshot.py [-h] [--csv CSV] [--shot-dir SHOT_DIR]
+
+options:
+  -h, --help           show this help message and exit
+  --csv CSV            Path to the csv (e.g. ./url.csv)
+  --shot-dir SHOT_DIR  Path to the screenshot directory (e.g. ./screenshots)
 ```
