@@ -57,3 +57,5 @@ options:
   --url-csv URL_CSV    Path to the url csv (e.g. ./url.csv)
   --shot-dir SHOT_DIR  Path to the screenshot directory (e.g. ./screenshots)
 ```
+## Documentation
+Documentation is available at https://hackmd.io/@yckuo/By9Ig8Jz6.
