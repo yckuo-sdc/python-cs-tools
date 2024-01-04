@@ -50,10 +50,10 @@ options:
 ## Take Webpage Screenshot
 **Usage**
 ```
-usage: screenshot.py [-h] [--csv CSV] [--shot-dir SHOT_DIR]
+usage: screenshot.py [-h] [--url-csv URL_CSV] [--shot-dir SHOT_DIR]
 
 options:
   -h, --help           show this help message and exit
-  --csv CSV            Path to the csv (e.g. ./url.csv)
+  --url-csv URL_CSV    Path to the url csv (e.g. ./url.csv)
   --shot-dir SHOT_DIR  Path to the screenshot directory (e.g. ./screenshots)
 ```

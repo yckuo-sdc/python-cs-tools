@@ -35,14 +35,14 @@ def get_scroll_value(target_driver, attr):
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--csv', help='Path to the csv (e.g. ./url.csv)')
+parser.add_argument('--url-csv', help='Path to the url csv (e.g. ./url.csv)')
 parser.add_argument(
     '--shot-dir', help='Path to the screenshot directory (e.g. ./screenshots)')
 
 args = parser.parse_args()
 
-if args.csv is None:
-    print('Path to csv must be provided (e.g. --csv ./url.csv)')
+if args.url_csv is None:
+    print('Path to url csv must be provided (e.g. --url-csv ./url.csv)')
     sys.exit(0)
 
 if args.shot_dir is None:
@@ -51,7 +51,7 @@ if args.shot_dir is None:
     )
     sys.exit(0)
 
-PATH_TO_CSV = os.path.join(os.path.dirname(__file__), args.csv)
+PATH_TO_CSV = os.path.join(os.path.dirname(__file__), args.url_csv)
 PATH_TO_SHOT_DIR = os.path.join(os.path.dirname(__file__), args.shot_dir)
 
 if __name__ == '__main__':
