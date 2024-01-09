@@ -15,6 +15,47 @@ class VirusTotal:
             self.host = host
             self.apikey = apikey
 
+    def get_domain_relationships(self, domain, relationship, limit):
+        url = f"{self.host}/domains/{domain}/{relationship}"
+
+        headers = {
+            "accept": "application/json",
+            "x-apikey": self.apikey,
+        }
+
+        params = {
+            'limit':  limit,
+        }
+
+        try:
+            json = requests.get(url, headers=headers, params=params, timeout=10).json()
+            return json
+        except Exception as e:
+            print(e)
+            return False
+
+    def get_subdomain_and_a_records(self, domain):
+        relationship = "subdomains"
+        records = self.get_domain_relationships(domain, relationship, limit=0)
+        if 'error' in records:
+            return None
+
+        count = records['meta']['count']
+        records = self.get_domain_relationships(domain, relationship, limit=count)
+
+        subdomain_and_a_records = []
+        for record in records['data']:
+            subdomain_and_a_record = {}
+            last_dns_a_records = []
+            for last_dns_record in record['attributes']['last_dns_records']:
+                if last_dns_record['type'] == 'A':
+                    last_dns_a_records.append(last_dns_record['value'])
+            subdomain_and_a_record['domain'] = record['id']
+            subdomain_and_a_record['a_records'] = last_dns_a_records
+            subdomain_and_a_records.append(subdomain_and_a_record)
+
+        return subdomain_and_a_records
+
     def get_ip_report(self, ip):
         url = self.host + "/ip_addresses/" + ip
         headers = {
@@ -138,31 +179,5 @@ class VirusTotal:
 if __name__ == '__main__':
 
     vt = VirusTotal()
-
-    #filehash = "51340B563B779603DB13861B0978537FCDC00341"
-    #filehash = "139933FDC6163334F161D85F015CE81F73803C95"
-    #print(vt.is_malicious_by_filehash(filehash))
-
-    #url_list = [
-    #  'http://220.130.190.61'
-    #]
-
-    #for url in url_list:
-    #  print('url: {}, malicious: {}'.format(url, vt.is_malicious(url)))
-
-    ip = '114.202.175.144'
-    response = vt.is_malicious_by_ip(ip)
-    print(response)
-
-    #with open(os.path.dirname(__file__) + '/../data/malicious.csv', newline='') as csvfile:
-    #
-    #  rows = csv.reader(csvfile)
-    #  next(rows, None)  # skip the headers
-    #
-    #  for index, row in enumerate(rows):
-    #    for url in row:
-    #      print(str(index+1) + ': ' + url)
-    #      vid = vt.scan_url(url)
-    #      if vid:
-    #        stats = vt.get_scan_report(vid)
-    #        print(stats)
+    records = vt.get_subdomain_and_a_records("pastebin.com")
+    print(records)

@@ -68,7 +68,8 @@ def extract_tags(nlp, text):
     exclude_ent_labels = ['CARDINAL', 'ORDINAL', 'DATE', 'MONEY']
 
     # Extract tags (named entities)
-    extracted_tags = [f"{e.text}({e.label_})" for e in doc.ents]
+    extracted_tags = [f"{e.text}" for e in doc.ents]
+    #extracted_tags = [f"{e.text}({e.label_})" for e in doc.ents]
     #extracted_tags = [
     #    f"{e.text}({e.label_})" for e in doc.ents
     #    if e.label_ not in exclude_ent_labels
@@ -172,22 +173,30 @@ if __name__ == '__main__':
                     "Data inserted successfully into table using the prepared statement"
                 )
 
-                #results.append({
-                #    'rss_feed_id': feed['id'],
-                #    'guid': entry.id,
-                #    'title': entry.title,
-                #    'link': entry.link,
-                #    'description': fitered_description,
-                #    'tag_from_desc': ' | '.join(tags_desc),
-                #    'tag_from_title': ' | '.join(tags_title),
-                #    'tag_from_title_desc': ' | '.join(tags_merge),
-                #})
 
                 if ENABLE_NOTIFICATION:
                     # notify new itmes in channels
+                    STYLE_CSS = (
+                        "display: inline;"
+                        "padding: 0.2em 0.6em 0.3em;"
+                        "font-size: 75%;"
+                        "font-weight: 700;"
+                        "line-height: 1;"
+                        "color: #fff;"
+                        "text-align: center;"
+                        "white-space: nowrap;"
+                        "vertical-align: baseline;"
+                        "border-radius: 0.25em;"
+                        "background-color: #777;"
+                    )
+                    tags = []
+                    for tag in tags_merge:
+                        tags.append(f"<label style='{STYLE_CSS}'>{tag}</label>")
+
                     subject = f"RSS News: {entry.title}"
                     body = f"published: {entry.published}<br>"
-                    body += f"link: {entry.link}"
+                    body += f"link: {entry.link}<br>"
+                    body += f"tag: {' '.join(tags)}"
                     mail.set_subject(subject)
                     mail.set_body(body)
                     mail.send()
@@ -195,7 +204,3 @@ if __name__ == '__main__':
     # Close cursor and connection
     cursor.close()
     connection.close()
-
-    #df = pd.DataFrame(results)
-    #path_to_csv = os.path.join(os.path.dirname(__file__), "use_spacy.csv")
-    #df.to_csv(path_to_csv, index=False, encoding='utf-8-sig')

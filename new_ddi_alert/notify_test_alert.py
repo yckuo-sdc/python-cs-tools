@@ -83,6 +83,6 @@ if __name__ == "__main__":
 
             mail.set_subject(SUBJECT)
             mail.set_template_body(mapping=TABLE)
-            mail.send()
+            #mail.send()
         except ElasticsearchDslException as e:
             print(e)

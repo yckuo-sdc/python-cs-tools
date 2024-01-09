@@ -1,16 +1,22 @@
 ---
-- title: Bot Useragent with Filehash
+- title: Webshell Request with Boturl
   description:
   date: 2023/12/11
   search:
+    add_selected_fields: [cs8]
+    remove_selected_fields: [fname, fileHash]
     gte: now-1h
     lte: now
     query:
       - operator: must
         method: exists
         field_name: field
-        search_text: "fileHash"
+        search_text: "cs8"
       - operator: must
         method: match
-        field_name: requestClientApplication
-        search_text: "curl certutil wget python go-http-client Mozilla/5.0"
+        field_name: ruleName
+        search_text: "chopper webshell"
+      - operator: must
+        method: match
+        field_name: ruleName
+        search_text: "request"
