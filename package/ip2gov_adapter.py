@@ -51,9 +51,9 @@ class Ip2govAdapter:
                                  data=payload,
                                  headers=headers,
                                  timeout=10).json()
-        except Exception as e:
-            print(e)
-            return False
+        except requests.exceptions.RequestException as req_err:
+            print(req_err)
+            return None
 
         if not isinstance(request_ip, list):
             data = next(iter(data), None)

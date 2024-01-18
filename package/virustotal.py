@@ -1,12 +1,22 @@
+"""Module"""
 import os
+import time
 
 import requests
 from dotenv import load_dotenv
 
 
 class VirusTotal:
+    """This is a docstring that provides a brief description of MyClass."""
 
     def __init__(self, host="", apikey=""):
+        """
+        Constructor for the virustotal class.
+
+        Parameters:
+            host (str): VirusTotal Host
+            apikey (str): VirusTotal API key
+        """
         if host == "" or apikey == "":
             load_dotenv()
             self.host = os.getenv("VT_HOST")
@@ -15,112 +25,188 @@ class VirusTotal:
             self.host = host
             self.apikey = apikey
 
-    def get_domain_relationships(self, domain, relationship, limit):
-        url = f"{self.host}/domains/{domain}/{relationship}"
-
-        headers = {
+        self.headers = {
             "accept": "application/json",
             "x-apikey": self.apikey,
         }
 
-        params = {
-            'limit':  limit,
-        }
+        self.timeout = 10
+
+    def get_domain_relationships(self, domain, relationship, limit):
+        """ This is a docstring that provides a brief description of my_function."""
+
+        params = {'limit': limit}
 
         try:
-            json = requests.get(url, headers=headers, params=params, timeout=10).json()
-            return json
-        except Exception as e:
-            print(e)
+            response = requests.get(
+                url=f"{self.host}/domains/{domain}/{relationship}",
+                headers=self.headers,
+                params=params,
+                timeout=self.timeout)
+        except requests.exceptions.RequestException as req_err:
+            print(req_err)
             return False
 
-    def get_subdomain_and_a_records(self, domain):
-        relationship = "subdomains"
-        records = self.get_domain_relationships(domain, relationship, limit=0)
-        if 'error' in records:
+        if response.status_code != 200:
+            return False
+
+        return response.json()
+
+    def get_subdomain_and_dns_records(self, domain, dns_record_type):
+        """ This is a docstring that provides a brief description of my_function."""
+
+        relationship = self.get_domain_relationships(domain,
+                                                     relationship="subdomains",
+                                                     limit=0)
+
+        try:
+            count = relationship['meta']['count']
+        except (KeyError, TypeError):
             return None
 
-        count = records['meta']['count']
-        records = self.get_domain_relationships(domain, relationship, limit=count)
+        relationship = self.get_domain_relationships(domain,
+                                                     relationship="subdomains",
+                                                     limit=count)
 
-        subdomain_and_a_records = []
-        for record in records['data']:
-            subdomain_and_a_record = {}
-            last_dns_a_records = []
+        subdomain_and_dns_records = []
+        for record in relationship['data']:
+            item = {}
+            last_dns_records = []
             for last_dns_record in record['attributes']['last_dns_records']:
-                if last_dns_record['type'] == 'A':
-                    last_dns_a_records.append(last_dns_record['value'])
-            subdomain_and_a_record['domain'] = record['id']
-            subdomain_and_a_record['a_records'] = last_dns_a_records
-            subdomain_and_a_records.append(subdomain_and_a_record)
+                if last_dns_record['type'] in dns_record_type:
+                    last_dns_records.append(last_dns_record['value'])
+            item['domain'] = record['id']
+            item['dns_records'] = last_dns_records
+            subdomain_and_dns_records.append(item)
 
-        return subdomain_and_a_records
+        return subdomain_and_dns_records
 
-    def get_ip_report(self, ip):
-        url = self.host + "/ip_addresses/" + ip
-        headers = {
-            "accept": "application/json",
-            "x-apikey": self.apikey,
-        }
+    def get_ip_report(self, target_ip):
+        """ This is a docstring that provides a brief description of my_function."""
+
         try:
-            json = requests.get(url, headers=headers, timeout=10).json()
-            return json
-        except Exception as e:
-            print(e)
+            response = requests.get(
+                url=f"{self.host}/ip_addresses/{target_ip}",
+                headers=self.headers,
+                timeout=self.timeout)
+        except requests.exceptions.RequestException as req_err:
+            print(req_err)
             return False
+
+        if response.status_code != 200:
+            return False
+
+        return response.json()
 
     def get_file_report(self, filehash):
-        url = self.host + "/files/" + filehash
-        headers = {
-            "accept": "application/json",
-            "x-apikey": self.apikey,
-        }
-        j = requests.get(url, headers=headers).json()
-
-        if 'error' in j:
-            return None
-
-        return j['data']['attributes']['last_analysis_stats']
-
-    def scan_url(self, target_url):
-        url = self.host + "/urls"
-        payload = {"url": target_url}
-        headers = {
-            "accept": "application/json",
-            "x-apikey": self.apikey,
-            "content-type": "application/x-www-form-urlencoded",
-        }
-
-        j = requests.post(url, data=payload, headers=headers).json()
+        """ This is a docstring that provides a brief description of my_function."""
 
         try:
-            j['data']['id']
-        except:
-            print("well, wet don't get report id!")
-            vid = False
-        else:
-            vid = j['data']['id']
-        finally:
-            return vid
-
-    def get_scan_report(self, vid):
-        url = self.host + "/analyses/" + vid
-        headers = {
-            "accept": "application/json",
-            "x-apikey": self.apikey,
-        }
-
-        j = requests.get(url, headers=headers).json()
-
-        return j['data']['attributes']['stats']
-
-    def is_malicious_by_filehash(self, filehash):
-        if not filehash:
+            response = requests.get(url=f"{self.host}/files/{filehash}",
+                                    headers=self.headers,
+                                    timeout=self.timeout)
+        except requests.exceptions.RequestException as req_err:
+            print(req_err)
             return False
 
-        stats = self.get_file_report(filehash)
+        if response.status_code != 200:
+            return False
 
-        if not stats:
+        return response.json()
+
+    def get_url_report(self, url):
+        """Retrieve information about a URL."""
+
+        # Send the URL to scan
+        try:
+            response = requests.post(url=f"{self.host}/urls",
+                                     data={"url": url},
+                                     headers=self.headers,
+                                     timeout=self.timeout)
+        except requests.exceptions.RequestException as req_err:
+            print(req_err)
+            return False
+
+        print(response.status_code)
+        if response.status_code != 200:
+            return False
+
+        try:
+            analysis_id = response.json()['data']['id']
+        except (KeyError, TypeError) as access_err:
+            print(access_err)
+            return False
+
+        print(analysis_id)
+
+        try:
+            while True:
+                #response = requests.get(url=f"{self.host}/urls/{analysis_id}",
+                #                        headers=self.headers,
+                #                        timeout=self.timeout)
+                response = requests.get(url=f"{self.host}/analyses/{analysis_id}",
+                                        headers=self.headers,
+                                        timeout=self.timeout)
+
+                if response.status_code != 200:
+                    return False
+
+                status = response.json()['data']['attributes']['status']
+                print(status)
+
+                if status == 'completed':
+                    break
+
+                time.sleep(3)
+        except requests.exceptions.RequestException as req_err:
+            print(req_err)
+            return False
+
+        return response.json()
+
+
+
+    def get_malicious_number_by_ips(self, request_ips):
+        """ This is a docstring that provides a brief description of my_function."""
+
+        first_seen_index = {}
+        is_first_seen = [
+            not first_seen_index.setdefault(label, i)
+            for i, label in enumerate(request_ips)
+        ]
+        is_first_seen_id = [first_seen_index[label] for label in request_ips]
+
+        malicious_labels = []
+        for id_x, request_ip in enumerate(request_ips):
+            if not is_first_seen:
+                malicious_labels.append({
+                    'vt_malicious_num':
+                    malicious_labels[is_first_seen_id[id_x]]
+                    ['vt_malicious_num']
+                })
+                continue
+
+            report = self.get_ip_report(request_ip)
+
+            vt_malicious_num = 0
+            try:
+                vt_malicious_num = report['data']['attributes'][
+                    'last_analysis_stats']['malicious']
+            except (KeyError, TypeError):
+                pass
+            finally:
+                malicious_labels.append({'vt_malicious_num': vt_malicious_num})
+
+        return malicious_labels
+
+    def is_malicious_by_filehash(self, filehash):
+        """ This is a docstring that provides a brief description of my_function."""
+
+        report = self.get_file_report(filehash)
+
+        try:
+            stats = report['data']['attributes']['last_analysis_stats']
+        except (KeyError, TypeError):
             return False
 
         malicious_number = stats['malicious']
@@ -130,46 +216,17 @@ class VirusTotal:
 
         return False
 
-    def get_malicious_number_by_ips(self, request_ips):
-        if not request_ips:
-            return []
-
-        first_seen_index = {}
-        is_first_seen = [
-            not first_seen_index.setdefault(label, i)
-            for i, label in enumerate(request_ips)
-        ]
-        is_first_seen_id = [first_seen_index[label] for label in request_ips]
-
-        labels = []
-        for id_x, request_ip in enumerate(request_ips):
-
-            if not is_first_seen:
-                labels.append({
-                    'vt_malicious_num':
-                    labels[is_first_seen_id[id_x]]['vt_malicious_num']
-                })
-                continue
-
-            report = self.get_ip_report(request_ip)
-            if not report:
-                labels.append({'vt_malicious_num': 0})
-                continue
-
-            stats = report['data']['attributes']['last_analysis_stats']
-            labels.append({'vt_malicious_num': stats['malicious']})
-
-        return labels
-
     def is_malicious_by_url(self, target_url):
-        vid = self.scan_url(target_url)
-        response = False
+        """ This is a docstring that provides a brief description of my_function."""
 
-        if not vid:
+
+        report = self.get_url_report(target_url)
+
+        if not report:
             return False
 
-        stats = self.get_scan_report(vid)
-        malicious_number = stats['malicious'] + stats['suspicious']
+        stats = report['data']['attributes']['stats']
+        malicious_number = stats['malicious']
         if malicious_number:
             return True
 
@@ -179,5 +236,17 @@ class VirusTotal:
 if __name__ == '__main__':
 
     vt = VirusTotal()
-    records = vt.get_subdomain_and_a_records("pastebin.com")
-    print(records)
+    FILE_HASH = "E56116AE2252D91B4E7F3B2B2F395D3499278E4D"
+    RESULT = vt.is_malicious_by_filehash(FILE_HASH)
+    print(RESULT)
+
+    ip = ['218.161.87.168', '223.200.49.186', '67.225.218.6']
+    labels = vt.get_malicious_number_by_ips(ip)
+    print(labels)
+
+    result = vt.get_url_report("https://w.google.com.tw")
+    print(result)
+
+    result = vt.get_subdomain_and_dns_records(domain="hgzvip.net",
+                                              dns_record_type=["A"])
+    print(result)

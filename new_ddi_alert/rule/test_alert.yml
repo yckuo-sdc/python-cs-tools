@@ -1,22 +1,24 @@
 ---
-- title: Webshell Request with Boturl
+- title: Trojan Http Response
   description:
   date: 2023/12/11
   search:
-    add_selected_fields: [cs8]
-    remove_selected_fields: [fname, fileHash]
-    gte: now-1h
+    gte: now-1d
     lte: now
     query:
       - operator: must
-        method: exists
-        field_name: field
-        search_text: "cs8"
+        method: match
+        field_name: evtSubCat
+        search_text: "trojan"
+      - operator: must
+        method: match
+        field_name: app
+        search_text: "http"
       - operator: must
         method: match
         field_name: ruleName
-        search_text: "chopper webshell"
+        search_text: "response"
       - operator: must
         method: match
-        field_name: ruleName
-        search_text: "request"
+        field_name: cn7
+        search_text: "0"     # Disable heuristic detection

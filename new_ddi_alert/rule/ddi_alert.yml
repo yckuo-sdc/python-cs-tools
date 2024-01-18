@@ -92,10 +92,14 @@
     gte: now-1h
     lte: now
     query:
-      - operator: must
+      - operator: should
         method: wildcard
         field_name: ruleName__keyword
         search_text: "HKTL*"
+      - operator: should
+        method: wildcard
+        field_name: reason__keyword
+        search_text: "*HackTool*"
 - title: High Risk Http Response
   description:
   date: 2023/12/11
@@ -170,8 +174,8 @@
         method: match
         field_name: ruleName
         search_text:
-          "webshell possible_smchopperphpa cknife
-           chopper antsword behinder godzilla"
+          "webshell possible_smchoppera possible_smchopperphpa
+           cknife chopper antsword behinder godzilla"
       - operator: must
         method: match
         field_name: ruleName
@@ -312,3 +316,14 @@
         method: wildcard
         field_name: msg__keyword
         search_text: "*C&C Server*"
+- title: Reverse Payload
+  description:
+  date: 2024/1/11
+  search:
+    gte: now-1h
+    lte: now
+    query:
+      - operator: must
+        method: match
+        field_name: ruleName
+        search_text: "reverse"

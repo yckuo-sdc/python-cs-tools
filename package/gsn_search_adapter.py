@@ -6,20 +6,29 @@ from urllib.parse import urlparse
 
 import requests
 from dotenv import load_dotenv
-from requests.exceptions import RequestException
 
 
 class GsnSearchAdapter:
     """Class representing a adapter"""
 
-    def __init__(self, host=""):
-        if host == "":
+    def __init__(self, host="", raw_host=""):
+        if host == "" or raw_host == "":
             load_dotenv()
             self.host = os.getenv("GSN_SEARCH_HOST")
+            self.raw_host = os.getenv("GSN_RAW_SEARCH_HOST")
         else:
             self.host = host
+            self.raw_host = raw_host
+
+        self.headers = {
+            'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            '(KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+        }
+        self.timeout = 10
 
     def solve_for(self, api_type):
+        """ This is a docstring that provides a brief description of my_function."""
 
         query_maps = {
             'ip': {
@@ -84,6 +93,8 @@ class GsnSearchAdapter:
         return field_name
 
     def ping(self):
+        """ This is a docstring that provides a brief description of my_function."""
+
         try:
             hostname = urlparse(self.host).hostname
             subprocess.run(['ping', '-c', '1', hostname],
@@ -95,71 +106,62 @@ class GsnSearchAdapter:
             return False
 
     def cancel_task(self, task_id):
-
-        url = self.host + f"/cancel_task/{task_id}"
-        headers = {
-            'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            '(KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-        }
+        """ This is a docstring that provides a brief description of my_function."""
 
         try:
-            data = requests.get(url, headers=headers, timeout=10).json()
-        except RequestException as req_err:
+            response = requests.get(
+                url=f"{self.host}/cancel_task/{task_id}",
+                headers=self.headers,
+                timeout=self.timeout,
+            )
+        except requests.exceptions.RequestException as req_err:
             print(req_err)
             return None
 
-        return data
+        return response.json()
 
     def get_task(self, task_id):
-
-        url = self.host + f"/task/{task_id}"
-        headers = {
-            'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            '(KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-        }
+        """ This is a docstring that provides a brief description of my_function."""
 
         try:
-            data = requests.get(url, headers=headers, timeout=10).json()
-        except RequestException as req_err:
+            response = requests.get(
+                url=f"{self.host}/task/{task_id}",
+                headers=self.headers,
+                timeout=self.timeout,
+            )
+        except requests.exceptions.RequestException as req_err:
             print(req_err)
             return None
 
-        status = data.get('status')
+        status = response.json().get('status')
 
         if status != 'success':
             return None
 
-        return data['data']
+        return response.json().get('data')
 
     def get_task_id(self, payload):
-
-        url = self.host + "/task"
-        headers = {
-            'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            '(KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-        }
+        """ This is a docstring that provides a brief description of my_function."""
 
         try:
-            data = requests.post(url,
-                                 headers=headers,
-                                 json=payload,
-                                 timeout=10).json()
-        except RequestException as req_err:
+            response = requests.post(url=f"{self.host}/task",
+                                     headers=self.headers,
+                                     json=payload,
+                                     timeout=self.timeout)
+        except requests.exceptions.RequestException as req_err:
             print(req_err)
             return None
 
-        status = data.get('status')
+        status = response.json().get('status')
 
         task_id = None
         if status == 'success':
-            task_id = data['data']['task_id']
+            task_id = response.json()['data']['task_id']
 
         return task_id
 
     def get(self, api_type, request_data, start_date, end_date):
+        """ This is a docstring that provides a brief description of my_function."""
 
         field_name = self.solve_for(api_type)
         payload = {}
@@ -196,12 +198,28 @@ class GsnSearchAdapter:
 
         return task_result
 
+    def get_http_records_by_raw_host(self, hostname, client_address, date):
+        """ This is a docstring that provides a brief description of my_function."""
+
+        try:
+            response = requests.get(
+                url=f"{self.raw_host}/http/{date}/{hostname}/{client_address}/records",
+                headers=self.headers,
+                timeout=self.timeout,
+            )
+        except requests.exceptions.RequestException as req_err:
+            print(req_err)
+            return None
+
+        return response.json()
 
 if __name__ == '__main__':
     gs = GsnSearchAdapter()
 
-    API_TYPE = 'ip_connect_record'
-    START_DATE = '2023-12-01'
-    END_DATE = '2023-12-01'
-    REQUEST_DATA = ['152.136.84.245']
-    r = gs.get(API_TYPE, REQUEST_DATA, START_DATE, END_DATE)
+    #API_TYPE = 'ip_connect_record'
+    #START_DATE = '2023-12-01'
+    #END_DATE = '2023-12-01'
+    #REQUEST_DATA = ['152.136.84.245']
+    #records = gs.get(API_TYPE, REQUEST_DATA, START_DATE, END_DATE)
+    records = gs.get_http_records_by_raw_host('www.drlee.us', '223.200.128.115', '2024-01-16')
+    print(records)

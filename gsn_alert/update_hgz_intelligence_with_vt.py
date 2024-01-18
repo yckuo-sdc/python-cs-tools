@@ -38,10 +38,10 @@ def parse_ioc(records):
     parsed_ioc = {'domain': [], 'ip': []}
     for record in records:
         parsed_ioc['domain'].append(record['domain'])
-        parsed_ioc['ip'].extend(record['a_records'])
+        parsed_ioc['ip'].extend(record['dns_records'])
 
-    parsed_ioc['domain'] = list(set(parsed_ioc['domain']))
-    parsed_ioc['ip'] = list(set(parsed_ioc['ip']))
+    parsed_ioc['domain'] = sorted(set(parsed_ioc['domain']))
+    parsed_ioc['ip'] = sorted(set(parsed_ioc['ip']))
 
     return parsed_ioc
 
@@ -50,21 +50,24 @@ if __name__ == "__main__":
 
     vt = VirusTotal()
 
-    hgzvip_net_records = vt.get_subdomain_and_a_records("hgzvip.net")
-    huigezi_org_records = vt.get_subdomain_and_a_records("huigezi.org")
+    hgzvip_net_records = vt.get_subdomain_and_dns_records(
+        domain="hgzvip.net", dns_record_type=["A"])
+    huigezi_org_records = vt.get_subdomain_and_dns_records(
+        domain="huigezi.org", dns_record_type=["A"])
 
     # Merge the lists of dictionaries
     merged_records = hgzvip_net_records.copy()
     merged_records.extend(huigezi_org_records)
 
     ioc = parse_ioc(merged_records)
+    print(ioc)
 
     PATH_TO_YAML = os.path.join(os.path.dirname(__file__), "rule",
                                 "gsn_alert.yml")
 
     gsn_alerts = parse_rules(PATH_TO_YAML)
 
-    hgz_titles =['Huigezi Ip Hit', 'Huigezi Dn Query']
+    hgz_titles = ['Huigezi Ip Hit', 'Huigezi Dn Query']
     for gsn_alert in gsn_alerts:
         try:
             if gsn_alert['title'] in hgz_titles:

@@ -28,24 +28,24 @@
       excluded:
       - 127.0.0.1
       vt:
-      - 152.136.134.211
-      - 43.138.87.107
-      - 58.87.84.224
-      - 152.136.84.245
-      - 188.131.243.141
-      - 123.206.26.167
-      - 127.0.0.1
-      - 139.199.100.137
-      - 134.175.123.86
-      - 49.234.108.57
-      - 123.206.92.146
-      - 129.204.188.155
-      - 58.87.106.10
-      - 170.106.11.252
-      - 139.155.149.11
-      - 42.194.252.245
       - 106.55.151.203
+      - 123.206.26.167
+      - 123.206.92.146
+      - 127.0.0.1
+      - 129.204.188.155
+      - 134.175.123.86
+      - 139.155.149.11
+      - 139.199.100.137
+      - 152.136.134.211
+      - 152.136.84.245
+      - 170.106.11.252
+      - 188.131.243.141
+      - 42.194.252.245
       - 42.194.253.227
+      - 43.138.87.107
+      - 49.234.108.57
+      - 58.87.106.10
+      - 58.87.84.224
 - title: Huigezi Dn Query
   description: null
   date: 2024/1/5
@@ -91,36 +91,36 @@
       - huigezi.org
       - www.huigezi.org
       vt:
-      - microsoft02.hgzvip.net
-      - shengcheng.huigezi.org
-      - www.huigezi.org
-      - freeupdate.huigezi.org
+      - ceshi.hgzvip.net
+      - custom.hgzvip.net
       - dota.hgzvip.net
-      - unins.hgzvip.net
-      - omcs81.hgzvip.net
-      - spare.hgzvip.net
-      - omcs.hgzvip.net
       - down.hgzvip.net
-      - huigezi.org
+      - esdaili01.huigezi.org
+      - esdaili02.huigezi.org
       - esdaili03.huigezi.org
+      - freees.huigezi.org
+      - freeupdate.huigezi.org
+      - hgzvip.net
+      - huigezi.org
+      - jiqunxx.hgzvip.net
+      - microsoft.hgzvip.net
+      - microsoft02.hgzvip.net
       - microsoft03.hgzvip.net
       - microsoft04.hgzvip.net
-      - esdaili02.huigezi.org
-      - ceshi.hgzvip.net
-      - safe.hgzvip.net
-      - microsoft.hgzvip.net
-      - shoujiapi.huigezi.org
-      - freees.huigezi.org
-      - shengcheng.hgzvip.net
-      - custom.hgzvip.net
-      - p2p01.hgzvip.net
-      - jiqunxx.hgzvip.net
-      - saas.hgzvip.net
-      - xiezhuupdate01.huigezi.org
-      - sjyzm.huigezi.org
-      - update.hgzvip.net
-      - renzheng.hgzvip.net
-      - hgzvip.net
-      - www.hgzvip.net
-      - esdaili01.huigezi.org
+      - omcs.hgzvip.net
       - omcs02.hgzvip.net
+      - omcs81.hgzvip.net
+      - p2p01.hgzvip.net
+      - renzheng.hgzvip.net
+      - saas.hgzvip.net
+      - safe.hgzvip.net
+      - shengcheng.hgzvip.net
+      - shengcheng.huigezi.org
+      - shoujiapi.huigezi.org
+      - sjyzm.huigezi.org
+      - spare.hgzvip.net
+      - unins.hgzvip.net
+      - update.hgzvip.net
+      - www.hgzvip.net
+      - www.huigezi.org
+      - xiezhuupdate01.huigezi.org
