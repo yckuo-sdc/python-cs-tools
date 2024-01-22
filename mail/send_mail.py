@@ -58,12 +58,32 @@ class SendMail:
     def set_body(self, body):
         self.body = body
 
-    def set_template_body(self, mapping):
+    def set_template_body(self, mapping, mapping2=""):
+        if mapping2 == "":
+            template_path = Path(
+                os.path.join(os.path.dirname(__file__), 'template',
+                             'rwd_ddi.html'))
+            template_body = Template(template_path.read_text('utf-8'))
+            template_body = template_body.substitute({"table": mapping})
+        else:
+            template_path = Path(
+                os.path.join(os.path.dirname(__file__), 'template',
+                             'rwd_ddi_with_download_btn.html'))
+            template_body = Template(template_path.read_text('utf-8'))
+            template_body = template_body.substitute({
+                "table": mapping,
+                "url": mapping2
+            })
+
+        # Turns CSS blocks into style attributes with 'premailer'
+        self.body = transform(template_body, exclude_pseudoclasses=False)
+
+    def set_template_body_with_dict(self, mapping_data):
         template_path = Path(
             os.path.join(os.path.dirname(__file__), 'template',
-                         'rwd_ddi.html'))
+                         'rwd_ddi_with_download_btn.html'))
         template_body = Template(template_path.read_text('utf-8'))
-        template_body = template_body.substitute({"table": mapping})
+        template_body = template_body.substitute(mapping_data)
         # Turns CSS blocks into style attributes with 'premailer'
         self.body = transform(template_body, exclude_pseudoclasses=False)
 

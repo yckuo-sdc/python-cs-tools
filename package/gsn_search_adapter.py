@@ -190,6 +190,11 @@ class GsnSearchAdapter:
                 if task_status == 'finished':
                     task_result = task_result['task_result']['result']
                     break
+
+                if task_status == 'failed':
+                    task_result = []
+                    break
+
                 time.sleep(5)
         except KeyboardInterrupt:
             print("\nCtrl+C detected. Cleaning up...")
@@ -203,7 +208,8 @@ class GsnSearchAdapter:
 
         try:
             response = requests.get(
-                url=f"{self.raw_host}/http/{date}/{hostname}/{client_address}/records",
+                url=
+                f"{self.raw_host}/http/{date}/{hostname}/{client_address}/records",
                 headers=self.headers,
                 timeout=self.timeout,
             )
@@ -213,6 +219,7 @@ class GsnSearchAdapter:
 
         return response.json()
 
+
 if __name__ == '__main__':
     gs = GsnSearchAdapter()
 
@@ -221,5 +228,6 @@ if __name__ == '__main__':
     #END_DATE = '2023-12-01'
     #REQUEST_DATA = ['152.136.84.245']
     #records = gs.get(API_TYPE, REQUEST_DATA, START_DATE, END_DATE)
-    records = gs.get_http_records_by_raw_host('www.drlee.us', '223.200.128.115', '2024-01-16')
+    records = gs.get_http_records_by_raw_host('www.drlee.us',
+                                              '223.200.128.115', '2024-01-16')
     print(records)

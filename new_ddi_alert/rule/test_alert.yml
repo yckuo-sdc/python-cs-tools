@@ -3,8 +3,8 @@
   description:
   date: 2023/12/11
   search:
-    gte: now-1d
-    lte: now
+    gte: now-5d
+    lte: now-3d
     query:
       - operator: must
         method: match
