@@ -1,7 +1,6 @@
 """Module"""
 import json
 import os
-import sys
 import urllib
 
 import numpy as np
@@ -66,16 +65,22 @@ def get_direction_by_rulename(rulename):
     return "both"
 
 
-def get_download_http_record_url(ddi_df):
+def get_download_url(ddi_df):
     """Functions"""
     host = os.getenv("FLASK_HOST")
     url = None
 
+    # Filter DataFrame where the 'app' column is equal to 'HTTP'
+    filtered_df = ddi_df[ddi_df['app'] == 'HTTP']
+
+    if filtered_df.empty:
+        return url
+
     new_df = pd.DataFrame()
-    new_df['date'] = ddi_df['rt'].apply(convert_to_date)
-    new_df['src'] = ddi_df['src'].apply(extract_ip)
-    new_df['dst'] = ddi_df['dst'].apply(extract_ip)
-    new_df['direction'] = ddi_df['ruleName'].apply(get_direction_by_rulename)
+    new_df['date'] = filtered_df['rt'].apply(convert_to_date)
+    new_df['src'] = filtered_df['src'].apply(extract_ip)
+    new_df['dst'] = filtered_df['dst'].apply(extract_ip)
+    new_df['direction'] = filtered_df['ruleName'].apply(get_direction_by_rulename)
 
     unique_df = new_df.drop_duplicates(subset=['date', 'src', 'dst', 'direction'])
 
