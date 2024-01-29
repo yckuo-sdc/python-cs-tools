@@ -40,7 +40,9 @@ def extract_ip(ip_st):
     """Functions"""
     ip_list = ip_st.split()
 
-    return ip_list[0]
+    return next(iter(ip_list), None)
+
+    #return ip_list[0]
 
 
 def convert_to_date(datetime_str):

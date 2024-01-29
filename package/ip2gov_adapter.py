@@ -108,7 +108,6 @@ class Ip2govAdapter:
 if __name__ == '__main__':
     ip2gov = Ip2govAdapter()
 
-    ip = '117.56.232.9'
     print(ip2gov.get(ip, 'ACC'))
     print(ip2gov.get(ip))
     ip_list = [

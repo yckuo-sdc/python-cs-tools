@@ -25,7 +25,8 @@ if __name__ == '__main__':
 
     search_filters = [
         {
-            'all_no_quotes': 'RICOH',
+            'vuln':
+            'cve-2014-0160,cve-2015-0204,cve-2015-1635,cve-2015-4000,cve-2019-0708,cve-2021-31206,cve-2022-32548',
             'asn': 'AS4782'
         },
         #{
@@ -34,27 +35,90 @@ if __name__ == '__main__':
         #},
     ]
 
-    match_field = [{
-        'label': 'ip',
-        'field': 'ip_str'
-    }, {
-        'label': 'port',
-        'field': 'port'
-    }, {
-        'label': 'product',
-        'field': 'product'
-    }, {
-        'label': 'os',
-        'field': 'os'
-    }, {
-        'label': 'module',
-        'field': {
-            '_shodan': 'module'
+    match_field = [
+        {
+            'label': 'ip',
+            'field': 'ip_str'
         },
-    }, {
-        'label': 'tags',
-        'field': 'tags'
-    }]
+        {
+            'label': 'port',
+            'field': 'port'
+        },
+        {
+            'label': 'product',
+            'field': 'product'
+        },
+        {
+            'label': 'os',
+            'field': 'os'
+        },
+        {
+            'label': 'module',
+            'field': {
+                '_shodan': 'module'
+            },
+        },
+        {
+            'label': 'tags',
+            'field': 'tags'
+        },
+        {
+            'label': 'CVE-2014-0160.verified',
+            'field': {
+                'vulns': {
+                    'CVE-2014-0160': 'verified'
+                }
+            },
+        },
+        {
+            'label': 'CVE-2015-0204.verified',
+            'field': {
+                'vulns': {
+                    'CVE-2015-0204': 'verified'
+                }
+            },
+        },
+        {
+            'label': 'CVE-2015-1635.verified',
+            'field': {
+                'vulns': {
+                    'CVE-2015-1635': 'verified'
+                }
+            },
+        },
+        {
+            'label': 'CVE-2015-4000.verified',
+            'field': {
+                'vulns': {
+                    'CVE-2015-4000': 'verified'
+                }
+            },
+        },
+        {
+            'label': 'CVE-2019-0708.verified',
+            'field': {
+                'vulns': {
+                    'CVE-2019-0708': 'verified'
+                }
+            },
+        },
+        {
+            'label': 'CVE-2021-31206.verified',
+            'field': {
+                'vulns': {
+                    'CVE-2021-31206': 'verified'
+                }
+            },
+        },
+        {
+            'label': 'CVE-2022-32548.verified',
+            'field': {
+                'vulns': {
+                    'CVE-2022-32548': 'verified'
+                }
+            },
+        },
+    ]
 
     fields = []
     for search_filter in search_filters:

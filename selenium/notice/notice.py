@@ -13,6 +13,9 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 
+def strip_whitespace(origin_df):
+    """Function strip whitespace from all values in a Pandas DataFrame."""
+    return origin_df.applymap(lambda x: x.strip() if isinstance(x, str) else x)
 
 def find_files_with_name(directory, target_name):
     """Function confirm that file is existed."""
@@ -82,6 +85,10 @@ if __name__ == '__main__':
     df2 = pd.read_excel(PATH_TO_EXCEL,
                         engine='openpyxl',
                         sheet_name=SHEET2_NAME)
+
+    # Strip whitespace from all values
+    df1 = strip_whitespace(df1)
+    df2 = strip_whitespace(df2)
 
     inputs = df1.to_dict('records')
     inputs = next(iter(inputs), None)

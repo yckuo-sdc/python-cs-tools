@@ -17,6 +17,15 @@ class ShodanAdapter:
         else:
             self.__api = api
 
+    def __get_value_with_nested_field(self, orginal_dict, wanted_field):
+        if not isinstance(wanted_field, dict):
+            return orginal_dict.get(wanted_field)
+
+        items = wanted_field.items()
+        item = next(iter(items), None)
+        return self.__get_value_with_nested_field(
+            orginal_dict.get(item[0], {}), item[1])
+
     def get_hit_number(self, search_filters):
         """Method printing python version."""
         try:
@@ -81,8 +90,10 @@ class ShodanAdapter:
             for result in results:
                 match = {}
                 for match_field in match_fields:
-                    match[match_field['label']] = result.get(
-                            match_field['field'])
+                    label = match_field.get('label')
+                    field = match_field.get('field')
+                    match[label] = self.__get_value_with_nested_field(
+                            result, field)
 
                 matches.append(match)
 
@@ -113,14 +124,10 @@ class ShodanAdapter:
             for banner in banners:
                 match = {}
                 for match_field in match_fields:
-                    if isinstance(match_field['field'], dict):
-                        items = match_field['field'].items()
-                        item = next(iter(items), None)
-                        match[match_field['label']] = banner.get(
-                                item[0], {}).get(item[1])
-                    else:
-                        match[match_field['label']] = banner.get(
-                                match_field['field'])
+                    label = match_field.get('label')
+                    field = match_field.get('field')
+                    match[label] = self.__get_value_with_nested_field(
+                            banner, field)
 
                 matches.append(match)
 
