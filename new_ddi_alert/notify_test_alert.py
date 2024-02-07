@@ -41,16 +41,20 @@ if __name__ == "__main__":
 
     for ddi_alert in ddi_alerts:
         try:
-            print(ddi_alert['title'])
-            search = ddi_alert['search']
+            title = ddi_alert.get('title')
+            print(title)
+
+            search = ddi_alert.get('search')
             GTE = search.get('gte')
             LTE = search.get('lte')
+            query = search.get('query')
             add_selected_fields = search.get('add_selected_fields')
             remove_selected_fields = search.get('remove_selected_fields')
             post_process_method = search.get('post_process_method')
-            enable_http_api = ddi_alert['enable_http_api']
 
-            q = dp.combine_boolean_query(search['query'])
+            enable_http_fetching = ddi_alert.get('enable_http_fetching')
+
+            q = dp.combine_boolean_query(query)
             s = Search(using=es.get_es_node(), index='new_ddi*') \
                 .query(q) \
                 .filter("range", **{'@timestamp':{"gte": GTE,"lte": LTE}}) \
@@ -85,10 +89,10 @@ if __name__ == "__main__":
             print(enriched_df)
 
             download_url = func.get_download_url(
-                enriched_df) if enable_http_api else None
+                enriched_df) if enable_http_fetching else None
             print(download_url)
 
-            SUBJECT = f"New DDI Alert: {ddi_alert['title']}"
+            SUBJECT = f"Test DDI Alert: {title}"
             TABLE = enriched_df.to_html(justify='left',
                                         index=False,
                                         escape=False)

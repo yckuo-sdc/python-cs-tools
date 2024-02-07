@@ -1,43 +1,19 @@
 ---
-- title: Trojan Http Response
+- title: Webshell Response
   description:
   date: 2023/12/11
   search:
-    gte: now-5d
-    lte: now-3d
-    query:
-      - operator: must
-        method: match
-        field_name: evtSubCat
-        search_text: "trojan"
-      - operator: must
-        method: match
-        field_name: app
-        search_text: "http"
-      - operator: must
-        method: match
-        field_name: ruleName
-        search_text: "response"
-      - operator: must
-        method: match
-        field_name: cn7
-        search_text: "0"     # Disable heuristic detection
-  enable_http_api: true
-- title: Miner Request
-  description:
-  date: 2023/12/11
-  search:
-    remove_selected_fields: [request, fname, fileHash, requestClientApplication]
-    gte: now-4h
+    gte: now-1d
     lte: now
     query:
       - operator: must
         method: match
         field_name: ruleName
-        search_text: "miner"
+        search_text:
+          "webshell possible_smchoppera possible_smchopperphpa
+           cknife chopper antsword behinder godzilla"
       - operator: must
         method: match
         field_name: ruleName
-        search_text: "request"
-    post_process_method: miner_request
-  enable_http_api: true
+        search_text: "response"
+  enable_http_fetching: true

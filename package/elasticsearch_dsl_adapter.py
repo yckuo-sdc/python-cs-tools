@@ -14,12 +14,13 @@ class ElasticsearchDslAdapter():
             self.host = os.getenv("DDI_ES_HOST")
             self.port = os.getenv("DDI_ES_PORT")
         else:
-            self.host = host 
+            self.host = host
             self.port = port
             
         self.__es = None
         self.__es = Elasticsearch([{ 'host': self.host, 'port': self.port }])
 
+        print(self.host, self.port)
         if self.__es.ping():
             print('Yay Connected')
         else:

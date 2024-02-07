@@ -91,6 +91,7 @@ def get_download_url(ddi_df):
 
     params = {'query_data': query_data_json}
     encoded_params = urllib.parse.urlencode(params)
-    url = f"{host}/api/download?{encoded_params}"
+    #url = f"{host}/api/download?{encoded_params}"
+    url = f"{host}/api/gsn/download?{encoded_params}"
 
     return url

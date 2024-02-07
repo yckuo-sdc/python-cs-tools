@@ -14,7 +14,7 @@
         method: match
         field_name: ruleName
         search_text: "response"
-  enable_http_api: true
+  enable_http_fetching: true
 - title: CVE Response
   description:
   date: 2023/12/11
@@ -34,7 +34,7 @@
         method: match
         field_name: Serverity
         search_text: "8"
-  enable_http_api: false
+  enable_http_fetching: false
 - title: Bot Useragent with Filehash
   description:
   date: 2023/12/11
@@ -50,7 +50,7 @@
         method: match
         field_name: requestClientApplication
         search_text: "curl certutil wget python go-http-client java"
-  enable_http_api: true
+  enable_http_fetching: true
 - title: Bot Useragent
   description:
   date: 2023/12/11
@@ -62,7 +62,7 @@
         method: match
         field_name: requestClientApplication
         search_text: "certutil"
-  enable_http_api: true
+  enable_http_fetching: true
 - title: ELF File Response
   description:
   date: 2023/12/11
@@ -78,7 +78,7 @@
         method: match
         field_name: ruleName
         search_text: "response"
-  enable_http_api: true
+  enable_http_fetching: true
 - title: File Transfer
   description:
   date: 2023/12/11
@@ -90,7 +90,7 @@
         method: wildcard
         field_name: ruleName__keyword
         search_text: "*File Transfer"
-  enable_http_api: false
+  enable_http_fetching: false
 - title: Hack Tool
   description:
   date: 2023/12/11
@@ -106,7 +106,7 @@
         method: wildcard
         field_name: reason__keyword
         search_text: "*HackTool*"
-  enable_http_api: true
+  enable_http_fetching: true
 - title: High Risk Http Response
   description:
   date: 2023/12/11
@@ -126,7 +126,7 @@
         method: match
         field_name: ruleName
         search_text: "response"
-  enable_http_api: true
+  enable_http_fetching: true
 - title: Trojan Http Response
   description:
   date: 2023/12/11
@@ -150,7 +150,7 @@
         method: match
         field_name: cn7
         search_text: "0"     # Disable heuristic detection
-  enable_http_api: true
+  enable_http_fetching: true
 - title: Webshell Request with Boturl
   description:
   date: 2023/12/11
@@ -172,7 +172,7 @@
         method: match
         field_name: ruleName
         search_text: "request"
-  enable_http_api: false
+  enable_http_fetching: false
 - title: Webshell Response
   description:
   date: 2023/12/11
@@ -190,7 +190,7 @@
         method: match
         field_name: ruleName
         search_text: "response"
-  enable_http_api: true
+  enable_http_fetching: true
 - title: Miner Request
   description:
   date: 2023/12/11
@@ -208,7 +208,7 @@
         field_name: ruleName
         search_text: "request"
     post_process_method: miner_request
-  enable_http_api: false
+  enable_http_fetching: false
 - title: Qnap Response
   description:
   date: 2023/12/11
@@ -228,7 +228,7 @@
         method: match
         field_name: dst
         search_text_method: "qnap_ips"
-  enable_http_api: true
+  enable_http_fetching: true
 - title: Huigezi Response
   description:
   date: 2023/12/11
@@ -244,7 +244,7 @@
         method: match
         field_name: ruleName
         search_text: "response"
-  enable_http_api: true
+  enable_http_fetching: true
 - title: Remote Command Shell
   description:
   date: 2023/12/13
@@ -262,7 +262,7 @@
         method: match
         field_name: ruleName
         search_text: "shell"
-  enable_http_api: false
+  enable_http_fetching: false
 - title: Malware Family with Http Response
   description:
   date: 2023/12/14
@@ -282,7 +282,7 @@
         method: match
         field_name: ruleName
         search_text: "response"
-  enable_http_api: true
+  enable_http_fetching: true
 - title: Bot Response
   description:
   date: 2023/12/16
@@ -300,7 +300,7 @@
         method: match
         field_name: ruleName
         search_text: "response"
-  enable_http_api: true
+  enable_http_fetching: true
 - title: Download Payload without Bash File
   description:
   date: 2023/12/21
@@ -320,7 +320,7 @@
         method: wildcard
         field_name: ruleName__keyword
         search_text: "*Download*"
-  enable_http_api: true
+  enable_http_fetching: true
 - title: Connect C2 URL
   description:
   date: 2023/12/28
@@ -334,7 +334,7 @@
         method: wildcard
         field_name: msg__keyword
         search_text: "*C&C Server*"
-  enable_http_api: true
+  enable_http_fetching: true
 - title: Reverse Payload
   description:
   date: 2024/1/11
@@ -346,4 +346,4 @@
         method: match
         field_name: ruleName
         search_text: "reverse"
-  enable_http_api: false
+  enable_http_fetching: false

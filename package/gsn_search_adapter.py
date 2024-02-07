@@ -15,7 +15,7 @@ class GsnSearchAdapter:
         if host == "" or raw_host == "":
             load_dotenv()
             self.host = os.getenv("GSN_SEARCH_HOST")
-            self.raw_host = os.getenv("GSN_RAW_SEARCH_HOST")
+            self.raw_host = os.getenv("GSN_SEARCH_RAW_HOST")
         else:
             self.host = host
             self.raw_host = raw_host
@@ -91,6 +91,25 @@ class GsnSearchAdapter:
                 field_name = value['field_name']
 
         return field_name
+
+    def solve_for_with_raw_api(self, api_type):
+        """ This is a docstring that provides a brief description of my_function."""
+
+        key_maps = {
+            'records_by_client_server': [
+                'url',
+                'method',
+                'status_code',
+                'timestamp',
+                'user_agent',
+                'upload(bytes)',
+                'download(bytes)',
+            ]
+        }
+
+        key_names = key_maps.get(api_type)
+
+        return key_names
 
     def ping(self):
         """ This is a docstring that provides a brief description of my_function."""
@@ -203,31 +222,43 @@ class GsnSearchAdapter:
 
         return task_result
 
-    def get_http_records_by_raw_host(self, hostname, client_address, date):
+    def get_with_raw_api(self, api_type, client_address, server_address, date):
         """ This is a docstring that provides a brief description of my_function."""
 
         try:
             response = requests.get(
-                url=
-                f"{self.raw_host}/http/{date}/{hostname}/{client_address}/records",
+                url=(f"{self.raw_host}"
+                     f"/http"
+                     f"/{date}"
+                     f"/{client_address}"
+                     f"/{server_address}"
+                     f"/{api_type}"),
                 headers=self.headers,
-                timeout=self.timeout,
+                timeout=30,
             )
         except requests.exceptions.RequestException as req_err:
             print(req_err)
             return None
 
-        return response.json()
+        response = response.json()
+        result = response.get('result')
+
+        query_dict = {
+            'date': date,
+            'client_address': client_address,
+            'server_address': server_address,
+        }
+        keys = self.solve_for_with_raw_api(api_type)
+        parsed_result = [query_dict | dict(zip(keys, val))
+                         for val in result] if result else []
+
+        return parsed_result
 
 
 if __name__ == '__main__':
     gs = GsnSearchAdapter()
-
-    #API_TYPE = 'ip_connect_record'
-    #START_DATE = '2023-12-01'
-    #END_DATE = '2023-12-01'
-    #REQUEST_DATA = ['152.136.84.245']
-    #records = gs.get(API_TYPE, REQUEST_DATA, START_DATE, END_DATE)
-    records = gs.get_http_records_by_raw_host('www.drlee.us',
-                                              '223.200.128.115', '2024-01-16')
+    records = gs.get_with_raw_api(api_type='records_by_client_server',
+                                  client_address='223.200.105.181',
+                                  server_address='104.155.217.104',
+                                  date='2024-02-01')
     print(records)

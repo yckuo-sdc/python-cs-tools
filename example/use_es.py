@@ -1,32 +1,32 @@
-import json
+"""Module"""
+from datetime import datetime
+from elasticsearch import Elasticsearch
 
-from package.elasticsearch_adapter import ElasticsearchAdapter
+# Connect to Elasticsearch
+client = Elasticsearch(['10.3.40.16'])
 
-es = ElasticsearchAdapter()
+# Get current date and time in ISO format
+current_date = datetime.now().isoformat()
 
-indices = 'new_ddi*'
-
-# define the search query
-query = {    
-    'from': 0,
-    'size': 10,
-    'query': {
-        'bool': { 
-            'must': [ 
-                { "match": { "ruleName": "Response" }},
-			    { "exists": { "field": "request" }}
-             ],
-             "must_not": [
-                { "match": { "ruleName": "Email" }},
-                { "match": { "ruleName": "DNS" }}
-             ],
-             'filter': [ 
-                { 'range': { '@timestamp': { 'gte': 'now-7d/d', 'lte': 'now/d' }}}
-             ]
+# Define your update query
+q = {
+     "script": {
+        "inline": "ctx._source.pushed_at = params.new_date",
+        "lang": "painless",
+        "params": {
+            "new_date": current_date,
+            "refresh": "true",
         }
-    }
+     },
+     "query": {
+        "bool": {
+            "must_not": {
+                "exists": {
+                    "field":  "pushed_at"
+                }
+            }
+        }
+     }
 }
 
-data = es.search_documents(indices, query)
-print(json.dumps(data, indent=1))
-
+client.update_by_query(body=q, doc_type='_doc', index='hacker_news_analyze_by_gemini')
