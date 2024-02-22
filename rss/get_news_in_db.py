@@ -6,7 +6,6 @@ from datetime import datetime
 
 import feedparser
 import mysql.connector
-import pandas as pd
 import spacy
 from dotenv import load_dotenv
 
@@ -129,6 +128,7 @@ if __name__ == '__main__':
     results = []
     for feed in rss_feeds:
         d = feedparser.parse(feed['link'])
+        sorted_entries = sorted(d.entries, key=lambda x: x.published)
 
         # Use placeholders and provide values as parameters
         SELECT_QUERY = "SELECT * FROM rss_feed_items WHERE rss_feed_id = %s"
@@ -138,7 +138,7 @@ if __name__ == '__main__':
 
         guids = [item['guid'] for item in feed_items]
 
-        for entry in d.entries:
+        for entry in sorted_entries:
             if entry.id not in guids:
 
                 fitered_description = pre_fiter_text(entry.description)

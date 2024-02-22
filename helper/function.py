@@ -82,7 +82,11 @@ def get_download_url(ddi_df):
     new_df['date'] = filtered_df['rt'].apply(convert_to_date)
     new_df['src'] = filtered_df['src'].apply(extract_ip)
     new_df['dst'] = filtered_df['dst'].apply(extract_ip)
-    new_df['direction'] = filtered_df['ruleName'].apply(get_direction_by_rulename)
+
+    if 'ruleName' in filtered_df.columns:
+        new_df['direction'] = filtered_df['ruleName'].apply(get_direction_by_rulename)
+    else:
+        new_df['direction'] = "both"
 
     unique_df = new_df.drop_duplicates(subset=['date', 'src', 'dst', 'direction'])
 
@@ -91,7 +95,6 @@ def get_download_url(ddi_df):
 
     params = {'query_data': query_data_json}
     encoded_params = urllib.parse.urlencode(params)
-    #url = f"{host}/api/download?{encoded_params}"
     url = f"{host}/api/gsn/download?{encoded_params}"
 
     return url

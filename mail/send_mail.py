@@ -110,6 +110,18 @@ class SendMail:
         self.message.body = transform(template_body,
                                       exclude_pseudoclasses=False)
 
+    def set_template_body_with_rss(self, mapping):
+        """ This is a docstring that provides a brief description of my_function."""
+        template_path = Path(
+            os.path.join(os.path.dirname(__file__), 'template',
+                         'rss_news.html'))
+        template_body = Template(template_path.read_text('utf-8'))
+        template_body = template_body.substitute({"body_content": mapping})
+
+        # Turns CSS blocks into style attributes with 'premailer'
+        self.message.body = transform(template_body,
+                                      exclude_pseudoclasses=False)
+
     def add_attachment(self, attachments):
         """ This is a docstring that provides a brief description of my_function."""
         self.message.attachments = attachments

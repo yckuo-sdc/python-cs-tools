@@ -1,0 +1,79 @@
+<html>
+    <head>    
+        <style type="text/css">
+
+            body {
+                margin: 0;
+                padding: 0;
+                overflow-x: hidden;
+                min-width: 320px;
+                background: #fff;
+                font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+                font-size: 14px;
+                line-height: 1.4285em;
+                color: rgba(0,0,0,.87);
+            }
+            .ui.list:first-child, ol.ui.list:first-child, ul.ui.list:first-child {
+                margin-top: 0;
+                padding-top: 0;
+            }
+            .ui.list {
+                font-size: 1em;
+            }
+            .ui.list, ol.ui.list, ul.ui.list {
+                list-style-type: none;
+                margin: 1em 0;
+                padding: 0 0;
+            }
+            .ui.relaxed.list:not(.horizontal)>.item:not(:last-child) {
+                padding-bottom: 0.42857143em;
+            }
+            .ui.divided.list .list>.item:first-child, .ui.divided.list>.item:first-child {
+                border-top: none;
+            }
+            .ui.divided.list>.item {
+                border-top: 1px solid rgba(34,36,38,.15);
+            }
+            .ui.list .list>.item:first-child, .ui.list>.item:first-child, ol.ui.list li:first-child, ul.ui.list li:first-child {
+                padding-top: 0;
+            }
+            .ui.list .list>.item, .ui.list>.item, ol.ui.list li, ul.ui.list li {
+                display: list-item;
+                table-layout: fixed;
+                list-style-type: none;
+                list-style-position: outside;
+                /*padding: 0.21428571em 0;*/
+                padding: 0.5em 0;
+                line-height: 1.14285714em;
+            }
+            .ui.list>.item>.icon+.content, .ui.list>.item>.image+.content {
+                display: table-cell;
+                width: 100%;
+                padding: 0 0 0 0.5em;
+                vertical-align: top;
+            }
+            .ui.list .list>.item>.content, .ui.list>.item>.content {
+                line-height: 1.14285714em;
+            }
+            .ui.list .list>.item a.header, .ui.list>.item a.header {
+                cursor: pointer;
+                color: #4183c4!important;
+            }
+            .ui.list .list>.item .header, .ui.list>.item .header {
+                display: block;
+                margin: 0;
+                font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+                font-weight: 700;
+                color: rgba(0,0,0,.87);
+            }
+            .ui.list>.item .description {
+                display: block;
+                color: rgba(0,0,0,.7);
+            }
+
+        </style>
+    </head>
+    <body>
+        $body_content
+    </body>
+</html>
