@@ -347,3 +347,31 @@
         field_name: ruleName
         search_text: "reverse"
   enable_http_fetching: false
+- title: APT Incident
+  description:
+  date: 2024/2/23
+  search:
+    gte: now-1M
+    lte: now
+    query:
+      - operator: must
+        method: match
+        field_name: ruleName
+        search_text: "apt"
+      - operator: must
+        method: match
+        field_name: ruleName
+        search_text: "incident"
+      - operator: must_not
+        method: match
+        field_name: app
+        search_text: "dns"
+      - operator: must_not
+        method: match
+        field_name: app
+        search_text: "udp"
+      - operator: must_not
+        method: match
+        field_name: dpt
+        search_text: "443"
+  enable_http_fetching: false
