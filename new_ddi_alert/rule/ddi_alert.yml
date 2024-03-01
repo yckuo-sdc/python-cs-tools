@@ -351,7 +351,8 @@
   description:
   date: 2024/2/23
   search:
-    gte: now-1M
+    remove_selected_fields: [request, fname, fileHash, requestClientApplication]
+    gte: now-1h
     lte: now
     query:
       - operator: must

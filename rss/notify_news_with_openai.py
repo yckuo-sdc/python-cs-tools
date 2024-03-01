@@ -51,6 +51,10 @@ if __name__ == "__main__":
         print(s.to_dict())
         print(f"Total Hits: {response.hits.total}")
 
+        if not response.hits.total['value']:
+            print("No hits")
+            sys.exit(0)
+
         hits = s.scan()
 
         filtered_hits = []
@@ -63,24 +67,45 @@ if __name__ == "__main__":
                     doc[field] = None
             filtered_hits.append(doc)
 
-        filtered_hits.sort(key=lambda x: x['Published Date'])
+
+        filtered_hits.sort(key=lambda x: x['Published Date'], reverse=True)
 
         selected_fields.remove('News Title')
+        selected_fields.remove('Published Date')
+        selected_fields.remove('link')
 
         # Notify news with email
+        today = datetime.now().strftime("%Y-%m-%d")
+        subject = f"RSS News with OpenAI: Updates on {today}"
+        BODY = '<div class="ui relaxed divided list">'
         for hit in filtered_hits:
-            subject = f"RSS News with OpenAI: {hit['News Title']}"
-            BODY = "<table style='border:none;text-align:left;'>"
-            for field in selected_fields:
-                BODY += "<tr style='vertical-align:top;'>"
-                BODY += f"<th>{field}</th>"
-                BODY += f"<td>{hit[field]}</td>"
-                BODY += "</tr>"
-            BODY += "</table>"
+            BODY += '<div class="item">'
+            BODY += '<div class="content">'
+            BODY += f"<a class='header' href='{hit['link']}' target='_blank'>"
+            BODY +=  hit['News Title']
+            BODY += '</a>'
+            BODY += '<div class="description">'
+            BODY +=  hit['Published Date']
+            BODY += '<div class="list">'
 
-            mail.set_subject(subject)
-            mail.set_body(BODY)
-            mail.send()
+            for field in selected_fields:
+                BODY += '<div class="item">'
+                BODY += f"<b>{field}:</b> {hit[field]}"
+                BODY += '</div>'
+
+            BODY += '</div>'
+            BODY += '</div>'
+            BODY += '</div>'
+            BODY += '</div>'
+
+        BODY += '</div>'
+
+        replacement = {"body_content": BODY}
+        TEMPLATE_HTML = "rss_news.html"
+
+        mail.set_subject(subject)
+        mail.set_template_body_parser(replacement, TEMPLATE_HTML)
+        mail.send()
 
         # Get current date and time in ISO format
         current_date = datetime.now().isoformat()

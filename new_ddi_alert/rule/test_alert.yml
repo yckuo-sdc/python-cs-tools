@@ -3,6 +3,7 @@
   description:
   date: 2024/2/23
   search:
+    remove_selected_fields: [request, fname, fileHash, requestClientApplication]
     gte: now-1M
     lte: now
     query:

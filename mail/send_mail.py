@@ -88,6 +88,29 @@ class SendMail:
         """ This is a docstring that provides a brief description of my_function."""
         self.message.body = body
 
+    def set_template_body_parser(self, replacement, template_html):
+        """
+        Replace placeholders in the template with values from the replacements dictionary.
+        Arguments:
+        replacements -- A dictionary where keys are placeholders and values are the replacements.
+        template_html -- The filename of template html
+        """
+
+        path_to_template = os.path.join(os.path.dirname(__file__), 'template',
+                                        template_html)
+
+        if not os.path.exists(path_to_template):
+            self.message.body = ""
+            return
+
+        template_path = Path(path_to_template)
+        template_body = Template(template_path.read_text('utf-8'))
+        template_body = template_body.substitute(replacement)
+
+        # Turns CSS blocks into style attributes with 'premailer'
+        self.message.body = transform(template_body,
+                                      exclude_pseudoclasses=False)
+
     def set_template_body(self, mapping, mapping2=None):
         """ This is a docstring that provides a brief description of my_function."""
         if mapping2:
@@ -105,18 +128,6 @@ class SendMail:
                              'rwd_ddi.html'))
             template_body = Template(template_path.read_text('utf-8'))
             template_body = template_body.substitute({"table": mapping})
-
-        # Turns CSS blocks into style attributes with 'premailer'
-        self.message.body = transform(template_body,
-                                      exclude_pseudoclasses=False)
-
-    def set_template_body_with_rss(self, mapping):
-        """ This is a docstring that provides a brief description of my_function."""
-        template_path = Path(
-            os.path.join(os.path.dirname(__file__), 'template',
-                         'rss_news.html'))
-        template_body = Template(template_path.read_text('utf-8'))
-        template_body = template_body.substitute({"body_content": mapping})
 
         # Turns CSS blocks into style attributes with 'premailer'
         self.message.body = transform(template_body,

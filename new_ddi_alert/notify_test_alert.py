@@ -97,8 +97,15 @@ if __name__ == "__main__":
                                         index=False,
                                         escape=False)
 
+            if download_url:
+                replacement = {"table": TABLE, "download_url": download_url}
+                TEMPLATE_HTML = "rwd_ddi_with_download_url.html"
+            else:
+                replacement = {"table": TABLE}
+                TEMPLATE_HTML = "rwd_ddi.html"
+
             mail.set_subject(SUBJECT)
-            mail.set_template_body(mapping=TABLE, mapping2=download_url)
+            mail.set_template_body_parser(replacement, TEMPLATE_HTML)
             mail.send()
         except ElasticsearchDslException as e:
             print(e)

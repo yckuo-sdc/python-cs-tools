@@ -82,8 +82,11 @@ if __name__ == "__main__":
                                       index=False,
                                       escape=False)
 
+            replacement = {"table": TABLE}
+            TEMPLATE_HTML = "rwd_ddi.html"
+
             mail.set_subject(SUBJECT)
-            mail.set_template_body(mapping=TABLE)
+            mail.set_template_body_parser(replacement, TEMPLATE_HTML)
             mail.send()
         except Exception as e:
             print(e)

@@ -39,6 +39,9 @@ if df.empty:
 SUBJECT = "NVD Alert: New CVE with Affected CPE"
 TABLE = df.to_html(justify='left', index=False)
 
+replacement = {"table": TABLE}
+TEMPLATE_HTML = "rwd_ddi.html"
+
 mail.set_subject(SUBJECT)
-mail.set_template_body(mapping=TABLE)
+mail.set_template_body_parser(replacement, TEMPLATE_HTML)
 mail.send()
