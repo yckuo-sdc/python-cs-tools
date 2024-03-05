@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     search_filters = [
         {
-            'html': 'welcome.cgi?p=logo',
+            'http.html': 'Only Internet Explorer 6 or higher is supported',
             'country':'TW',
         },
         #{
@@ -60,7 +60,11 @@ if __name__ == '__main__':
         {
             'label': 'tags',
             'field': 'tags'
-        }
+        },
+        {
+            'label': 'hostnames',
+            'field': 'hostnames'
+        },
     ]
 
     fields = []

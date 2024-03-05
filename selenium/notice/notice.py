@@ -218,7 +218,7 @@ if __name__ == '__main__':
             driver.find_element(By.NAME, "notice.approach").send_keys(
                 inputs['notice.approach'])
 
-        if record['ioc_ip']:
+        if 'ioc_ip' in record:
             select_element = driver.find_element(By.CLASS_NAME, "select_ipdn")
             select = Select(select_element)
             select.select_by_visible_text("IP")
