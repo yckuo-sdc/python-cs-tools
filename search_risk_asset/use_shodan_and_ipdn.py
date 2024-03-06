@@ -28,10 +28,10 @@ if __name__ == '__main__':
             'http.html': 'Only Internet Explorer 6 or higher is supported',
             'country':'TW',
         },
-        #{
-        #    'port': '515,631,9100',
-        #    'asn': 'AS4782'
-        #},
+        {
+            'all_no_quotes': 'Server: thttpd/2.25b PHP/20030920',
+            'country':'TW',
+        },
     ]
 
     match_field = [
