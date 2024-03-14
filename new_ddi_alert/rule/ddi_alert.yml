@@ -46,10 +46,14 @@
         method: exists
         field_name: field
         search_text: "fileHash"
-      - operator: must
+      - operator: should
         method: match
         field_name: requestClientApplication
-        search_text: "curl certutil wget python go-http-client java"
+        search_text: "curl certutil wget python java"
+      - operator: should
+        method: wildcard
+        field_name: requestClientApplication__keyword
+        search_text: "*Go-http-client*"
   enable_http_fetching: true
 - title: Bot Useragent
   description:

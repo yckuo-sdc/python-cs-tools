@@ -1,30 +1,21 @@
 ---
-- title: APT Incident
+- title: Bot Useragent with Filehash
   description:
-  date: 2024/2/23
+  date: 2023/12/11
   search:
-    remove_selected_fields: [request, fname, fileHash, requestClientApplication]
-    gte: now-1M
+    gte: now-1h
     lte: now
     query:
       - operator: must
+        method: exists
+        field_name: field
+        search_text: "fileHash"
+      - operator: should
         method: match
-        field_name: ruleName
-        search_text: "apt"
-      - operator: must
-        method: match
-        field_name: ruleName
-        search_text: "incident"
-      - operator: must_not
-        method: match
-        field_name: app
-        search_text: "dns"
-      - operator: must_not
-        method: match
-        field_name: app
-        search_text: "udp"
-      - operator: must_not
-        method: match
-        field_name: dpt
-        search_text: "443"
-  enable_http_fetching: false
+        field_name: requestClientApplication
+        search_text: "curl certutil wget python java"
+      - operator: should
+        method: wildcard
+        field_name: requestClientApplication__keyword
+        search_text: "*Go-http-client*"
+  enable_http_fetching: true
