@@ -43,7 +43,8 @@ def concatenate_values(series):
     filtered_series_strings = [
         str(item) for item in series if str(item) != 'nan'
     ]
-    return ', '.join(filtered_series_strings)
+    unique_filtered_series_strings = list(set(filtered_series_strings))
+    return ', '.join(unique_filtered_series_strings)
 
 
 parser = argparse.ArgumentParser()
