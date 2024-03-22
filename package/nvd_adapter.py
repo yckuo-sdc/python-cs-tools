@@ -98,6 +98,43 @@ class NVDAdapter:
         print(f"Results found: {data['totalResults']}")
         return data
 
+    def parse_cvss_metrics(self, cves):
+        """Method printing python version."""
+        if cves is None:
+            return None
+
+        metric_keys = ['cvssMetricV31']
+        parsed_cve_fields = []
+        for vul in cves['vulnerabilities']:
+            cve = vul['cve']
+            metrics = []
+            for metric in cve['metrics']:
+                cpe_criterias.append(metric['criteria'])
+
+            cpe_criteria_with_version_str = " ".join(
+                cpe_criterias_with_version)
+
+            cpe_criteria_str = " ".join(cpe_criterias)
+
+            parsed_cve_fields.append({
+                'cve_id':
+                cve['id'],
+                'published_at':
+                cve['published'],
+                'last_modified_at':
+                cve['lastModified'],
+                'status':
+                cve['vulnStatus'],
+                'description':
+                cve['descriptions'][0]['value'],  # English language
+                'cpe_criterias':
+                cpe_criteria_str,
+                'cpe_criterias_with_version':
+                cpe_criteria_with_version_str,
+            })
+
+        return parsed_cve_fields
+
     def parse_cve_fields(self, cves):
         """Method printing python version."""
         if cves is None:
@@ -235,22 +272,23 @@ class NVDAdapter:
 if __name__ == '__main__':
     nvd = NVDAdapter()
 
-    #custom_params = {
-    #    'cveId': 'CVE-2023-46604',
-    #}
+    custom_params = {
+        'cveId': 'CVE-2023-46604',
+    }
 
-    #the_cves = nvd.get_cves(custom_params)
-    #the_parsed_cves = nvd.parse_cve_fields(the_cves)
-    #print(the_parsed_cves)
+    the_cves = nvd.get_cves(custom_params)
+    print(the_cves)
+    the_parsed_cves = nvd.parse_cve_fields(the_cves)
+    print(the_parsed_cves)
 
     #the_cpe_matches = nvd.get_cpe_matches_in_cves(the_parsed_cves)
     #print(the_cpe_matches)
 
-    custom_params = {
-        #'cveId': 'CVE-2023-20198',
-        'cveId': 'CVE-2023-6126',
-    }
+    #custom_params = {
+    #    #'cveId': 'CVE-2023-20198',
+    #    'cveId': 'CVE-2023-6126',
+    #}
 
-    the_cpe_matches = nvd.get_cpe_matches(custom_params)
-    the_parsed_cpe_matches = nvd.parse_cpe_matches_fields(the_cpe_matches)
-    print(the_parsed_cpe_matches)
+    #the_cpe_matches = nvd.get_cpe_matches(custom_params)
+    #the_parsed_cpe_matches = nvd.parse_cpe_matches_fields(the_cpe_matches)
+    #print(the_parsed_cpe_matches)

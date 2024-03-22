@@ -107,13 +107,14 @@ class Ip2govAdapter:
 
 if __name__ == '__main__':
     ip2gov = Ip2govAdapter()
+    print(ip2gov.get('60.248.16.43'))
 
-    print(ip2gov.get(ip, 'ACC'))
-    print(ip2gov.get(ip))
-    ip_list = [
-        '60.248.16.43',
-        '1.34.129.67',
-        '1.34.74.153',
-        '62.122.184.157',
-    ]
-    print(ip2gov.get(ip_list))
+    #print(ip2gov.get(ip, 'ACC'))
+    #print(ip2gov.get(ip))
+    #ip_list = [
+    #    '60.248.16.43',
+    #    '1.34.129.67',
+    #    '1.34.74.153',
+    #    '62.122.184.157',
+    #]
+    #print(ip2gov.get(ip_list))

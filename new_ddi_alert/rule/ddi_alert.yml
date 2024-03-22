@@ -93,7 +93,7 @@
       - operator: must
         method: wildcard
         field_name: ruleName__keyword
-        search_text: "*File Transfer"
+        search_text: "*File Transfer*"
   enable_http_fetching: false
 - title: Hack Tool
   description:

@@ -16,7 +16,7 @@ if __name__ == '__main__':
 
     ip2gov = Ip2govAdapter()
     path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
-                               "ip4net.csv")
+                               "filtered_use_qnap.csv")
     fields = pd.read_csv(path_to_csv).to_dict(orient='records')
     print(f"Records found: {len(fields)}")
 
@@ -28,5 +28,5 @@ if __name__ == '__main__':
     df = pd.DataFrame(output)
 
     path_to_csv = os.path.join(os.path.dirname(__file__), "..", "data",
-                               "use_ip4net.csv")
+                               "filtered_use_qnap_ipdn.csv")
     df.to_csv(path_to_csv, index=False, encoding='utf-8-sig')

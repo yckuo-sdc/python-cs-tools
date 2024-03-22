@@ -298,14 +298,14 @@ if __name__ == '__main__':
         except NoSuchElementException:
             input("The element: 'publish button' was not found on the web page"
                   ", press Enter to continue...")
-        input("Press Enter to continue...")
+        #input("Press Enter to continue...")
 
-    # Write the modified DataFrame back to the worksheet
-    execution_results_df = pd.DataFrame(execution_results)
-    with pd.ExcelWriter(PATH_TO_EXCEL,
-                        engine='openpyxl',
-                        mode='a',
-                        if_sheet_exists='replace') as writer:
-        execution_results_df.to_excel(writer,
-                                      sheet_name=SHEET3_NAME,
-                                      index=False)
+        # Write the modified DataFrame back to the worksheet
+        execution_results_df = pd.DataFrame(execution_results)
+        with pd.ExcelWriter(PATH_TO_EXCEL,
+                            engine='openpyxl',
+                            mode='a',
+                            if_sheet_exists='replace') as writer:
+            execution_results_df.to_excel(writer,
+                                          sheet_name=SHEET3_NAME,
+                                          index=False)

@@ -25,12 +25,8 @@ if __name__ == '__main__':
 
     search_filters = [
         {
-            'http.html': 'Only Internet Explorer 6 or higher is supported',
-            'country':'TW',
-        },
-        {
-            'all_no_quotes': 'Server: thttpd/2.25b PHP/20030920',
-            'country':'TW',
+            'os': 'QTS',
+            'asn': 'AS4782',
         },
     ]
 
@@ -58,8 +54,8 @@ if __name__ == '__main__':
             },
         },
         {
-            'label': 'tags',
-            'field': 'tags'
+            'label': 'timestamp',
+            'field': 'timestamp'
         },
         {
             'label': 'hostnames',
