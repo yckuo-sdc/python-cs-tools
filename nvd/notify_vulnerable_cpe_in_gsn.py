@@ -61,7 +61,7 @@ except pd.errors.MergeError as e:
 if total_df.empty:
     sys.exit('DataFrame is empty!')
 
-SUBJECT = "NVD Alert: Vulnerable CPE in GSN"
+SUBJECT = "VUL Alert: Vulnerable CPE in GSN"
 TABLE = total_df.to_html(justify='left', index=False)
 
 replacement = {"table": TABLE}

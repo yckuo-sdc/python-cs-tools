@@ -36,7 +36,7 @@ if df.empty:
     print('DataFrame is empty!')
     sys.exit(0)
 
-SUBJECT = "NVD Alert: New CVE with Affected CPE"
+SUBJECT = "VUL Alert: New CVE with Affected CPE"
 TABLE = df.to_html(justify='left', index=False)
 
 replacement = {"table": TABLE}

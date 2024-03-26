@@ -22,34 +22,27 @@ class NVDAdapter:
             self.__host = host
             self.__apikey = apikey
 
+        self.headers = {
+            'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            '(KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
+            #'apiKey': self.__apikey
+        }
+        self.timeout = 60
+
     def get_cves(self, params):
         """Method printing python version."""
 
         query = " ".join(f"{k}:\"{v}\"" for k, v in params.items())
         print(f'Query: {query}')
 
-        headers = {
-            'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            '(KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-            "apiKey":
-            self.__apikey
-        }
         url = self.__host + "/cves/2.0"
-        headers = {
-            'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            '(KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-            "apiKey":
-            self.__apikey
-        }
 
         try:
             response = requests.get(url,
                                     params=params,
-                                    headers=headers,
-                                    timeout=60)
-            time.sleep(6)
+                                    headers=self.headers,
+                                    timeout=self.timeout)
 
         except RequestException as req_err:
             print(req_err)
@@ -71,20 +64,12 @@ class NVDAdapter:
         print(f'Query: {query}')
 
         url = self.__host + "/cpematch/2.0"
-        headers = {
-            'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            '(KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36',
-            "apiKey":
-            self.__apikey
-        }
 
         try:
             response = requests.get(url,
                                     params=params,
-                                    headers=headers,
-                                    timeout=60)
-            time.sleep(6)
+                                    headers=self.headers,
+                                    timeout=self.timeout)
         except RequestException as req_err:
             print(req_err)
             return None
@@ -103,37 +88,18 @@ class NVDAdapter:
         if cves is None:
             return None
 
-        metric_keys = ['cvssMetricV31']
-        parsed_cve_fields = []
+        parsed_cvss_metrics = []
         for vul in cves['vulnerabilities']:
             cve = vul['cve']
-            metrics = []
-            for metric in cve['metrics']:
-                cpe_criterias.append(metric['criteria'])
-
-            cpe_criteria_with_version_str = " ".join(
-                cpe_criterias_with_version)
-
-            cpe_criteria_str = " ".join(cpe_criterias)
-
-            parsed_cve_fields.append({
-                'cve_id':
-                cve['id'],
-                'published_at':
-                cve['published'],
-                'last_modified_at':
-                cve['lastModified'],
-                'status':
-                cve['vulnStatus'],
-                'description':
-                cve['descriptions'][0]['value'],  # English language
-                'cpe_criterias':
-                cpe_criteria_str,
-                'cpe_criterias_with_version':
-                cpe_criteria_with_version_str,
+            v3_metrics = cve['metrics'].get('cvssMetricV31', None)
+            v3_metric = v3_metrics[0] if v3_metrics else None
+            v3_score = v3_metric['cvssData']['baseScore'] if v3_metric else None
+            parsed_cvss_metrics.append({
+                'cve_id': cve['id'],
+                'cvss_v3_score': v3_score,
             })
 
-        return parsed_cve_fields
+        return parsed_cvss_metrics
 
     def parse_cve_fields(self, cves):
         """Method printing python version."""
@@ -273,13 +239,14 @@ if __name__ == '__main__':
     nvd = NVDAdapter()
 
     custom_params = {
-        'cveId': 'CVE-2023-46604',
+        'cveId': 
+        'CVE-2024-26198',
     }
 
     the_cves = nvd.get_cves(custom_params)
     print(the_cves)
-    the_parsed_cves = nvd.parse_cve_fields(the_cves)
-    print(the_parsed_cves)
+    the_metrics = nvd.parse_cvss_metrics(the_cves)
+    print(the_metrics)
 
     #the_cpe_matches = nvd.get_cpe_matches_in_cves(the_parsed_cves)
     #print(the_cpe_matches)
