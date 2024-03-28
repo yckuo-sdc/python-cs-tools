@@ -380,3 +380,17 @@
         field_name: dpt
         search_text: "443"
   enable_http_fetching: false
+- title: Connect Ransomware URL
+  description:
+  date: 2024/3/28
+  search:
+    add_selected_fields: [msg, urlCat]
+    remove_selected_fields: [ruleName, evtSubCat, fname, fileHash]
+    gte: now-1h
+    lte: now
+    query:
+      - operator: must
+        method: wildcard
+        field_name: msg__keyword
+        search_text: "*Ransomware URL*"
+  enable_http_fetching: true

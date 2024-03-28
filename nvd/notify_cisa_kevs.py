@@ -82,8 +82,8 @@ if __name__ == '__main__':
     for vul in sorted_entries:
         if vul['cveID'] not in cve_ids:
             cves = nvd.get_cves(params={'cveId': vul['cveID']})
-            metrics = nvd.parse_cvss_metrics(cves)
-            CVSS_V3_SCORE = metrics[0]['cvss_v3_score'] if metrics else None
+            scores = nvd.parse_cvss_v3_scores(cves)
+            CVSS_V3_SCORE = scores[0]['cvss_v3_score'] if scores else None
 
             INSERT_QUERY = """
             INSERT INTO cisa_kevs 

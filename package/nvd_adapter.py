@@ -83,23 +83,28 @@ class NVDAdapter:
         print(f"Results found: {data['totalResults']}")
         return data
 
-    def parse_cvss_metrics(self, cves):
+    def parse_cvss_v3_scores(self, cves):
         """Method printing python version."""
         if cves is None:
             return None
 
-        parsed_cvss_metrics = []
+        cvss_v3_prefix = 'cvssMetricV3'
+        parsed_cvss_v3_scores = []
         for vul in cves['vulnerabilities']:
             cve = vul['cve']
-            v3_metrics = cve['metrics'].get('cvssMetricV31', None)
-            v3_metric = v3_metrics[0] if v3_metrics else None
+            v3_metrics = {}
+            for key in cve['metrics']:
+                if key.startswith(cvss_v3_prefix):
+                    v3_metrics = cve['metrics'][key]
+                    break
+            v3_metric = v3_metrics[0] if v3_metrics else {}
             v3_score = v3_metric['cvssData']['baseScore'] if v3_metric else None
-            parsed_cvss_metrics.append({
+            parsed_cvss_v3_scores.append({
                 'cve_id': cve['id'],
                 'cvss_v3_score': v3_score,
             })
 
-        return parsed_cvss_metrics
+        return parsed_cvss_v3_scores
 
     def parse_cve_fields(self, cves):
         """Method printing python version."""
@@ -240,13 +245,13 @@ if __name__ == '__main__':
 
     custom_params = {
         'cveId': 
-        'CVE-2024-26198',
+        'CVE-2017-6884',
     }
 
     the_cves = nvd.get_cves(custom_params)
     print(the_cves)
-    the_metrics = nvd.parse_cvss_metrics(the_cves)
-    print(the_metrics)
+    the_scores = nvd.parse_cvss_v3_scores(the_cves)
+    print(the_scores)
 
     #the_cpe_matches = nvd.get_cpe_matches_in_cves(the_parsed_cves)
     #print(the_cpe_matches)
